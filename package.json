@@ -1,0 +1,16 @@
+{
+  "name": "jd-krasnick-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/vercel": "^9.0.4",
+    "astro": "^5.17.1",
+    "gsap": "^3.14.2"
+  }
+}

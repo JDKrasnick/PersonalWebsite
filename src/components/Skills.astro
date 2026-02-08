@@ -1,0 +1,107 @@
+---
+const skillCategories = [
+  {
+    title: "Languages",
+    skills: ["JavaScript", "TypeScript", "Python", "Java", "C++", "SQL"],
+  },
+  {
+    title: "Frontend",
+    skills: ["React", "Next.js", "Astro", "HTML/CSS", "Tailwind CSS", "Vue"],
+  },
+  {
+    title: "Backend",
+    skills: ["Node.js", "Express", "Django", "REST APIs", "GraphQL", "PostgreSQL"],
+  },
+  {
+    title: "Tools & DevOps",
+    skills: ["Git", "Docker", "AWS", "CI/CD", "Linux", "Vercel"],
+  },
+];
+---
+
+<section class="skills" id="skills">
+  <div class="container">
+    <div class="section-label reveal">Skills</div>
+    <h2 class="section-title reveal reveal-delay-1">Tech Stack</h2>
+    <p class="section-subtitle reveal reveal-delay-2">
+      Technologies and tools I work with to bring ideas to life.
+    </p>
+
+    <div class="skills-grid">
+      {skillCategories.map((cat, i) => (
+        <div class={`skill-category reveal reveal-delay-${i + 1}`}>
+          <h3 class="category-title">{cat.title}</h3>
+          <div class="skill-tags">
+            {cat.skills.map(skill => (
+              <span class="skill-tag">{skill}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills {
+    background: var(--bg-secondary);
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .skill-category {
+    padding: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    transition: border-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .skill-category:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+
+  .category-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .skill-tag {
+    padding: 0.4rem 0.85rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: var(--font-heading);
+    transition: all var(--transition-fast);
+  }
+
+  .skill-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  @media (max-width: 768px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

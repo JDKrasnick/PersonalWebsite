@@ -1,0 +1,219 @@
+---
+const experiences = [
+  {
+    role: "Software Engineer",
+    company: "Company Name",
+    companyUrl: "#",
+    period: "2024 — Present",
+    description: "Describe your role and key accomplishments. What did you build? What was the impact?",
+    highlights: [
+      "Led development of feature X, improving performance by Y%",
+      "Collaborated with cross-functional teams to deliver Z",
+      "Implemented CI/CD pipeline reducing deployment time",
+    ],
+    tags: ["React", "TypeScript", "AWS"],
+  },
+  {
+    role: "Software Engineering Intern",
+    company: "Another Company",
+    companyUrl: "#",
+    period: "Summer 2023",
+    description: "Brief description of your internship role and what you learned.",
+    highlights: [
+      "Built internal tool used by 50+ engineers",
+      "Optimized database queries reducing latency by 40%",
+    ],
+    tags: ["Python", "Django", "PostgreSQL"],
+  },
+  {
+    role: "Teaching Assistant",
+    company: "University Name",
+    companyUrl: "#",
+    period: "2022 — 2023",
+    description: "Supported students in learning core CS concepts.",
+    highlights: [
+      "Held office hours and graded assignments for 200+ students",
+      "Developed automated testing framework for student submissions",
+    ],
+    tags: ["Java", "Data Structures", "Algorithms"],
+  },
+];
+---
+
+<section class="experience" id="experience">
+  <div class="container">
+    <div class="section-label reveal">Experience</div>
+    <h2 class="section-title reveal reveal-delay-1">Where I've Worked</h2>
+
+    <div class="timeline">
+      {experiences.map((exp, i) => (
+        <div class={`timeline-item reveal reveal-delay-${(i % 3) + 1}`}>
+          <div class="timeline-marker">
+            <div class="marker-dot"></div>
+            {i < experiences.length - 1 && <div class="marker-line"></div>}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-header">
+              <div>
+                <h3 class="timeline-role">{exp.role}</h3>
+                <a href={exp.companyUrl} target="_blank" rel="noopener noreferrer" class="timeline-company">
+                  {exp.company}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              </div>
+              <span class="timeline-period">{exp.period}</span>
+            </div>
+            <p class="timeline-desc">{exp.description}</p>
+            <ul class="timeline-highlights">
+              {exp.highlights.map(h => (
+                <li>{h}</li>
+              ))}
+            </ul>
+            <div class="timeline-tags">
+              {exp.tags.map(tag => (
+                <span class="timeline-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .experience {
+    background: var(--bg-secondary);
+  }
+
+  .timeline {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.35rem;
+  }
+
+  .marker-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+  }
+
+  .marker-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border-color);
+    margin-top: 0.5rem;
+  }
+
+  .timeline-content {
+    flex: 1;
+    padding-bottom: 3rem;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+  }
+
+  .timeline-role {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .timeline-company {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-top: 0.15rem;
+  }
+
+  .timeline-period {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-top: 0.15rem;
+  }
+
+  .timeline-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .timeline-highlights {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .timeline-highlights li {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding-left: 1.25rem;
+    position: relative;
+  }
+
+  .timeline-highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  .timeline-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .timeline-tag {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+  }
+
+  @media (max-width: 768px) {
+    .timeline-header {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .timeline-item {
+      gap: 1.25rem;
+    }
+  }
+</style>

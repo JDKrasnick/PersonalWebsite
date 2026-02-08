@@ -1,0 +1,113 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Skills from '../components/Skills.astro';
+import Projects from '../components/Projects.astro';
+import Experience from '../components/Experience.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Layout>
+  <Navbar />
+  <main>
+    <Hero />
+    <About />
+    <Skills />
+    <Projects />
+    <Experience />
+    <Contact />
+  </main>
+</Layout>
+
+<script>
+  // -- Scroll reveal (lightweight IntersectionObserver) --
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+  revealElements.forEach((el) => revealObserver.observe(el));
+
+  // -- GSAP: light entrance animations for hero --
+  import('gsap').then(({ gsap }) => {
+    // Animate hero elements with a stagger
+    gsap.fromTo(
+      '.hero-content .reveal',
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.12,
+        ease: 'power3.out',
+        delay: 0.2,
+      }
+    );
+
+    gsap.fromTo(
+      '.hero-visual',
+      { opacity: 0, x: 40 },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 1,
+        ease: 'power3.out',
+        delay: 0.5,
+      }
+    );
+
+    // Subtle parallax on scroll for section labels
+    const labels = document.querySelectorAll('.section-label');
+    window.addEventListener('scroll', () => {
+      labels.forEach((label) => {
+        const rect = (label as HTMLElement).getBoundingClientRect();
+        const speed = 0.03;
+        const offset = (window.innerHeight - rect.top) * speed;
+        (label as HTMLElement).style.transform = `translateX(${offset}px)`;
+      });
+    });
+  });
+
+  // -- Active nav link highlight --
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const highlightNav = () => {
+    const scrollY = window.scrollY + 200;
+    sections.forEach((section) => {
+      const sectionEl = section as HTMLElement;
+      const top = sectionEl.offsetTop;
+      const height = sectionEl.offsetHeight;
+      const id = sectionEl.getAttribute('id');
+
+      if (scrollY >= top && scrollY < top + height) {
+        navLinks.forEach((link) => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  };
+
+  window.addEventListener('scroll', highlightNav);
+</script>
+
+<style>
+  .nav-links a.active {
+    color: var(--text-primary);
+  }
+  .nav-links a.active::after {
+    width: 100%;
+  }
+</style>
