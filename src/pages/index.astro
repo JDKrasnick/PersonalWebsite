@@ -53,18 +53,6 @@ import Contact from '../components/Contact.astro';
       }
     );
 
-    gsap.fromTo(
-      '.hero-visual',
-      { opacity: 0, x: 40 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 1,
-        ease: 'power3.out',
-        delay: 0.5,
-      }
-    );
-
     // Subtle parallax on scroll for section labels
     const labels = document.querySelectorAll('.section-label');
     window.addEventListener('scroll', () => {
