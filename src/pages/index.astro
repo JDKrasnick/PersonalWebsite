@@ -22,7 +22,7 @@ import Contact from '../components/Contact.astro';
 </Layout>
 
 <script>
-  // -- Scroll reveal (lightweight IntersectionObserver) --
+  // Scroll reveal
   const revealElements = document.querySelectorAll('.reveal');
   const revealObserver = new IntersectionObserver(
     (entries) => {
@@ -37,35 +37,23 @@ import Contact from '../components/Contact.astro';
   );
   revealElements.forEach((el) => revealObserver.observe(el));
 
-  // -- GSAP: light entrance animations for hero --
+  // GSAP hero entrance
   import('gsap').then(({ gsap }) => {
-    // Animate hero elements with a stagger
     gsap.fromTo(
       '.hero-content .reveal',
-      { opacity: 0, y: 40 },
+      { opacity: 0, y: 30 },
       {
         opacity: 1,
         y: 0,
-        duration: 0.8,
-        stagger: 0.12,
+        duration: 0.7,
+        stagger: 0.1,
         ease: 'power3.out',
-        delay: 0.2,
+        delay: 0.15,
       }
     );
-
-    // Subtle parallax on scroll for section labels
-    const labels = document.querySelectorAll('.section-label');
-    window.addEventListener('scroll', () => {
-      labels.forEach((label) => {
-        const rect = (label as HTMLElement).getBoundingClientRect();
-        const speed = 0.03;
-        const offset = (window.innerHeight - rect.top) * speed;
-        (label as HTMLElement).style.transform = `translateX(${offset}px)`;
-      });
-    });
   });
 
-  // -- Active nav link highlight --
+  // Active nav link highlight
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-links a');
 
@@ -90,12 +78,3 @@ import Contact from '../components/Contact.astro';
 
   window.addEventListener('scroll', highlightNav);
 </script>
-
-<style>
-  .nav-links a.active {
-    color: var(--text-primary);
-  }
-  .nav-links a.active::after {
-    width: 100%;
-  }
-</style>

@@ -50,8 +50,8 @@ function toFileName(name: string): string {
                   class="skill-icon"
                   src={`/icons/skills/${toFileName(skill)}.svg`}
                   alt=""
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   loading="lazy"
                 />
                 {skill}
@@ -65,77 +65,67 @@ function toFileName(name: string): string {
 </section>
 
 <style>
-  .skills {
-    background: var(--bg-secondary);
-  }
-
   .skills-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    gap: 1px;
     margin-top: 3rem;
+    background: var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .skill-category {
     padding: 2rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    transition: border-color var(--transition-fast), transform var(--transition-fast);
-  }
-
-  .skill-category:hover {
-    border-color: var(--border-hover);
-    transform: translateY(-2px);
+    background: var(--bg-primary);
   }
 
   .category-title {
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .skill-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .skill-tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.4rem 0.85rem;
-    background: var(--bg-secondary);
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
-    font-family: var(--font-heading);
     transition: all var(--transition-fast);
   }
 
   .skill-tag:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-glow);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
   }
 
   .skill-icon {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
-    /* Default: muted gray (#666666) */
     filter: invert(40%) sepia(0%) saturate(0%) brightness(90%);
     transition: filter var(--transition-fast);
+    opacity: 0.6;
   }
 
   .skill-tag:hover .skill-icon {
-    /* Accent blue (#3B82F6) */
-    filter: invert(44%) sepia(83%) saturate(1770%) hue-rotate(206deg) brightness(101%) contrast(94%);
+    filter: invert(70%) sepia(0%) saturate(0%) brightness(120%);
+    opacity: 0.9;
   }
 
   @media (max-width: 768px) {
