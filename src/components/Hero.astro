@@ -3,26 +3,22 @@
 ---
 
 <section class="hero" id="hero">
-  <!-- Ambient background -->
-  <div class="hero-bg">
-    <div class="hero-glow"></div>
+  <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-hud" aria-hidden="true">
+    epoch <b id="hero-epoch">000</b><br />
+    loss <b id="hero-lossv">0.000</b><br />
+    accuracy <b id="hero-accuracy">0.50</b><br />
+    status <b>learning</b>
   </div>
 
-  <div class="container hero-centered">
+  <div class="container hero-inner">
     <div class="hero-content">
-      <div class="hero-badge reveal">
-        <span class="status-dot"></span>
-        Open to opportunities
-      </div>
-      <h1 class="hero-name reveal reveal-delay-1">
-        JD Krasnick
-      </h1>
-      <p class="hero-title reveal reveal-delay-2">Software Engineer</p>
-      <p class="hero-desc reveal reveal-delay-3">
-        Curiosity-driven engineer building clean software.<br />
-        From ML to full-stack, I love exploring what's possible.
+      <h1 class="hero-name reveal reveal-delay-1">JD Krasnick</h1>
+      <p class="hero-desc reveal reveal-delay-2">
+        AI/ML engineer &amp; builder — from <span class="hl">classical ML</span> to
+        <span class="hl">modern LLMs</span>, I ship systems that learn from, augment, and act on real-world data.
       </p>
-      <div class="hero-actions reveal reveal-delay-4">
+      <div class="hero-actions reveal reveal-delay-3">
         <a href="#projects" class="btn btn-primary">
           View Projects
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
@@ -53,105 +49,96 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
-    justify-content: center;
     position: relative;
     overflow: hidden;
+    padding: 0;
+    background:
+      radial-gradient(80% 100% at 78% 50%, rgba(70, 92, 210, 0.14) 0%, transparent 62%),
+      radial-gradient(68% 80% at 68% 60%, rgba(255, 180, 84, 0.07) 0%, transparent 58%),
+      var(--bg-primary);
   }
 
-  /* Ambient gradient background */
-  .hero-bg {
+  .hero-canvas {
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+    cursor: crosshair;
   }
 
-  .hero-glow {
+  .hero::after {
+    content: '';
     position: absolute;
-    top: -20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 800px;
-    height: 500px;
-    background: radial-gradient(ellipse at center, rgba(108, 138, 255, 0.06) 0%, transparent 70%);
-    filter: blur(60px);
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* Text receives its own calm pocket without masking the full surface. */
+    background:
+      linear-gradient(to right, rgba(7, 7, 10, 0.82) 0%, rgba(7, 7, 10, 0.67) 37%, rgba(7, 7, 10, 0.22) 59%, transparent 78%),
+      radial-gradient(120% 100% at 51% 46%, transparent 28%, rgba(7, 7, 10, 0.3) 82%, var(--bg-primary) 100%);
   }
 
-  .hero-centered {
-    display: flex;
-    justify-content: center;
+  .hero-inner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+  }
+
+  .hero-hud {
+    position: absolute;
+    top: 100px;
+    right: 2rem;
+    z-index: 2;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 2;
+    letter-spacing: 0.04em;
+  }
+  .hero-hud b {
+    color: var(--accent-data);
+    font-weight: 500;
   }
 
   .hero-content {
-    text-align: center;
     max-width: 620px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.9rem;
-    border: 1px solid var(--border-color);
-    border-radius: 100px;
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    font-family: var(--font-mono);
-    letter-spacing: 0.01em;
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    background: #34d399;
-    border-radius: 50%;
-    animation: pulse-dot 3s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
   }
 
   .hero-name {
-    font-size: clamp(3rem, 7vw, 4.5rem);
-    font-weight: 700;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 600;
     letter-spacing: -0.04em;
-    line-height: 1.05;
-    margin-bottom: 0.75rem;
+    line-height: 0.98;
     color: var(--text-primary);
   }
 
-  .hero-title {
-    font-family: var(--font-mono);
-    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
-    color: var(--accent);
+  .hero-desc {
+    margin-top: 1.125rem;
+    font-size: clamp(1.0625rem, 2.4vw, 1.375rem);
+    color: var(--text-primary);
     font-weight: 400;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.02em;
+    max-width: 620px;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
   }
 
-  .hero-desc {
-    font-size: 1.05rem;
-    color: var(--text-secondary);
-    line-height: 1.7;
-    max-width: 460px;
-    margin-bottom: 2.5rem;
+  .hero-desc .hl {
+    color: var(--accent);
   }
 
   .hero-actions {
+    margin-top: 2.125rem;
     display: flex;
     gap: 0.75rem;
-    margin-bottom: 3rem;
+    flex-wrap: wrap;
   }
 
   .hero-socials {
+    margin-top: 1.625rem;
     display: flex;
     gap: 0.5rem;
   }
@@ -163,11 +150,11 @@
     width: 38px;
     height: 38px;
     border-radius: 8px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     transition: all var(--transition-fast);
   }
   .social-link:hover {
-    color: var(--text-primary);
+    color: var(--accent);
     background: var(--bg-card);
   }
 
@@ -180,6 +167,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 2;
   }
 
   .scroll-line {
@@ -198,7 +186,7 @@
     .hero-name {
       font-size: clamp(2.5rem, 10vw, 3.5rem);
     }
-    .hero-desc br {
+    .hero-hud {
       display: none;
     }
     .scroll-indicator {
@@ -206,3 +194,19 @@
     }
   }
 </style>
+
+<script>
+  import { initHero } from '../scripts/hero-gradient';
+  import { initHeroLifecycle, prefersReducedMotion, isLowPowerMobile } from '../scripts/hero-lifecycle';
+
+  const canvas = document.getElementById('hero-canvas');
+  const heroSection = document.getElementById('hero');
+
+  if (canvas instanceof HTMLCanvasElement && heroSection) {
+    const handle = initHero(canvas, {
+      reducedMotion: prefersReducedMotion(),
+      mobile: isLowPowerMobile(),
+    });
+    initHeroLifecycle(heroSection, handle);
+  }
+</script>

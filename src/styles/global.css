@@ -14,11 +14,11 @@
 
 :root {
   /* Richer dark palette — not pure black */
-  --bg-primary: #09090b;
-  --bg-secondary: #0f0f12;
+  --bg-primary: #07070a;
+  --bg-secondary: #0c0c10;
   --bg-card: rgba(255, 255, 255, 0.03);
   --bg-card-hover: rgba(255, 255, 255, 0.055);
-  --border-color: rgba(255, 255, 255, 0.06);
+  --border-color: rgba(255, 255, 255, 0.07);
   --border-hover: rgba(255, 255, 255, 0.12);
 
   /* Text with better hierarchy */
@@ -32,6 +32,9 @@
   --accent-muted: rgba(108, 138, 255, 0.12);
   --accent-glow: rgba(108, 138, 255, 0.08);
   --accent-glow-strong: rgba(108, 138, 255, 0.18);
+
+  /* Direction B — gradient descent accent */
+  --accent-data: #ffb454;
 
   /* Typography — single family, different weights for hierarchy */
   --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -115,20 +118,64 @@ section {
   position: relative;
 }
 
-/* Section header */
+/* Section header — instrument readout style */
 .section-label {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 1.25rem;
-  display: inline-block;
+  margin-bottom: 1.625rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .section-label::before {
-  display: none;
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.section-label .idx {
+  color: var(--text-muted);
+}
+
+/* Spec sheet — mono key/value rows in a bordered block */
+.spec-sheet {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.spec-sheet .spec-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.spec-sheet .spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-sheet .spec-key {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-top: 0.125rem;
+}
+
+.spec-sheet .spec-value {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .section-title {
