@@ -2,14 +2,51 @@
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 
 const {
-  title = "JD Krasnick — AI/ML Engineer",
-  description = "AI/ML engineer & builder — from classical ML to modern LLMs, I ship systems that learn from real data."
+  title = "JD Krasnick | AI/ML Engineer",
+  description = "JD Krasnick is an AI/ML engineer building reliable machine learning systems, LLM applications, and data-driven products.",
+  image = "/og-image.png",
 } = Astro.props;
 
-const siteUrl = "https://jdkrasnick.com";
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://www.jdkrasnick.com";
+const canonicalUrl = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
+const imageUrl = new URL(image, `${siteUrl}/`).toString();
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
+      name: "JD Krasnick",
+      url: siteUrl,
+      jobTitle: "AI/ML Engineer",
+      description,
+      email: "mailto:jdkrasnick@gmail.com",
+      sameAs: [
+        "https://github.com/JDKrasnick",
+        "https://www.linkedin.com/in/john-j-d-krasnick-a62419287/",
+      ],
+      knowsAbout: [
+        "Machine Learning",
+        "Large Language Models",
+        "Artificial Intelligence",
+        "Data Engineering",
+        "Full-stack Development",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "JD Krasnick",
+      description,
+      publisher: { "@id": `${siteUrl}/#person` },
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -18,20 +55,30 @@ const siteUrl = "https://jdkrasnick.com";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" sizes="any" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={siteUrl} />
-    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="JD Krasnick" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1730" />
+    <meta property="og:image:height" content="909" />
+    <meta property="og:image:alt" content="JD Krasnick, AI/ML Engineer" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content="JD Krasnick, AI/ML Engineer" />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
     <slot />
