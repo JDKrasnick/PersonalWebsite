@@ -27,7 +27,9 @@ const WORLD = 34;
 const H_SCALE = 6;
 const TRAIL_LEN = 120;
 const GRID_LINES = 18;
-const SURFACE_PAD = 0.45;
+// Ultra-wide screens expose much more of the horizontal frustum. Keep the mesh
+// generously oversized so its edge never cuts into the hero background.
+const SURFACE_PAD = 1.5;
 const FIELD_MIN = -SURFACE_PAD + 0.02;
 const FIELD_MAX = 1 + SURFACE_PAD - 0.02;
 

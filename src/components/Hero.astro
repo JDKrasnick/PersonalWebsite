@@ -83,15 +83,20 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    /* Text receives its own calm pocket without masking the full surface. */
+    /* A restrained tint keeps the terrain present without competing with the copy. */
     background:
-      linear-gradient(to right, rgba(7, 7, 10, 0.82) 0%, rgba(7, 7, 10, 0.67) 37%, rgba(7, 7, 10, 0.22) 59%, transparent 78%),
-      radial-gradient(120% 100% at 51% 46%, transparent 28%, rgba(7, 7, 10, 0.3) 82%, var(--bg-primary) 100%);
+      linear-gradient(to right, rgba(14, 16, 42, 0.42) 0%, rgba(14, 16, 42, 0.3) 36%, rgba(14, 16, 42, 0.1) 68%, rgba(14, 16, 42, 0.16) 100%),
+      linear-gradient(to bottom, rgba(7, 7, 10, 0.14), transparent 42%, rgba(7, 7, 10, 0.12));
   }
 
   .hero-inner {
     position: relative;
     z-index: 2;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-left: clamp(2rem, 7vw, 8rem);
+    padding-right: 2rem;
   }
 
   .hero-hud {
@@ -182,9 +187,11 @@
   }
 
   .hero-content {
-    max-width: 620px;
+    width: min(100%, 31rem);
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .hero-name {
@@ -200,7 +207,7 @@
     font-size: clamp(1.0625rem, 2.4vw, 1.375rem);
     color: var(--text-primary);
     font-weight: 400;
-    max-width: 620px;
+    max-width: 31rem;
     letter-spacing: -0.01em;
     line-height: 1.6;
   }
@@ -268,6 +275,10 @@
     .hero-canvas,
     .hero-ball-hint {
       display: none;
+    }
+    .hero-inner {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
     }
     .hero-name {
       font-size: clamp(2.5rem, 10vw, 3.5rem);
