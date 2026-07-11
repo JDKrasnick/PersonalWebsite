@@ -207,7 +207,14 @@
     50% { opacity: 0.15; }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 768px), (pointer: coarse) {
+    .hero {
+      min-height: 100svh;
+    }
+    .hero-canvas,
+    .hero-ball-hint {
+      display: none;
+    }
     .hero-name {
       font-size: clamp(2.5rem, 10vw, 3.5rem);
     }
@@ -222,15 +229,19 @@
 
 <script>
   import { initHero } from '../scripts/hero-gradient';
-  import { initHeroLifecycle, prefersReducedMotion, isLowPowerMobile } from '../scripts/hero-lifecycle';
+  import { initHeroLifecycle, prefersReducedMotion } from '../scripts/hero-lifecycle';
 
   const canvas = document.getElementById('hero-canvas');
   const heroSection = document.getElementById('hero');
+  const isMobile = matchMedia('(max-width: 768px), (pointer: coarse)').matches;
 
-  if (canvas instanceof HTMLCanvasElement && heroSection) {
+  // The WebGL and canvas fallbacks are desktop-only. A static hero on touch
+  // devices avoids a full-screen animation competing with scrolling and
+  // prevents GPU-related layout failures on mobile browsers.
+  if (canvas instanceof HTMLCanvasElement && heroSection && !isMobile) {
     const handle = initHero(canvas, {
       reducedMotion: prefersReducedMotion(),
-      mobile: isLowPowerMobile(),
+      mobile: false,
     });
     initHeroLifecycle(heroSection, handle);
   }
