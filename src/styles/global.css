@@ -13,25 +13,25 @@
 }
 
 :root {
-  /* Richer dark palette — not pure black */
-  --bg-primary: #07070a;
-  --bg-secondary: #0c0c10;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --bg-card-hover: rgba(255, 255, 255, 0.055);
-  --border-color: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(255, 255, 255, 0.12);
+  /* Midnight systems — blue-black surfaces carry the hero palette through the page. */
+  --bg-primary: #080a15;
+  --bg-secondary: #0d1020;
+  --bg-card: rgba(116, 138, 255, 0.055);
+  --bg-card-hover: rgba(126, 148, 255, 0.095);
+  --border-color: rgba(143, 160, 255, 0.13);
+  --border-hover: rgba(157, 172, 255, 0.27);
 
   /* Text with better hierarchy */
-  --text-primary: #f0f0f2;
-  --text-secondary: #94949e;
-  --text-muted: #55555e;
+  --text-primary: #f1f2fa;
+  --text-secondary: #a5aabd;
+  --text-muted: #666c82;
 
   /* Refined accent — slightly warmer blue */
-  --accent: #6c8aff;
-  --accent-hover: #8da4ff;
-  --accent-muted: rgba(108, 138, 255, 0.12);
-  --accent-glow: rgba(108, 138, 255, 0.08);
-  --accent-glow-strong: rgba(108, 138, 255, 0.18);
+  --accent: #7c91ff;
+  --accent-hover: #9bacff;
+  --accent-muted: rgba(124, 145, 255, 0.14);
+  --accent-glow: rgba(124, 145, 255, 0.09);
+  --accent-glow-strong: rgba(124, 145, 255, 0.2);
 
   /* Direction B — gradient descent accent */
   --accent-data: #ffb454;
@@ -57,6 +57,10 @@ html {
 body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(72rem 42rem at 8% 24%, rgba(89, 112, 235, 0.09), transparent 64%),
+    radial-gradient(64rem 38rem at 94% 62%, rgba(71, 91, 196, 0.08), transparent 66%),
+    linear-gradient(180deg, #080a15 0%, #090b18 48%, #080a15 100%);
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
