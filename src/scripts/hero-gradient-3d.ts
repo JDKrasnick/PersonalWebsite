@@ -65,13 +65,24 @@ function toWorld(nx: number, ny: number): [number, number, number] {
   return [(nx - 0.5) * WORLD, loss(nx, ny) * H_SCALE, (ny - 0.5) * WORLD];
 }
 
-function updateHud(epoch: number, lossValue: number) {
+function updateHud(epoch: number, lossValue: number, history: number[] = []) {
   const epochEl = document.getElementById('hero-epoch');
   const lossEl = document.getElementById('hero-lossv');
   const accuracyEl = document.getElementById('hero-accuracy');
   if (epochEl) epochEl.textContent = String(epoch % 1000).padStart(3, '0');
   if (lossEl) lossEl.textContent = lossValue.toFixed(3);
   if (accuracyEl) accuracyEl.textContent = Math.max(0.5, Math.min(0.99, 1 - lossValue * 0.5)).toFixed(2);
+  const chart = document.getElementById('hero-loss-chart');
+  if (chart instanceof SVGPolylineElement && history.length > 0) {
+    const low = Math.min(...history);
+    const high = Math.max(...history, low + 0.001);
+    const points = history.map((value, i) => {
+      const x = history.length === 1 ? 111 : (i / (history.length - 1)) * 111;
+      const y = 2 + ((value - low) / (high - low)) * 25;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    chart.setAttribute('points', points.join(' '));
+  }
 }
 
 export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle {
@@ -223,6 +234,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
 
   let m = { x: 0.8, y: 0.2, vx: 0, vy: 0 };
   let epoch = 0;
+  let lossHistory: number[] = [];
   function seedAt(x: number, y: number) {
     m = {
       x: Math.max(FIELD_MIN, Math.min(FIELD_MAX, x)),
@@ -232,6 +244,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     };
     trailPts = [];
     epoch = 0;
+    lossHistory = [loss(m.x, m.y)];
   }
   function reseed() {
     // Keep the marker well clear of the text column and close enough to the global
@@ -267,7 +280,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     if (!hit) return;
     seedAt(hit.point.x / WORLD + 0.5, hit.point.z / WORLD + 0.5);
     positionMarker(m.x, m.y);
-    updateHud(epoch, loss(m.x, m.y));
+    updateHud(epoch, loss(m.x, m.y), lossHistory);
   }
 
   function onPointerDown(event: PointerEvent) {
@@ -320,8 +333,11 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     trailGeo.attributes.position.needsUpdate = true;
     trailGeo.setDrawRange(0, trailPts.length);
 
+    const currentLoss = loss(m.x, m.y);
+    lossHistory.push(currentLoss);
+    if (lossHistory.length > 44) lossHistory.shift();
     renderFrame();
-    updateHud(epoch, loss(m.x, m.y));
+    updateHud(epoch, currentLoss, lossHistory);
 
     rafId = requestAnimationFrame(tick);
   }
@@ -374,12 +390,14 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     drawStaticFrame() {
       m = { x: GLOBAL_MIN.x, y: GLOBAL_MIN.y, vx: 0, vy: 0 };
       trailPts = [];
+      lossHistory = [];
       for (let i = 0; i < 16; i++) {
         const tt = i / 15;
         const nx = 0.65 + (GLOBAL_MIN.x - 0.65) * tt;
         const ny = 0.15 + (GLOBAL_MIN.y - 0.15) * tt;
         const [wx, wy, wz] = toWorld(nx, ny);
         trailPts.push([wx, wy + 0.08, wz]);
+        lossHistory.push(loss(nx, ny));
       }
       for (let i = 0; i < TRAIL_LEN; i++) {
         const p = trailPts[i] || trailPts[trailPts.length - 1] || [0, 0, 0];
@@ -392,7 +410,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
       epoch = 280;
       positionMarker(m.x, m.y);
       renderFrame();
-      updateHud(epoch, loss(m.x, m.y));
+      updateHud(epoch, loss(m.x, m.y), lossHistory);
     },
     destroy() {
       destroyed = true;

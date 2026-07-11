@@ -38,13 +38,24 @@ function grad(nx: number, ny: number): [number, number] {
   ];
 }
 
-function updateHud(epoch: number, lossValue: number) {
+function updateHud(epoch: number, lossValue: number, history: number[] = []) {
   const epochEl = document.getElementById('hero-epoch');
   const lossEl = document.getElementById('hero-lossv');
   const accuracyEl = document.getElementById('hero-accuracy');
   if (epochEl) epochEl.textContent = String(epoch % 1000).padStart(3, '0');
   if (lossEl) lossEl.textContent = lossValue.toFixed(3);
   if (accuracyEl) accuracyEl.textContent = Math.max(0.5, Math.min(0.99, 1 - lossValue * 0.5)).toFixed(2);
+  const chart = document.getElementById('hero-loss-chart');
+  if (chart instanceof SVGPolylineElement && history.length > 0) {
+    const low = Math.min(...history);
+    const high = Math.max(...history, low + 0.001);
+    const points = history.map((value, i) => {
+      const x = history.length === 1 ? 111 : (i / (history.length - 1)) * 111;
+      const y = 2 + ((value - low) / (high - low)) * 25;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    chart.setAttribute('points', points.join(' '));
+  }
 }
 
 function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
@@ -65,6 +76,7 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
   let marker = { x: 0.15, y: 0.2, vx: 0, vy: 0 };
   let trail: { x: number; y: number }[] = [];
   let epoch = 0;
+  let lossHistory: number[] = [];
 
   function buildField() {
     if (!ctx || width === 0 || height === 0) return;
@@ -118,6 +130,7 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     marker = { x: Math.random() * 0.25 + 0.65, y: Math.random() * 0.4 + 0.1, vx: 0, vy: 0 };
     trail = [];
     epoch = 0;
+    lossHistory = [loss(marker.x, marker.y)];
   }
   reseed();
 
@@ -162,8 +175,11 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     epoch++;
     if (Math.hypot(marker.vx, marker.vy) < 0.0004 && epoch > 120) reseed();
 
+    const currentLoss = loss(marker.x, marker.y);
+    lossHistory.push(currentLoss);
+    if (lossHistory.length > 44) lossHistory.shift();
     renderFrame();
-    updateHud(epoch, loss(marker.x, marker.y));
+    updateHud(epoch, currentLoss, lossHistory);
 
     rafId = requestAnimationFrame(tick);
   }
@@ -181,17 +197,22 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     drawStaticFrame() {
       const settled = { x: GLOBAL_MIN.x, y: GLOBAL_MIN.y };
       trail = [];
+      lossHistory = [];
       for (let i = 0; i < 16; i++) {
         const t = i / 15;
         trail.push({
           x: 0.65 + (settled.x - 0.65) * t,
           y: 0.15 + (settled.y - 0.15) * t,
         });
+        lossHistory.push(loss(
+          0.65 + (settled.x - 0.65) * t,
+          0.15 + (settled.y - 0.15) * t
+        ));
       }
       marker = { ...settled, vx: 0, vy: 0 };
       epoch = 240;
       renderFrame();
-      updateHud(epoch, loss(marker.x, marker.y));
+      updateHud(epoch, loss(marker.x, marker.y), lossHistory);
     },
     destroy() {
       running = false;

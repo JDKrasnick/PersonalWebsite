@@ -9,6 +9,10 @@
     loss <b id="hero-lossv">0.000</b><br />
     accuracy <b id="hero-accuracy">0.50</b><br />
     status <b>learning</b>
+    <svg class="hero-progress" viewBox="0 0 112 30" aria-hidden="true">
+      <path d="M1 28.5H111" />
+      <polyline id="hero-loss-chart" points="" />
+    </svg>
   </div>
 
   <div class="container hero-inner">
@@ -100,6 +104,26 @@
   .hero-hud b {
     color: var(--accent-data);
     font-weight: 500;
+  }
+  .hero-progress {
+    display: block;
+    width: 112px;
+    height: 30px;
+    margin: 0.45rem 0 0 auto;
+    overflow: visible;
+  }
+  .hero-progress path {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-width: 1;
+  }
+  .hero-progress polyline {
+    fill: none;
+    stroke: var(--accent-data);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
   }
 
   .hero-content {
