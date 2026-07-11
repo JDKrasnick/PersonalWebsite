@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction C — Latent Constellation</title>
+<style>
+  :root { --accent: #6c8aff; --accent2: #38e8d0; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #060609; color: #f0f0f2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  .hud { position: fixed; top: 26px; left: 28px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: .04em; color: #6a6a76; line-height: 1.9; pointer-events: none; }
+  .hud b { color: var(--accent2); font-weight: 500; }
+  .title { position: fixed; bottom: 40px; left: 28px; max-width: 460px; pointer-events: none; }
+  .title .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .title h1 { font-size: clamp(28px, 4vw, 46px); font-weight: 600; letter-spacing: -.02em; line-height: 1.05; }
+  .title p { margin-top: 12px; color: #8a8a94; font-size: 14px; line-height: 1.6; max-width: 380px; }
+  .legend { position: fixed; bottom: 40px; right: 28px; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .legend button { background: none; border: 1px solid rgba(255,255,255,0.1); color: #9a9aa4;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .05em; padding: 6px 12px;
+    border-radius: 6px; cursor: pointer; transition: .2s; }
+  .legend button:hover, .legend button.on { color: #eafffb; border-color: var(--accent2); background: rgba(56,232,208,0.1); }
+  a.back { position: fixed; top: 24px; right: 28px; color: #6a6a76; text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .05em; }
+  a.back:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  dims <b>3</b> → <b>2</b> &nbsp; proj <b>orbit</b><br />
+  points <b id="np">0</b><br />
+  query <b id="q">none</b>
+</div>
+<div class="title">
+  <div class="kicker">Direction C · Latent Constellation</div>
+  <h1>Your work, in embedding space.</h1>
+  <p>A drifting point cloud in a scientific frame. Hover a category to run a query — related points migrate into a cluster and connect.</p>
+</div>
+<div class="legend" id="legend"></div>
+<a class="back" href="./index.html">← all directions</a>
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR; cv.style.width = W+'px'; cv.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0); }
+addEventListener('resize', resize); resize();
+
+const cats = [
+  {name:'AI / ML',   col:'#6c8aff', cluster:{x:-1.1, y:0.2, z:0.3}},
+  {name:'Systems',   col:'#38e8d0', cluster:{x:1.1,  y:-0.3,z:-0.2}},
+  {name:'Research',  col:'#ffb454', cluster:{x:0.1,  y:1.0, z:0.4}},
+];
+const featured = ['Recollect','MarketSent','SafeStep','ESG Monitor','Eval Suite'];
+
+const pts = [];
+for(let i=0;i<220;i++){
+  const c = i % cats.length;
+  // random point in a sphere
+  let x,y,z;
+  do { x=Math.random()*2-1; y=Math.random()*2-1; z=Math.random()*2-1; } while(x*x+y*y+z*z>1);
+  const r = 1.35;
+  const feat = i<featured.length;
+  pts.push({ hx:x*r, hy:y*r, hz:z*r, x:x*r, y:y*r, z:z*r, c,
+    size: feat? 3.4 : (0.8+Math.random()*1.6), feat, label: feat?featured[i]:null, t:0 });
+}
+document.getElementById('np').textContent = pts.length;
+
+let active = -1;
+const legend = document.getElementById('legend');
+cats.forEach((cat,i) => {
+  const b = document.createElement('button'); b.textContent = cat.name;
+  b.onmouseenter = () => setActive(i); b.onmouseleave = () => setActive(-1);
+  legend.appendChild(b);
+});
+function setActive(i){ active = i;
+  [...legend.children].forEach((b,j)=>b.classList.toggle('on', j===i));
+  document.getElementById('q').textContent = i<0 ? 'none' : cats[i].name;
+}
+
+let ry = 0;
+function project(p){
+  // rotate around Y then slight X tilt
+  const cy=Math.cos(ry), sy=Math.sin(ry);
+  let x = p.x*cy - p.z*sy, z = p.x*sy + p.z*cy, y = p.y;
+  const tx=0.35; const cx2=Math.cos(tx), sx2=Math.sin(tx);
+  let y2 = y*cx2 - z*sx2, z2 = y*sx2 + z*cx2;
+  const persp = 3.2/(3.2+z2);
+  const scale = Math.min(W,H)*0.34;
+  return { sx: W/2 + x*scale*persp, sy: H/2 + y2*scale*persp, depth: z2, persp };
+}
+
+function frame(){
+  ry += 0.0016;
+  ctx.clearRect(0,0,W,H);
+
+  // instrument frame
+  ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
+  ctx.strokeRect(28,28,W-56,H-56);
+  ctx.fillStyle='rgba(255,255,255,0.04)';
+  for(let gx=0; gx<=8; gx++){ const x=28+(W-56)*gx/8; ctx.fillRect(x,28,1,6); ctx.fillRect(x,H-34,1,6); }
+  for(let gy=0; gy<=6; gy++){ const y=28+(H-56)*gy/6; ctx.fillRect(28,y,6,1); ctx.fillRect(W-34,y,6,1); }
+
+  // ease points toward cluster (query) or home
+  for(const p of pts){
+    const pulled = active===p.c;
+    const target = pulled ? cats[p.c].cluster : {x:p.hx,y:p.hy,z:p.hz};
+    const k = 0.06;
+    p.x += (target.x - p.x)*k;
+    p.y += (target.y - p.y)*k;
+    p.z += (target.z - p.z)*k;
+    p.t += ((pulled?1:0) - p.t)*0.08;
+  }
+
+  const proj = pts.map(p => ({p, ...project(p)}));
+  proj.sort((a,b)=>a.depth-b.depth); // back to front
+
+  // links within active cluster
+  if(active>=0){
+    const grp = proj.filter(o=>o.p.c===active);
+    ctx.strokeStyle = hexA(cats[active].col, 0.12); ctx.lineWidth=1;
+    for(let i=0;i<grp.length;i++){
+      for(let j=i+1;j<grp.length;j++){
+        const dx=grp[i].sx-grp[j].sx, dy=grp[i].sy-grp[j].sy;
+        if(dx*dx+dy*dy < 90*90){ ctx.beginPath(); ctx.moveTo(grp[i].sx,grp[i].sy); ctx.lineTo(grp[j].sx,grp[j].sy); ctx.stroke(); }
+      }
+    }
+  }
+
+  // points
+  for(const o of proj){
+    const p=o.p, dim = active>=0 && active!==p.c;
+    const base = 0.35 + o.persp*0.5;
+    let alpha = base * (dim ? 0.18 : 1);
+    const r = p.size * o.persp * (1 + p.t*0.4);
+    if(p.feat){
+      const rg=ctx.createRadialGradient(o.sx,o.sy,0,o.sx,o.sy,r*4);
+      rg.addColorStop(0,hexA(cats[p.c].col, alpha*0.5)); rg.addColorStop(1,hexA(cats[p.c].col,0));
+      ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(o.sx,o.sy,r*4,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle = hexA(cats[p.c].col, alpha);
+    ctx.beginPath(); ctx.arc(o.sx,o.sy,r,0,Math.PI*2); ctx.fill();
+    if(p.feat && !dim){
+      ctx.fillStyle=`rgba(230,230,236,${0.7})`;
+      ctx.font="500 11px 'JetBrains Mono', monospace"; ctx.textAlign='left';
+      ctx.fillText(p.label, o.sx+8, o.sy-6);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+function hexA(hex,a){ const n=parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+frame();
+</script>
+</body>
+</html>

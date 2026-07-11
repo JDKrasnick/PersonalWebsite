@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JD Krasnick — Redesign Mockup (Direction C · Latent Constellation)</title>
+<style>
+  :root{
+    --bg:#060609; --bg2:#0c0c10;
+    --accent:#6c8aff; --accent2:#38e8d0; --amber:#ffb454;
+    --text:#f0f0f2; --text2:#9a9aa4; --muted:#55555e;
+    --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1080px;margin:0 auto;padding:0 32px}
+  section{padding:120px 0;position:relative}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* instrument frame around content sections */
+  .framed{position:relative}
+  .framed .container{position:relative}
+  .framed .container::before,.framed .container::after{content:'';position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(var(--border),transparent 8%,transparent 92%,var(--border))}
+  .framed .container::before{left:8px}.framed .container::after{right:8px}
+  @media(max-width:1160px){.framed .container::before,.framed .container::after{display:none}}
+
+  .label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);display:flex;align-items:center;gap:12px;margin-bottom:26px}
+  .label::before{content:'';width:28px;height:1px;background:var(--accent2);opacity:.5}
+  .label .idx{color:var(--muted)}
+  h2.title{font-size:clamp(28px,3.6vw,40px);font-weight:600;letter-spacing:-.025em;line-height:1.1}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;
+    padding:18px 32px;background:rgba(6,6,9,0.6);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  nav .brand{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.02em}
+  nav .brand b{color:var(--accent2)}
+  nav .links{display:flex;gap:26px;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--text2)}
+  nav .links a:hover{color:var(--text)}
+  nav .links a.active{color:var(--accent2)}
+  @media(max-width:720px){nav .links{display:none}}
+
+  .rail{position:fixed;left:18px;top:50%;transform:translateY(-50%);height:220px;width:2px;background:var(--border);z-index:40;border-radius:2px}
+  .rail .marker{position:absolute;left:50%;top:0;width:9px;height:9px;border-radius:50%;background:var(--accent2);
+    transform:translate(-50%,-50%);box-shadow:0 0 14px 3px rgba(56,232,208,0.5)}
+  .rail .cap{position:absolute;left:14px;font-family:var(--mono);font-size:9px;color:var(--muted);white-space:nowrap;letter-spacing:.08em}
+  .rail .cap.top{top:-6px}.rail .cap.bot{bottom:-6px}
+  @media(max-width:900px){.rail{display:none}}
+
+  .hero{min-height:100vh;display:flex;align-items:center;padding:0;overflow:hidden}
+  .hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .hero::after{content:'';position:absolute;inset:0;z-index:1;
+    background:radial-gradient(120% 90% at 26% 45%,transparent 0%,rgba(6,6,9,0.5) 50%,var(--bg) 100%)}
+  .hero .container{position:relative;z-index:2}
+  .hero .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--text2);
+    border:1px solid var(--border);border-radius:100px;padding:6px 14px;margin-bottom:26px;letter-spacing:.04em}
+  .hero .badge .dot{width:6px;height:6px;border-radius:50%;background:#3fd68a;box-shadow:0 0 8px #3fd68a}
+  .hero h1{font-size:clamp(44px,8vw,88px);font-weight:600;letter-spacing:-.04em;line-height:.98}
+  .hero .role{margin-top:18px;font-size:clamp(17px,2.4vw,22px);color:var(--text);font-weight:400;max-width:620px;letter-spacing:-.01em}
+  .hero .role .hl{color:var(--accent2)}
+  .hero .actions{margin-top:34px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:13px;padding:12px 22px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;transition:.2s;letter-spacing:.02em}
+  .btn.primary{background:var(--accent2);color:#06060a;font-weight:500}
+  .btn.primary:hover{background:#63f0dd}
+  .btn.ghost{border:1px solid var(--border2);color:var(--text)}
+  .btn.ghost:hover{border-color:var(--accent2);color:var(--accent2)}
+  .hero .socials{margin-top:26px;display:flex;gap:16px}
+  .hero .socials a{color:var(--text2);transition:.2s}.hero .socials a:hover{color:var(--accent2)}
+  .hud{position:absolute;top:100px;right:32px;z-index:2;font-family:var(--mono);font-size:11px;color:var(--muted);
+    text-align:right;line-height:2;letter-spacing:.04em}
+  .hud b{color:var(--accent2);font-weight:500}
+  @media(max-width:720px){.hud{display:none}}
+
+  .about-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:start}
+  .about-text p{color:var(--text2);font-size:16px;line-height:1.8;margin-bottom:16px;max-width:520px}
+  .spec{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .spec .row{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border)}
+  .spec .row:last-child{border-bottom:none}
+  .spec .k{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+  .spec .v{font-size:14px;color:var(--text)}
+  @media(max-width:720px){.about-grid{grid-template-columns:1fr;gap:36px}}
+
+  .exp{display:grid;grid-template-columns:150px 1fr;gap:40px;padding:30px 0;border-top:1px solid var(--border)}
+  .exp:last-child{border-bottom:1px solid var(--border)}
+  .exp .period{font-family:var(--mono);font-size:12px;color:var(--text2);white-space:nowrap}
+  .exp .metric{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
+    color:var(--accent2);border:1px solid rgba(56,232,208,0.25);background:rgba(56,232,208,0.06);border-radius:6px;padding:4px 8px}
+  .exp .role{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .exp .co{color:var(--accent2);font-size:14px;display:inline-flex;align-items:center;gap:5px;margin-top:3px}
+  .exp .desc{color:var(--text2);font-size:14.5px;line-height:1.65;margin:12px 0;max-width:640px}
+  .exp ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .exp li{font-size:14px;color:var(--text2);padding-left:18px;position:relative;line-height:1.55;max-width:640px}
+  .exp li::before{content:'+';position:absolute;left:0;color:var(--accent2);font-size:13px;top:1px}
+  .exp li b{color:var(--text);font-weight:600}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,0.03);
+    color:var(--text2);border:1px solid var(--border)}
+  @media(max-width:720px){.exp{grid-template-columns:1fr;gap:12px}}
+
+  .subtitle{color:var(--text2);font-size:15px;margin-top:10px;max-width:520px}
+  .proj-grid{margin-top:44px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .card{border:1px solid var(--border);border-radius:14px;padding:24px;background:rgba(255,255,255,0.02);
+    transition:.25s;display:flex;flex-direction:column;min-height:210px;position:relative}
+  .card::before{content:'●';position:absolute;top:20px;right:20px;font-size:9px;color:var(--amber);opacity:.7}
+  .card:hover{border-color:var(--border2);background:rgba(56,232,208,0.04);transform:translateY(-3px)}
+  .card .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .card h3{font-size:18px;font-weight:600;margin:14px 0 8px;letter-spacing:-.01em}
+  .card p{color:var(--text2);font-size:13.5px;line-height:1.6;flex:1}
+  .card .coord{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:.05em}
+  .card .tags{margin-top:16px}
+  .proj-list{margin-top:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media(max-width:820px){.proj-grid{grid-template-columns:1fr}.proj-list{grid-template-columns:1fr}}
+
+  .skills-grid{margin-top:44px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+  .skcat h4{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);margin-bottom:14px}
+  .skcat ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .skcat li{font-size:13.5px;color:var(--text2)}
+  @media(max-width:820px){.skills-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+
+  .contact{text-align:center}
+  .contact h2{font-size:clamp(32px,5vw,52px);font-weight:600;letter-spacing:-.03em;line-height:1.05}
+  .contact .flat{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:24px}
+  .contact p{color:var(--text2);font-size:16px;max-width:440px;margin:20px auto 32px}
+  footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.05em}
+
+  .rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+  .rv.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">JD<b>.</b>Krasnick</div>
+  <div class="links">
+    <a href="#about">about</a><a href="#experience">experience</a><a href="#projects">projects</a><a href="#skills">skills</a><a href="#contact">contact</a>
+  </div>
+</nav>
+
+<div class="rail"><span class="cap top">z +1.4</span><div class="marker" id="railMarker"></div><span class="cap bot">z −1.4</span></div>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <canvas id="cloud"></canvas>
+  <div class="hud">
+    dims <b>3</b> → <b>2</b><br>
+    points <b>220</b><br>
+    query <b id="q">auto</b><br>
+    status <b>drifting</b>
+  </div>
+  <div class="container">
+    <div class="badge rv"><span class="dot"></span> Open to opportunities</div>
+    <h1 class="rv">JD Krasnick</h1>
+    <p class="role rv">AI/ML engineer &amp; builder — mapping messy real-world data into systems that <span class="hl">learn</span>, from classical ML to LLMs.</p>
+    <div class="actions rv">
+      <a href="#projects" class="btn primary">View Projects →</a>
+      <a href="#contact" class="btn ghost">Get in Touch</a>
+    </div>
+    <div class="socials rv">
+      <a href="#" aria-label="GitHub"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
+      <a href="#" aria-label="LinkedIn"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      <a href="#" aria-label="Email"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="framed">
+  <div class="container">
+    <div class="label rv"><span class="idx">01 /</span> About</div>
+    <div class="about-grid">
+      <div class="about-text rv">
+        <h2 class="title" style="margin-bottom:22px">A builder who thinks in models.</h2>
+        <p>I'm an AI/ML engineer studying Computer Science and Operations Research at Cornell. I like taking messy, real-world data and turning it into systems that actually learn — from classical ML pipelines to LLM-powered agents and eval loops.</p>
+        <p>When I'm not coding, you'll find me out running on a trail, in the gym, or halfway through the latest YouTube video essay that wandered into my feed.</p>
+      </div>
+      <div class="spec rv">
+        <div class="row"><div class="k">Location</div><div class="v">Wayne, PA</div></div>
+        <div class="row"><div class="k">Education</div><div class="v">B.S. Computer Science &amp; Operations Research — Cornell University</div></div>
+        <div class="row"><div class="k">Focus</div><div class="v">Classical ML · Modern AI / LLMs · Full-stack systems</div></div>
+        <div class="row"><div class="k">Toolkit</div><div class="v">Python · PyTorch · TypeScript · FastAPI</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="framed">
+  <div class="container">
+    <div class="label rv"><span class="idx">02 /</span> Experience</div>
+    <h2 class="title rv" style="margin-bottom:44px">Points along the way.</h2>
+
+    <div class="exp rv">
+      <div><div class="period">May — Aug 2026</div><div class="metric">accuracy ↑ 95%</div></div>
+      <div>
+        <div class="role">AI Engineer</div><a class="co" href="#">Order.co ↗</a>
+        <p class="desc">Building offline evaluation systems that measure and improve the accuracy of AI-driven product data extraction.</p>
+        <ul><li>Built offline evals for live offers that raised core product field accuracy to <b>95%</b></li><li>Developing evaluation frameworks to assess AI model performance and reliability</li></ul>
+        <div class="tags"><span class="tag">Python</span><span class="tag">AI/ML</span><span class="tag">Evaluations</span><span class="tag">LLMs</span></div>
+      </div>
+    </div>
+
+    <div class="exp rv">
+      <div><div class="period">Feb 2026 — Present</div><div class="metric">14+ sources</div></div>
+      <div>
+        <div class="role">AI Engineer</div><a class="co" href="#">Generative AI at Cornell ↗</a>
+        <p class="desc">Building an ESG news-monitoring system for Investcorp's CLO portfolio — news ingestion, LLM classification, and an analyst-facing risk dashboard.</p>
+        <ul><li>Built an ingestion pipeline that discovers, dedupes, and scrapes news across <b>14+ providers</b> into a clustered event model</li><li>Used Anthropic tool-use for event classification, geo-extraction, and credit/covenant impact analysis</li></ul>
+        <div class="tags"><span class="tag">Python</span><span class="tag">TypeScript</span><span class="tag">AI Agents</span><span class="tag">Anthropic API</span><span class="tag">ESG Analytics</span></div>
+      </div>
+    </div>
+
+    <div class="exp rv">
+      <div><div class="period">Jan 2026 — Present</div><div class="metric">deep RL</div></div>
+      <div>
+        <div class="role">Undergraduate Researcher</div><a class="co" href="#">Cornell University · ORIE ↗</a>
+        <p class="desc">Research on deep reinforcement learning for queueing-network optimization under Prof. Jim Dai — applying PPO-based methods to optimize hospital networks.</p>
+        <ul><li>Developing deep RL models to optimize complex queueing-network systems</li><li>Applying modern ML techniques to operations-research problems</li></ul>
+        <div class="tags"><span class="tag">PyTorch</span><span class="tag">Reinforcement Learning</span><span class="tag">Operations Research</span><span class="tag">Python</span></div>
+      </div>
+    </div>
+
+    <div class="exp rv">
+      <div><div class="period">Jan 2026 — Present</div><div class="metric">full-stack</div></div>
+      <div>
+        <div class="role">Financial Software Engineer</div><a class="co" href="#">Cornell FinTech Club ↗</a>
+        <p class="desc">Built a full-stack lending platform covering the complete loan lifecycle from application through credit decisioning.</p>
+        <ul><li>Built a fintech lending platform with <b>Next.js, FastAPI, and PostgreSQL</b> featuring ML-powered credit scoring</li><li>Implemented credit decisioning using logistic regression and gradient-boosting models</li></ul>
+        <div class="tags"><span class="tag">Next.js</span><span class="tag">FastAPI</span><span class="tag">PostgreSQL</span><span class="tag">scikit-learn</span></div>
+      </div>
+    </div>
+
+    <div class="exp rv">
+      <div><div class="period">Jun — Aug 2025</div><div class="metric">ETL</div></div>
+      <div>
+        <div class="role">Research Assistant</div><a class="co" href="#">University of Pennsylvania ↗</a>
+        <p class="desc">Data collection and analysis for legal research under Prof. Jonathan Klick at Penn Law.</p>
+        <ul><li>Scraped, cleaned, and pipelined data from websites, Excel, and PDFs using Python and NumPy</li><li>Produced organized CSV datasets, streamlining the data-processing workflow</li></ul>
+        <div class="tags"><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">Pandas</span><span class="tag">Web Scraping</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="framed">
+  <div class="container">
+    <div class="label rv"><span class="idx">03 /</span> Projects</div>
+    <h2 class="title rv">Selected Work</h2>
+    <p class="subtitle rv">Featured points in the space — ML systems, dashboards, and a brain-computer interface.</p>
+
+    <div class="proj-grid">
+      <div class="card rv"><div class="num">01</div><h3>SafeStep</h3><div class="coord">[ 0.82, −0.31, 0.44 ]</div><p>Walking-route safety platform using ML-powered hazard detection (YOLOv8) and intelligent pathfinding for accessibility-focused routing.</p><div class="tags"><span class="tag">YOLOv8</span><span class="tag">Spring Boot</span><span class="tag">React</span><span class="tag">FastAPI</span></div></div>
+      <div class="card rv"><div class="num">02</div><h3>MarketSent</h3><div class="coord">[ −0.54, 0.61, 0.12 ]</div><p>Financial sentiment dashboard monitoring Reddit with FinBERT to gauge real-time investor sentiment toward tickers, with interactive trend charts.</p><div class="tags"><span class="tag">FinBERT</span><span class="tag">React</span><span class="tag">Flask</span><span class="tag">PostgreSQL</span></div></div>
+      <div class="card rv"><div class="num">03</div><h3>Recollect</h3><div class="coord">[ −0.11, 0.97, 0.38 ]</div><p>Conversational RAG system for document Q&amp;A using Claude and vector embeddings — semantic search, multi-turn memory, and session summarization.</p><div class="tags"><span class="tag">Claude API</span><span class="tag">ChromaDB</span><span class="tag">Embeddings</span></div></div>
+    </div>
+    <div class="proj-list">
+      <div class="card rv" style="min-height:auto"><div class="num">04</div><h3>Brain-Computer Interface</h3><div class="coord">[ 0.33, −0.72, −0.20 ]</div><p>Lilley Fellowship project interpreting EEG signals to control a robotic arm — real-time FFT signal processing and embedded control logic.</p><div class="tags"><span class="tag">FFT</span><span class="tag">EEG</span><span class="tag">Signal Processing</span><span class="tag">Raspberry Pi</span></div></div>
+      <div class="card rv" style="min-height:auto"><div class="num">05</div><h3>Cornell Lab Matchmaker</h3><div class="coord">[ −0.68, 0.24, 0.55 ]</div><p>AI research-matchmaking tool helping students discover faculty via semantic search over scraped lab data and embeddings.</p><div class="tags"><span class="tag">Embeddings</span><span class="tag">Streamlit</span><span class="tag">Web Scraping</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="framed">
+  <div class="container">
+    <div class="label rv"><span class="idx">04 /</span> Skills</div>
+    <h2 class="title rv">Tech Stack</h2>
+    <div class="skills-grid">
+      <div class="skcat rv"><h4>Languages</h4><ul><li>Python</li><li>TypeScript</li><li>JavaScript</li><li>C++</li><li>SQL</li></ul></div>
+      <div class="skcat rv"><h4>AI / ML</h4><ul><li>PyTorch</li><li>TensorFlow</li><li>Hugging Face</li><li>OpenAI</li><li>OpenCV</li><li>FinBERT</li></ul></div>
+      <div class="skcat rv"><h4>Frontend</h4><ul><li>React</li><li>Next.js</li><li>Vite</li><li>Streamlit</li></ul></div>
+      <div class="skcat rv"><h4>Backend &amp; Data</h4><ul><li>FastAPI</li><li>Flask</li><li>PostgreSQL</li><li>ChromaDB</li><li>Pandas</li></ul></div>
+      <div class="skcat rv"><h4>Tools</h4><ul><li>Git</li><li>Vercel</li><li>Render</li><li>Docker</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact">
+  <div class="container">
+    <div class="flat">— query resolved · nearest neighbor: you —</div>
+    <h2 class="rv">Let's find where<br>our work connects.</h2>
+    <p class="rv">I'm open to opportunities in AI/ML and software engineering. Drop me a line — I'd love to hear what you're working on.</p>
+    <div class="actions rv" style="justify-content:center;display:flex;gap:14px">
+      <a href="mailto:jdkrasnick@gmail.com" class="btn primary">jdkrasnick@gmail.com</a>
+      <a href="#" class="btn ghost">Resume ↗</a>
+    </div>
+  </div>
+</section>
+
+<footer>Designed &amp; built by JD Krasnick · Rough mockup · Direction C — Latent Constellation</footer>
+
+<script>
+// ---- Hero point cloud ----
+const cv=document.getElementById('cloud'), ctx=cv.getContext('2d');
+let W,H,DPR;
+function size(){const r=cv.getBoundingClientRect();DPR=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',size);size();
+const cats=[{col:'#6c8aff',cl:{x:-1.1,y:0.2,z:0.3}},{col:'#38e8d0',cl:{x:1.1,y:-0.3,z:-0.2}},{col:'#ffb454',cl:{x:0.1,y:1.0,z:0.4}}];
+const feat=['Recollect','MarketSent','SafeStep','BCI','Matchmaker'];
+const pts=[];
+for(let i=0;i<220;i++){let x,y,z;do{x=Math.random()*2-1;y=Math.random()*2-1;z=Math.random()*2-1;}while(x*x+y*y+z*z>1);
+  const r=1.35,c=i%3,f=i<feat.length;
+  pts.push({hx:x*r,hy:y*r,hz:z*r,x:x*r,y:y*r,z:z*r,c,size:f?3.4:0.8+Math.random()*1.5,f,label:f?feat[i]:null,t:0});}
+let active=-1,qTimer=0;
+function project(p){const cy=Math.cos(ry),sy=Math.sin(ry);let x=p.x*cy-p.z*sy,z=p.x*sy+p.z*cy,y=p.y;
+  const c2=Math.cos(0.32),s2=Math.sin(0.32);let y2=y*c2-z*s2,z2=y*s2+z*c2;const pe=3.2/(3.2+z2);
+  const sc=Math.min(W,H)*0.42;return{sx:W*0.62+x*sc*pe,sy:H/2+y2*sc*pe,d:z2,pe};}
+function hexA(h,a){const n=parseInt(h.slice(1),16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
+let ry=0;
+function frame(){
+  ry+=0.0016;qTimer++;
+  if(qTimer>200){active=(active+1)%4-1;qTimer=0;const q=document.getElementById('q');if(q)q.textContent=active<0?'auto':['AI/ML','Systems','Research'][active];}
+  ctx.clearRect(0,0,W,H);
+  for(const p of pts){const pulled=active===p.c;const tg=pulled?cats[p.c].cl:{x:p.hx,y:p.hy,z:p.hz};
+    p.x+=(tg.x-p.x)*0.05;p.y+=(tg.y-p.y)*0.05;p.z+=(tg.z-p.z)*0.05;p.t+=((pulled?1:0)-p.t)*0.06;}
+  const pr=pts.map(p=>({p,...project(p)})).sort((a,b)=>a.d-b.d);
+  if(active>=0){const grp=pr.filter(o=>o.p.c===active);ctx.strokeStyle=hexA(cats[active].col,0.1);ctx.lineWidth=1;
+    for(let i=0;i<grp.length;i++)for(let j=i+1;j<grp.length;j++){const dx=grp[i].sx-grp[j].sx,dy=grp[i].sy-grp[j].sy;
+      if(dx*dx+dy*dy<80*80){ctx.beginPath();ctx.moveTo(grp[i].sx,grp[i].sy);ctx.lineTo(grp[j].sx,grp[j].sy);ctx.stroke();}}}
+  for(const o of pr){const p=o.p,dim=active>=0&&active!==p.c;const base=0.3+o.pe*0.45;let a=base*(dim?0.15:0.9);
+    const r=p.size*o.pe*(1+p.t*0.4);
+    if(p.f){const rg=ctx.createRadialGradient(o.sx,o.sy,0,o.sx,o.sy,r*4);rg.addColorStop(0,hexA(cats[p.c].col,a*0.5));rg.addColorStop(1,hexA(cats[p.c].col,0));ctx.fillStyle=rg;ctx.beginPath();ctx.arc(o.sx,o.sy,r*4,0,7);ctx.fill();}
+    ctx.fillStyle=hexA(cats[p.c].col,a);ctx.beginPath();ctx.arc(o.sx,o.sy,r,0,7);ctx.fill();}
+  requestAnimationFrame(frame);
+}
+frame();
+
+// ---- reveal ----
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:0.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+// ---- scroll rail + nav ----
+const marker=document.getElementById('railMarker');
+const secs=[...document.querySelectorAll('section[id]')];
+const navlinks=[...document.querySelectorAll('nav .links a')];
+addEventListener('scroll',()=>{
+  const p=scrollY/(document.body.scrollHeight-innerHeight);marker.style.top=(p*100)+'%';
+  let cur=secs[0].id;for(const s of secs){if(scrollY>=s.offsetTop-200)cur=s.id;}
+  navlinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+},{passive:true});
+</script>
+</body>
+</html>

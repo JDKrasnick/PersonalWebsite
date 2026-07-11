@@ -1,63 +1,98 @@
 ---
 const projects = [
   {
+    title: "Investcorp ESG CLO Monitor",
+    description: "Built core services for Investcorp's ESG intelligence platform, including company-targeted news discovery, graph-backed event intelligence, and LLM-generated credit and covenant analyses.",
+    tags: ["TypeScript", "Next.js", "Fastify", "PostgreSQL", "Redis", "LLMs"],
+    link: "",
+    demo: "",
+    featured: true,
+  },
+  {
     title: "SafeStep",
-    description: "A comprehensive walking route safety platform using ML-powered hazard detection (YOLOv8) and intelligent pathfinding to help pedestrians navigate safely with accessibility-focused routing.",
+    description: "Full-stack pedestrian-routing platform that combines computer-vision hazard detection with accessibility-aware pathfinding to help users choose safer routes.",
     tags: ["Java", "Spring Boot", "React", "TypeScript", "YOLOv8", "PostgreSQL", "FastAPI"],
     link: "https://github.com/AndyDo0942/SafeStep",
     demo: "",
     featured: true,
   },
   {
-    title: "MarketSent",
-    description: "Financial sentiment analysis dashboard monitoring Reddit discussions (r/wallstreetbets, r/stocks) using FinBERT AI to gauge real-time investor sentiment toward stock tickers with interactive trend charts.",
-    tags: ["React", "TypeScript", "Python", "Flask", "FinBERT", "PostgreSQL"],
-    link: "https://github.com/JDKrasnick/MarketSent",
-    demo: "",
-    featured: true,
-  },
-  {
-    title: "Recollect",
-    description: "A conversational RAG system for intelligent document Q&A using Claude AI and vector embeddings. Features semantic search, multi-turn conversations with persistent memory, and automatic session summarization.",
-    tags: ["Python", "Claude API", "ChromaDB", "SQLite", "Sentence Transformers"],
-    link: "https://github.com/JDKrasnick/Recollect",
-    demo: "",
-    featured: true,
-  },
-  {
-    title: "Brain-Computer Interface",
-    description: "Lilley Fellowship research project engineering a BCI system that interprets EEG signals to control a robotic arm. Features real-time signal processing using FFT algorithms, electrode data analysis, and embedded control logic.",
-    tags: ["Python", "FFT", "EEG", "Raspberry Pi", "Arduino", "Signal Processing"],
-    link: "",
-    video: "https://www.dropbox.com/scl/fi/nk6tarklajprbabmdu8mj/BCI_FINAL_VERSION.mp4?rlkey=j2pvf0ym9gt64exu31vxa272w&st=47tpuw2j&dl=0",
-    demo: "",
-    featured: false,
-  },
-  {
     title: "Cornell Lab Matchmaker",
-    description: "AI-powered research matchmaking tool helping Cornell students discover and connect with faculty researchers through semantic search and intelligent query handling via web scraping and embeddings.",
-    tags: ["Python", "Streamlit", "Embeddings", "Web Scraping"],
+    description: "Research-discovery agent that aggregates faculty and publication data, matches students through semantic search, and generates tailored outreach drafts.",
+    tags: ["Python", "Streamlit", "ChromaDB", "Embeddings", "Web Scraping"],
     link: "https://github.com/JDKrasnick/Cornell_Research_Agent",
     video: "https://www.dropbox.com/scl/fi/nzlyyiloqtasksiw64vkp/GENAI.mp4?rlkey=dvxhgv5y7mvrakspwo36i0k0p&st=0ozsyzsb&dl=0",
     demo: "",
+    featured: true,
+  },
+  {
+    title: "LoanApproval",
+    description: "End-to-end lending platform combining configurable credit rules, ML default-risk scoring, document extraction, and immutable decision audit logs.",
+    tags: ["Next.js", "FastAPI", "PostgreSQL", "scikit-learn", "Credit Risk", "LLMs"],
+    link: "https://github.com/JDKrasnick/LoanApproval",
+    featured: false,
+  },
+  {
+    title: "MarketSent",
+    description: "Deployed financial-intelligence dashboard that analyzes Reddit discussions with FinBERT to surface ticker-level sentiment, trends, and most-discussed names.",
+    tags: ["React", "TypeScript", "Python", "Flask", "FinBERT", "PostgreSQL"],
+    link: "https://github.com/JDKrasnick/MarketSent",
+    demo: "https://market-sent.vercel.app/",
     featured: false,
   },
 ];
+
+const featuredProjects = projects.filter(p => p.featured);
+const otherProjects = projects.filter(p => !p.featured);
 ---
 
 <section class="projects" id="projects">
   <div class="container">
-    <div class="section-label reveal">Projects</div>
+    <div class="section-label reveal"><span class="idx">03 /</span> Projects</div>
     <h2 class="section-title reveal reveal-delay-1">Selected Work</h2>
     <p class="section-subtitle reveal reveal-delay-2">
-      A collection of projects I've built and contributed to.
+      A collection of things I've built and shipped — ML systems, dashboards, and a brain-computer interface.
     </p>
 
     <div class="projects-grid">
-      {projects.map((project, i) => (
+      {featuredProjects.map((project, i) => (
         <div class={`project-card reveal reveal-delay-${(i % 4) + 1}`}>
           <div class="project-header">
             <span class="project-number">{String(i + 1).padStart(2, '0')}</span>
+            <div class="project-links">
+              {project.video && (
+                <a href={project.video} target="_blank" rel="noopener noreferrer" aria-label="Project video" class="project-link-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                </a>
+              )}
+              {project.link && (
+                <a href={project.link} target="_blank" rel="noopener noreferrer" aria-label="Source code" class="project-link-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+              )}
+              {project.demo && project.demo !== '#' && (
+                <a href={project.demo} target="_blank" rel="noopener noreferrer" aria-label="Live demo" class="project-link-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </a>
+              )}
+            </div>
+          </div>
+          <h3 class="project-title">{project.title}</h3>
+          <p class="project-desc">{project.description}</p>
+          <div class="project-tags">
+            {project.tags.map(tag => (
+              <span class="project-tag">{tag}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="projects-list">
+      {otherProjects.map((project, i) => (
+        <div class={`project-card project-card-compact reveal reveal-delay-${(i % 4) + 1}`}>
+          <div class="project-header">
+            <span class="project-number">{String(featuredProjects.length + i + 1).padStart(2, '0')}</span>
             <div class="project-links">
               {project.video && (
                 <a href={project.video} target="_blank" rel="noopener noreferrer" aria-label="Project video" class="project-link-icon">
@@ -96,25 +131,38 @@ const projects = [
 
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-top: 3rem;
+  }
+
+  .projects-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
   }
 
   .project-card {
     padding: 1.75rem;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    min-height: 210px;
     transition: all var(--transition-med);
+  }
+
+  .project-card-compact {
+    min-height: auto;
   }
 
   .project-card:hover {
     border-color: var(--border-hover);
     background: var(--bg-card-hover);
+    transform: translateY(-3px);
   }
 
   .project-header {
@@ -171,8 +219,11 @@ const projects = [
     color: var(--accent);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
     .projects-grid {
+      grid-template-columns: 1fr;
+    }
+    .projects-list {
       grid-template-columns: 1fr;
     }
   }

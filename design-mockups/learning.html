@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction B — The Learning Machine</title>
+<style>
+  :root { --accent: #6c8aff; --accent2: #ffb454; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #07070a; color: #f0f0f2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; overflow: hidden; }
+  canvas { display: block; cursor: crosshair; }
+  .hud { position: fixed; top: 26px; left: 28px; font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: .04em; color: #6a6a76; line-height: 1.9; pointer-events: none; }
+  .hud b { color: var(--accent2); font-weight: 500; }
+  .title { position: fixed; bottom: 40px; left: 28px; max-width: 460px; pointer-events: none; }
+  .title .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .title h1 { font-size: clamp(28px, 4vw, 46px); font-weight: 600; letter-spacing: -.02em; line-height: 1.05; }
+  .title p { margin-top: 12px; color: #8a8a94; font-size: 14px; line-height: 1.6; max-width: 380px; }
+  .hint { position: fixed; bottom: 40px; right: 28px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: #4a4a54; letter-spacing: .05em; }
+  a.back { position: fixed; top: 24px; right: 28px; color: #6a6a76; text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .05em; }
+  a.back:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  epoch <b id="epoch">000</b><br />
+  loss  <b id="loss">0.000</b><br />
+  lr    <b>0.040</b> &nbsp; grad <b id="grad">0.00</b>
+</div>
+<div class="title">
+  <div class="kicker">Direction B · The Learning Machine</div>
+  <h1>A model that learns as you watch.</h1>
+  <p>A marker descends a loss landscape toward a minimum, then re-optimizes. Click anywhere to re-seed and watch gradient descent run.</p>
+</div>
+<div class="hint">click to re-seed descent →</div>
+<a class="back" href="./index.html">← all directions</a>
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, DPR, field, fieldImg;
+function resize(){ DPR = Math.min(devicePixelRatio||1, 2); W = innerWidth; H = innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR; cv.style.width = W+'px'; cv.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0); buildField(); }
+addEventListener('resize', resize);
+
+// loss surface: sum of a few gaussian wells over normalized coords
+const wells = [
+  {x:0.5, y:0.55, d:0.9, s:0.16},   // global min
+  {x:0.28,y:0.35, d:0.5, s:0.12},
+  {x:0.72,y:0.4,  d:0.55,s:0.13},
+  {x:0.6, y:0.75, d:0.4, s:0.1},
+];
+function loss(nx, ny){
+  let v = 1.0;
+  for(const w of wells){ const dx=nx-w.x, dy=ny-w.y; v -= w.d*Math.exp(-(dx*dx+dy*dy)/(2*w.s*w.s)); }
+  return v; // lower is better
+}
+function grad(nx, ny){
+  const e=0.001;
+  return [ (loss(nx+e,ny)-loss(nx-e,ny))/(2*e), (loss(nx,ny+e)-loss(nx,ny-e))/(2*e) ];
+}
+
+function buildField(){
+  const step = 3; // px block for perf
+  fieldImg = ctx.createImageData(W, H);
+  const data = fieldImg.data;
+  for(let py=0; py<H; py+=step){
+    for(let px=0; px<W; px+=step){
+      const v = loss(px/W, py/H);           // ~0..1
+      const t = Math.max(0, Math.min(1, v)); // low loss = dark valley, high = lifted
+      // contour banding
+      const band = Math.sin(t*38);
+      const bandGlow = Math.pow(Math.max(0, band), 8) * 0.10;
+      // colour: deep ink base, valleys glow faint accent
+      const valley = Math.pow(1-t, 2.2);
+      const r = 8  + valley*40 + bandGlow*120;
+      const g = 8  + valley*70 + bandGlow*110;
+      const b = 12 + valley*130+ bandGlow*180;
+      for(let oy=0; oy<step && py+oy<H; oy++){
+        for(let ox=0; ox<step && px+ox<W; ox++){
+          const idx = ((py+oy)*W + (px+ox))*4;
+          data[idx]=r; data[idx+1]=g; data[idx+2]=b; data[idx+3]=255;
+        }
+      }
+    }
+  }
+}
+
+let marker, trail;
+function reseed(nx, ny){
+  marker = { x: nx ?? Math.random(), y: ny ?? Math.random(), vx:0, vy:0 };
+  trail = [];
+  epoch = 0;
+}
+let epoch = 0;
+cv.addEventListener('click', e => reseed(e.clientX/W, e.clientY/H));
+
+function frame(){
+  ctx.putImageData(fieldImg, 0, 0);
+
+  // gradient-descent step (with a little momentum)
+  const g = grad(marker.x, marker.y);
+  const lr = 0.04, mom = 0.82;
+  marker.vx = mom*marker.vx - lr*g[0];
+  marker.vy = mom*marker.vy - lr*g[1];
+  marker.x = Math.max(0.02, Math.min(0.98, marker.x + marker.vx));
+  marker.y = Math.max(0.02, Math.min(0.98, marker.y + marker.vy));
+  trail.push({x:marker.x, y:marker.y});
+  if(trail.length>140) trail.shift();
+  epoch++;
+
+  // draw trail
+  ctx.lineWidth = 2; ctx.lineJoin='round';
+  for(let i=1;i<trail.length;i++){
+    const a = i/trail.length;
+    ctx.beginPath();
+    ctx.moveTo(trail[i-1].x*W, trail[i-1].y*H);
+    ctx.lineTo(trail[i].x*W, trail[i].y*H);
+    ctx.strokeStyle = `rgba(255,180,84,${a*0.7})`;
+    ctx.stroke();
+  }
+  // marker glow
+  const mx=marker.x*W, my=marker.y*H;
+  const rg = ctx.createRadialGradient(mx,my,0,mx,my,26);
+  rg.addColorStop(0,'rgba(255,180,84,0.55)'); rg.addColorStop(1,'rgba(255,180,84,0)');
+  ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(mx,my,26,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(mx,my,4,0,Math.PI*2); ctx.fill();
+
+  // HUD
+  const L = loss(marker.x, marker.y);
+  document.getElementById('epoch').textContent = String(epoch%1000).padStart(3,'0');
+  document.getElementById('loss').textContent = L.toFixed(3);
+  document.getElementById('grad').textContent = Math.hypot(g[0],g[1]).toFixed(2);
+
+  requestAnimationFrame(frame);
+}
+resize(); reseed(0.15, 0.2); frame();
+</script>
+</body>
+</html>

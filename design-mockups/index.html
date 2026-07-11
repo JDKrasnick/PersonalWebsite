@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Redesign — Direction Previews</title>
+<style>
+  :root { --accent: #6c8aff; }
+  * { margin: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; background: #07070a; color: #f0f0f2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 80px 32px 64px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  h1 { font-size: clamp(32px, 5vw, 54px); font-weight: 600; letter-spacing: -.03em; line-height: 1.05; }
+  .sub { margin-top: 16px; color: #8a8a94; font-size: 15px; line-height: 1.65; max-width: 560px; }
+  .grid { margin-top: 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 18px; }
+  a.card { display: block; text-decoration: none; color: inherit; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 26px; background: rgba(255,255,255,0.02); transition: .25s; position: relative; overflow: hidden; }
+  a.card:hover { border-color: rgba(108,138,255,0.5); background: rgba(108,138,255,0.05); transform: translateY(-3px); }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #6a6a76; }
+  .card h2 { font-size: 20px; font-weight: 600; margin: 14px 0 8px; letter-spacing: -.01em; }
+  .card p { color: #8a8a94; font-size: 13.5px; line-height: 1.6; }
+  .card .go { margin-top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+  .swatch { display: flex; gap: 6px; margin-top: 16px; }
+  .swatch span { width: 22px; height: 8px; border-radius: 3px; }
+  .note { margin-top: 48px; font-size: 13px; color: #55555e; line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Portfolio Redesign · Interactive Previews</div>
+  <h1>Three directions,<br />pick a feel.</h1>
+  <p class="sub">Live Canvas prototypes for the three concepts in DESIGN_REVAMP.md. Each is a lightweight, dependency-free demo of the hero interaction — hover and click around. Throwaway; delete the folder anytime.</p>
+
+  <div class="grid">
+    <a class="card" href="./attention.html">
+      <div class="tag">Direction A · Recommended</div>
+      <h2>Attention</h2>
+      <p>Transformer self-attention — query tokens attend to keys, weights shift live. Hover a token to isolate its distribution. The clearest "modern AI" signal.</p>
+      <div class="swatch"><span style="background:#6c8aff"></span><span style="background:#38e8d0"></span><span style="background:#c8c8d0"></span></div>
+      <div class="go">open preview →</div>
+    </a>
+    <a class="card" href="./learning.html">
+      <div class="tag">Direction B</div>
+      <h2>The Learning Machine</h2>
+      <p>Classical ML — a marker runs gradient descent down a loss landscape toward a minimum. Click to re-seed and watch it re-optimize. Timeless over trendy.</p>
+      <div class="swatch"><span style="background:#6c8aff"></span><span style="background:#ffb454"></span><span style="background:#c8c8d0"></span></div>
+      <div class="go">open preview →</div>
+    </a>
+    <a class="card" href="./constellation.html">
+      <div class="tag">Direction C</div>
+      <h2>Latent Constellation</h2>
+      <p>Embedding space in a scientific frame — hover a category to run a query and watch related points cluster and connect. The engineer-forward, mobile-safe option.</p>
+      <div class="swatch"><span style="background:#6c8aff"></span><span style="background:#38e8d0"></span><span style="background:#ffb454"></span></div>
+      <div class="go">open preview →</div>
+    </a>
+  </div>
+
+  <h2 style="font-size:15px;font-family:'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6a6a76;margin:64px 0 20px">Full-page mockups →</h2>
+  <div class="grid">
+    <a class="card" href="./full-page-attention.html"><div class="tag">Full page · A</div><h2>Attention</h2><p>Complete portfolio with real content — attention hero, token-arc dividers, transformer-layer scroll rail.</p><div class="go">open full page →</div></a>
+    <a class="card" href="./full-page-learning.html"><div class="tag">Full page · B (2D)</div><h2>The Learning Machine</h2><p>Complete portfolio — loss-landscape hero, contour dividers, gradient-descent scroll rail, metric-framed outcomes.</p><div class="go">open full page →</div></a>
+    <a class="card" href="./full-page-learning-3d.html"><div class="tag">Full page · B (3D · Three.js)</div><h2>The Learning Machine — 3D</h2><p>Same as B, but the hero is a lit, orbiting 3D loss <em>surface</em> with the marker skiing down it. Compare against the 2D version to judge if 3D is worth the weight.</p><div class="go">open full page →</div></a>
+    <a class="card" href="./full-page-constellation.html"><div class="tag">Full page · C</div><h2>Latent Constellation</h2><p>Complete portfolio — point-cloud hero, instrument frame around sections, coordinate readouts on projects.</p><div class="go">open full page →</div></a>
+  </div>
+
+  <p class="note">These are rough concept sketches to compare <em>feel</em>, not final visuals — palette, motion timing, and density would all get tuned in the real build. All are pure vanilla Canvas (no libraries), matching the lightweight path in the brief.</p>
+</div>
+</body>
+</html>
