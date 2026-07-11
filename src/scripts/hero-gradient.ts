@@ -173,7 +173,7 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     trail.push({ x: marker.x, y: marker.y });
     if (trail.length > trailMax) trail.shift();
     epoch++;
-    if (Math.hypot(marker.vx, marker.vy) < 0.0004 && epoch > 120) reseed();
+    if (Math.hypot(marker.vx, marker.vy) < 0.0004 && epoch > 100) reseed();
 
     const currentLoss = loss(marker.x, marker.y);
     lossHistory.push(currentLoss);

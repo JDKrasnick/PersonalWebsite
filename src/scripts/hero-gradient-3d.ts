@@ -370,7 +370,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx));
     m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy));
     epoch++;
-    if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 140) {
+    if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 110) {
       const settledAtGlobalMinimum = Math.hypot(m.x - GLOBAL_MIN.x, m.y - GLOBAL_MIN.y) < 0.12;
       if (!settledAtGlobalMinimum) showNonGlobalMaximumToast();
       reseed();
