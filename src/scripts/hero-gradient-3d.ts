@@ -14,7 +14,9 @@ interface Well {
 const WELLS: Well[] = [
   { x: 0.76, y: 0.52, d: 0.7, s: 0.22 },
   { x: 0.34, y: 0.29, d: 0.28, s: 0.12 },
-  { x: 0.59, y: 0.78, d: 0.23, s: 0.11 },
+  // A deeper local basin keeps a distinct non-global destination with a broader
+  // capture region, instead of blending into the main basin.
+  { x: 0.59, y: 0.78, d: 0.36, s: 0.11 },
 ];
 const GLOBAL_MIN = WELLS[0];
 
@@ -285,7 +287,30 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   const pointer = new THREE.Vector2();
   const hero = canvas.closest('.hero');
   const interactionTarget = hero instanceof HTMLElement ? hero : canvas;
+  const localOptimumToast = document.getElementById('hero-local-optimum-toast');
+  const toastPosition = new THREE.Vector3();
+  let toastTimer = 0;
   let draggingMarker = false;
+
+  function showNonGlobalMaximumToast() {
+    if (!(localOptimumToast instanceof HTMLElement)) return;
+    const rect = canvas.getBoundingClientRect();
+    toastPosition.copy(marker.position).project(camera);
+    const left = Math.min(rect.width - 86, Math.max(86, (toastPosition.x * 0.5 + 0.5) * rect.width));
+    const top = Math.min(rect.height - 26, Math.max(18, (-toastPosition.y * 0.5 + 0.5) * rect.height - 30));
+    localOptimumToast.style.left = `${left}px`;
+    localOptimumToast.style.top = `${top}px`;
+    localOptimumToast.hidden = false;
+    localOptimumToast.classList.remove('is-visible');
+    void localOptimumToast.offsetWidth;
+    localOptimumToast.classList.add('is-visible');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      localOptimumToast.hidden = true;
+      localOptimumToast.classList.remove('is-visible');
+    }, 1300);
+  }
+
   function seedFromPointer(event: PointerEvent) {
     const rect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
@@ -338,12 +363,16 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     t += 0.005;
     const g = grad(m.x, m.y);
     // A measured descent keeps the marker readable as it crosses each grid ring.
-    m.vx = 0.8 * m.vx - 0.0085 * g[0];
-    m.vy = 0.8 * m.vy - 0.0085 * g[1];
+    m.vx = 0.8 * m.vx - 0.0068 * g[0];
+    m.vy = 0.8 * m.vy - 0.0068 * g[1];
     m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx));
     m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy));
     epoch++;
-    if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 140) reseed();
+    if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 140) {
+      const settledAtGlobalMinimum = Math.hypot(m.x - GLOBAL_MIN.x, m.y - GLOBAL_MIN.y) < 0.12;
+      if (!settledAtGlobalMinimum) showNonGlobalMaximumToast();
+      reseed();
+    }
 
     if (clickPulse > 0) {
       clickPulse = Math.max(0, clickPulse - 0.014);
@@ -447,6 +476,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
       destroyed = true;
       running = false;
       cancelAnimationFrame(rafId);
+      window.clearTimeout(toastTimer);
       stopResizeObserver();
       canvas.removeEventListener('webglcontextlost', onContextLost);
       canvas.removeEventListener('webglcontextrestored', onContextRestored);

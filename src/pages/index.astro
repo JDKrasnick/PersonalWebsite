@@ -1,22 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
+import ScrollRail from '../components/ScrollRail.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
-import Skills from '../components/Skills.astro';
-import Projects from '../components/Projects.astro';
+import Divider from '../components/Divider.astro';
 import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
 import Contact from '../components/Contact.astro';
 ---
 
 <Layout>
   <Navbar />
+  <ScrollRail topLabel="loss 1.00" bottomLabel="min" />
   <main>
     <Hero />
     <About />
-    <Skills />
-    <Projects />
+    <Divider variant="periwinkle" />
     <Experience />
+    <Divider variant="amber" />
+    <Projects />
+    <Skills />
+    <Divider variant="periwinkle-thin" />
     <Contact />
   </main>
 </Layout>
@@ -53,11 +59,12 @@ import Contact from '../components/Contact.astro';
     );
   });
 
-  // Active nav link highlight
+  // Active nav link + scroll rail marker
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-links a');
+  const railMarker = document.getElementById('rail-marker');
 
-  const highlightNav = () => {
+  const handleScroll = () => {
     const scrollY = window.scrollY + 200;
     sections.forEach((section) => {
       const sectionEl = section as HTMLElement;
@@ -74,7 +81,14 @@ import Contact from '../components/Contact.astro';
         });
       }
     });
+
+    if (railMarker) {
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      railMarker.style.top = `${progress * 100}%`;
+    }
   };
 
-  window.addEventListener('scroll', highlightNav);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
 </script>

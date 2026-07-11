@@ -4,33 +4,36 @@
 
 <section class="about" id="about">
   <div class="container">
-    <div class="section-label reveal">About</div>
+    <div class="section-label reveal"><span class="idx">01 /</span> About</div>
     <div class="about-grid">
       <div class="about-text">
-        <h2 class="section-title reveal reveal-delay-1">A bit about me</h2>
+        <h2 class="section-title reveal reveal-delay-1">A builder who thinks in models.</h2>
         <p class="reveal reveal-delay-2">
-          I'm a software engineer with a passion for building innovative projects that span across disciplines. I love to apply my interests in discrete math, robotics, and real-world data to projects that solve problems in these fields.
+          I'm an AI/ML engineer studying Computer Science and Operations Research at Cornell. I like taking messy data and black-box models and making them observable, testable, and reliable enough to trust in production.
         </p>
         <p class="reveal reveal-delay-3">
-          When I'm not coding, you can find me out running on a trail, hitting the gym, or watching the latest Youtube video essay that came up in my feed.
+          Beyond that, I'm drawn to the frontier of the field — LLMs, agentic systems, reinforcement learning, and the research pushing all three forward.
+        </p>
+        <p class="reveal reveal-delay-4">
+          When I'm not coding, you'll find me out running on a trail, in the gym, or halfway through the latest YouTube video essay that wandered into my feed.
         </p>
       </div>
-      <div class="about-details reveal reveal-delay-3">
-        <div class="detail-card">
-          <span class="detail-label">Location</span>
-          <span class="detail-value">Wayne, PA</span>
+      <div class="spec-sheet reveal reveal-delay-3">
+        <div class="spec-row">
+          <span class="spec-key">Location</span>
+          <span class="spec-value">Wayne, PA</span>
         </div>
-        <div class="detail-card">
-          <span class="detail-label">Education</span>
-          <span class="detail-value">B.S. at Cornell University in Computer Science and Operations Research</span>
+        <div class="spec-row">
+          <span class="spec-key">Education</span>
+          <span class="spec-value">B.S. Computer Science &amp; Operations Research — Cornell University</span>
         </div>
-        <div class="detail-card">
-          <span class="detail-label">Focus</span>
-          <span class="detail-value">AI/ML Engineering and Data Science</span>
+        <div class="spec-row">
+          <span class="spec-key">Focus</span>
+          <span class="spec-value">Classical ML · Modern AI / LLMs · Full-stack systems</span>
         </div>
-        <div class="detail-card">
-          <span class="detail-label">Interests</span>
-          <span class="detail-value">Reinforcement Learning, Optimization Algorithms, and Supply Chain</span>
+        <div class="spec-row">
+          <span class="spec-key">Toolkit</span>
+          <span class="spec-value">Python · PyTorch · TypeScript · FastAPI</span>
         </div>
       </div>
     </div>
@@ -54,38 +57,6 @@
     color: var(--text-secondary);
     line-height: 1.75;
     margin-bottom: 1rem;
-  }
-
-  .about-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--border-color);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .detail-card {
-    padding: 1.25rem;
-    background: var(--bg-secondary);
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .detail-label {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-  }
-
-  .detail-value {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    font-weight: 500;
-    line-height: 1.45;
   }
 
   @media (max-width: 768px) {

@@ -10,10 +10,10 @@ const navLinks = [
 
 <nav class="navbar" id="navbar">
   <div class="nav-inner container">
-    <a href="#hero" class="nav-logo">JD</a>
+    <a href="#hero" class="nav-logo">JD<span class="nav-logo-dot">.</span>Krasnick</a>
     <ul class="nav-links">
       {navLinks.map(link => (
-        <li><a href={link.href}>{link.label}</a></li>
+        <li><a href={link.href}>{link.label.toLowerCase()}</a></li>
       ))}
     </ul>
     <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-outline nav-resume">
@@ -69,14 +69,17 @@ const navLinks = [
   }
 
   .nav-logo {
-    font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 500;
     color: var(--text-primary);
-    letter-spacing: -0.03em;
+    letter-spacing: 0.01em;
   }
   .nav-logo:hover {
     color: var(--text-primary);
+  }
+  .nav-logo-dot {
+    color: var(--accent-data);
   }
 
   .nav-links {
@@ -86,16 +89,19 @@ const navLinks = [
   }
 
   .nav-links a {
-    font-size: 0.825rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
     font-weight: 400;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     transition: color var(--transition-fast);
-    letter-spacing: 0;
+    letter-spacing: 0.04em;
   }
 
-  .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a:hover {
     color: var(--text-primary);
+  }
+  .nav-links a.active {
+    color: var(--accent);
   }
 
   .nav-resume {

@@ -1,0 +1,45 @@
+---
+interface Props {
+  variant?: "periwinkle" | "amber" | "periwinkle-thin";
+}
+
+const { variant = "periwinkle" } = Astro.props;
+
+const paths: Record<string, { d: string; opacity: number }[]> = {
+  periwinkle: [
+    { d: "M0,40 C150,10 300,55 450,35 C600,15 750,50 900,30 C1050,12 1150,40 1200,28", opacity: 0.4 },
+    { d: "M0,48 C150,22 300,60 450,44 C600,26 750,58 900,40 C1050,24 1150,48 1200,38", opacity: 0.2 },
+  ],
+  amber: [
+    { d: "M0,32 C150,52 300,14 450,34 C600,54 750,20 900,38 C1050,52 1150,26 1200,36", opacity: 0.35 },
+    { d: "M0,40 C150,60 300,22 450,42 C600,60 750,28 900,46 C1050,60 1150,34 1200,44", opacity: 0.18 },
+  ],
+  "periwinkle-thin": [
+    { d: "M0,30 C200,45 400,18 600,32 C800,46 1000,20 1200,34", opacity: 0.3 },
+  ],
+};
+
+const color = variant === "amber" ? "#ffb454" : "#6c8aff";
+const strokes = paths[variant];
+---
+
+<div class="divider" aria-hidden="true">
+  <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
+    {strokes.map((s) => (
+      <path d={s.d} fill="none" stroke={color} stroke-width="1" opacity={s.opacity} />
+    ))}
+  </svg>
+</div>
+
+<style>
+  .divider {
+    height: 60px;
+    position: relative;
+    opacity: 0.5;
+  }
+  .divider svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>

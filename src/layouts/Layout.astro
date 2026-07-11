@@ -5,9 +5,11 @@ interface Props {
 }
 
 const {
-  title = "JD Krasnick — Software Engineer",
-  description = "Software Engineer crafting high-quality digital experiences."
+  title = "JD Krasnick — AI/ML Engineer",
+  description = "AI/ML engineer & builder — from classical ML to modern LLMs, I ship systems that learn from real data."
 } = Astro.props;
+
+const siteUrl = "https://jdkrasnick.com";
 ---
 
 <!doctype html>
@@ -20,6 +22,16 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:image" content={`${siteUrl}/og-image.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.png`} />
   </head>
   <body>
     <slot />

@@ -5,68 +5,64 @@ const experiences = [
     company: "Order.co",
     companyUrl: "https://www.order.co",
     period: "May — Aug 2026",
-    description: "Building offline evaluation systems that measure and improve the accuracy of AI-driven product data extraction at Order.co.",
     highlights: [
-      "Built offline evals for live offers that raised core product field accuracy to 95%",
-      "Developing evaluation frameworks to assess AI model performance and reliability",
+      "Built offline evals for live offers that raised core product field accuracy to <b>95%</b>",
+      "Shipped an inline LLM-as-judge online eval sampling <b>~10%</b> of live parses for real-time, per-field accuracy monitoring in production",
+      "Built a retry/fallback system with bot-block detection and jittered backoff for the vendor product-data scraper, raising recovery from <b>0%</b> to <b>82.7%</b> and overall success above <b>98%</b>",
     ],
-    tags: ["Python", "AI/ML", "Evaluations", "LLMs"],
+    tags: ["Python", "AI/ML", "LLM Evaluations", "Data Extraction", "Prompt Engineering"],
   },
   {
     role: "AI Engineer",
     company: "Generative AI at Cornell",
     companyUrl: "https://www.cornellgenai.dev/",
     period: "Feb 2026 — Present",
-    description: "Building an ESG news-monitoring system for Investcorp's CLO portfolio, spanning news ingestion, LLM classification, and an analyst-facing risk dashboard.",
     highlights: [
-      "Built an ingestion pipeline that discovers, dedupes, and scrapes news across 14+ providers into a clustered event model",
-      "Used Anthropic tool-use for event classification, geo-extraction, and credit/covenant impact analysis over a graph-backed data core",
+      "Built an ingestion pipeline that discovers, dedupes, and scrapes news across <b>14+ providers</b> into a clustered event model",
+      "Built a graph-backed LLM analysis pipeline for <b>Investcorp</b> to classify events, extract geographic context, and assess credit and covenant impacts",
     ],
-    tags: ["Python", "TypeScript", "AI Agents", "LLMs", "Anthropic API", "ESG Analytics"],
+    tags: ["Python", "TypeScript", "AI Agents", "Anthropic API", "ESG Analytics", "Graph Databases"],
   },
   {
     role: "Undergraduate Researcher",
     company: "Cornell University",
     companyUrl: "https://www.orie.cornell.edu",
     period: "Jan 2026 — Present",
-    description: "Conducting research on deep reinforcement learning applications for queueing network optimization under Professor Jim Dai at Cornell's Operations Research & Information Engineering department. Currently looking at using a PPO-based algorithm for optimizing hospital networks.",
     highlights: [
-      "Developing deep RL models to optimize complex queueing network systems",
+      "Developing <b>deep reinforcement learning</b> models to optimize complex queueing network systems",
       "Applying AI techniques to operations research problems",
     ],
-    tags: ["Deep Learning", "Reinforcement Learning", "Pytorch", "Operations Research", "Python"],
+    tags: ["Reinforcement Learning", "PPO", "PyTorch", "Operations Research", "Queueing Theory", "Python"],
   },
   {
     role: "Financial Software Engineer",
     company: "Cornell FinTech Club",
     companyUrl: "https://www.cornellfintechclub.com/",
     period: "Jan 2026 — Present",
-    description: "Building financial technology solutions as part of Cornell's premier fintech student organization. Developed a full-stack lending platform covering the complete loan lifecycle from application through credit decisioning.",
     highlights: [
-      "Built a fintech lending platform with Next.js, FastAPI, and PostgreSQL featuring ML-powered credit scoring",
+      "Built a fintech lending platform with <b>Next.js, FastAPI, and PostgreSQL</b> featuring ML-powered credit scoring",
       "Implemented credit decisioning engine using logistic regression and gradient boosting models",
     ],
-    tags: ["Next.js", "FastAPI", "PostgreSQL", "scikit-learn", "TypeScript", "Python"],
+    tags: ["Next.js", "FastAPI", "PostgreSQL", "scikit-learn", "TypeScript", "Docker"],
   },
   {
     role: "Research Assistant",
     company: "University of Pennsylvania",
     companyUrl: "https://www.law.upenn.edu",
     period: "Jun — Aug 2025",
-    description: "Conducted research under Professor Jonathan Klick at the University of Pennsylvania Law School, focusing on data collection and analysis for legal research.",
     highlights: [
       "Scraped, cleaned, and pipelined data from websites, Excel files, and PDFs using Python and NumPy",
       "Produced organized CSV datasets for research analysis, streamlining the data processing workflow",
     ],
-    tags: ["Python", "NumPy", "Pandas", "ETL", "Data Analysis", "Web Scraping"],
+    tags: ["Python", "Pandas", "ETL", "Data Analysis", "Web Scraping", "PDF Parsing"],
   },
 ];
 ---
 
 <section class="experience" id="experience">
   <div class="container">
-    <div class="section-label reveal">Experience</div>
-    <h2 class="section-title reveal reveal-delay-1">Where I've Worked</h2>
+    <div class="section-label reveal"><span class="idx">02 /</span> Experience</div>
+    <h2 class="section-title reveal reveal-delay-1">Where I've been training.</h2>
 
     <div class="exp-list">
       {experiences.map((exp, i) => (
@@ -82,10 +78,9 @@ const experiences = [
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
               </a>
             </div>
-            <p class="exp-desc">{exp.description}</p>
             <ul class="exp-highlights">
               {exp.highlights.map(h => (
-                <li>{h}</li>
+                <li set:html={h} />
               ))}
             </ul>
             <div class="exp-tags">
@@ -113,24 +108,28 @@ const experiences = [
 
   .exp-item {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 3rem;
-    padding: 2rem 0;
-    border-bottom: 1px solid var(--border-color);
+    grid-template-columns: 150px 1fr;
+    gap: 2.5rem;
+    padding: 1.875rem 0;
+    border-top: 1px solid var(--border-color);
   }
 
-  .exp-item:first-child {
-    border-top: 1px solid var(--border-color);
+  .exp-item:last-child {
+    border-bottom: 1px solid var(--border-color);
   }
 
   .exp-left {
     padding-top: 0.15rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
   .exp-period {
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     white-space: nowrap;
   }
 
@@ -152,13 +151,6 @@ const experiences = [
     font-size: 0.875rem;
     color: var(--accent);
     margin-top: 0.15rem;
-  }
-
-  .exp-desc {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 0.75rem;
   }
 
   .exp-highlights {
@@ -185,6 +177,11 @@ const experiences = [
     height: 4px;
     border-radius: 50%;
     background: var(--text-muted);
+  }
+
+  .exp-highlights li :global(b) {
+    color: var(--text-primary);
+    font-weight: 600;
   }
 
   .exp-tags {
