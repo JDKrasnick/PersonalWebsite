@@ -220,6 +220,22 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   const marker = new THREE.Mesh(markerGeometry, markerMaterial);
   scene.add(marker);
 
+  const clickIndicatorGeometry = new THREE.RingGeometry(0.16, 0.22, 40);
+  const clickIndicatorMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffd49a,
+    transparent: true,
+    opacity: 0,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+  const clickIndicator = new THREE.Mesh(clickIndicatorGeometry, clickIndicatorMaterial);
+  clickIndicator.visible = false;
+  clickIndicator.renderOrder = 3;
+  scene.add(clickIndicator);
+  const clickNormal = new THREE.Vector3();
+  const ringNormal = new THREE.Vector3(0, 0, 1);
+  let clickPulse = 0;
+
   const trailPositions = new Float32Array(TRAIL_LEN * 3);
   const trailGeo = new THREE.BufferGeometry();
   trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
@@ -279,6 +295,14 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     const hit = raycaster.intersectObject(surface, false)[0];
     if (!hit) return;
     seedAt(hit.point.x / WORLD + 0.5, hit.point.z / WORLD + 0.5);
+    const [dx, dy] = grad(m.x, m.y);
+    clickNormal.set(-(dx * H_SCALE) / WORLD, 1, -(dy * H_SCALE) / WORLD).normalize();
+    clickIndicator.position.copy(hit.point).addScaledVector(clickNormal, 0.08);
+    clickIndicator.quaternion.setFromUnitVectors(ringNormal, clickNormal);
+    clickIndicator.scale.setScalar(1);
+    clickIndicatorMaterial.opacity = 0.8;
+    clickIndicator.visible = true;
+    clickPulse = 1;
     positionMarker(m.x, m.y);
     updateHud(epoch, loss(m.x, m.y), lossHistory);
   }
@@ -320,6 +344,13 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy));
     epoch++;
     if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 140) reseed();
+
+    if (clickPulse > 0) {
+      clickPulse = Math.max(0, clickPulse - 0.014);
+      clickIndicator.scale.setScalar(1 + (1 - clickPulse) * 1.8);
+      clickIndicatorMaterial.opacity = clickPulse * 0.8;
+      clickIndicator.visible = clickPulse > 0;
+    }
 
     const [wx, wy, wz] = positionMarker(m.x, m.y);
     trailPts.push([wx, wy + 0.08, wz]);
@@ -431,6 +462,8 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
       contourMaterial.dispose();
       markerGeometry.dispose();
       markerMaterial.dispose();
+      clickIndicatorGeometry.dispose();
+      clickIndicatorMaterial.dispose();
       trailGeo.dispose();
       trailMaterial.dispose();
       renderer.dispose();
