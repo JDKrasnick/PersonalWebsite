@@ -166,8 +166,8 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
 
   function tick() {
     const g = grad(marker.x, marker.y);
-    marker.vx = 0.86 * marker.vx - 0.02 * g[0];
-    marker.vy = 0.86 * marker.vy - 0.02 * g[1];
+    marker.vx = 0.86 * marker.vx - 0.016 * g[0];
+    marker.vy = 0.86 * marker.vy - 0.016 * g[1];
     marker.x = Math.max(0.02, Math.min(0.98, marker.x + marker.vx));
     marker.y = Math.max(0.02, Math.min(0.98, marker.y + marker.vy));
     trail.push({ x: marker.x, y: marker.y });

@@ -364,9 +364,9 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   function tick() {
     t += 0.005;
     const g = grad(m.x, m.y);
-    // A measured descent keeps the marker readable as it crosses each grid ring.
-    m.vx = 0.8 * m.vx - 0.0068 * g[0];
-    m.vy = 0.8 * m.vy - 0.0068 * g[1];
+    // A slower descent keeps the marker readable as it crosses each grid ring.
+    m.vx = 0.8 * m.vx - 0.0052 * g[0];
+    m.vy = 0.8 * m.vy - 0.0052 * g[1];
     m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx));
     m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy));
     epoch++;
