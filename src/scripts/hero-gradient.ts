@@ -72,6 +72,7 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
   let img: ImageData | null = null;
   let rafId = 0;
   let running = false;
+  let lastFrameTime: number | null = null;
 
   let marker = { x: 0.15, y: 0.2, vx: 0, vy: 0 };
   let trail: { x: number; y: number }[] = [];
@@ -164,22 +165,26 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     ctx.fill();
   }
 
-  function tick() {
+  function tick(now: number) {
+    // Keep the simulation speed consistent across different display refresh rates.
+    const frameScale = lastFrameTime === null ? 1 : Math.min(2, (now - lastFrameTime) / (1000 / 60));
+    lastFrameTime = now;
     const g = grad(marker.x, marker.y);
-    marker.vx = 0.86 * marker.vx - 0.016 * g[0];
-    marker.vy = 0.86 * marker.vy - 0.016 * g[1];
-    marker.x = Math.max(0.02, Math.min(0.98, marker.x + marker.vx));
-    marker.y = Math.max(0.02, Math.min(0.98, marker.y + marker.vy));
+    const damping = Math.pow(0.86, frameScale);
+    marker.vx = damping * marker.vx - 0.016 * g[0] * frameScale;
+    marker.vy = damping * marker.vy - 0.016 * g[1] * frameScale;
+    marker.x = Math.max(0.02, Math.min(0.98, marker.x + marker.vx * frameScale));
+    marker.y = Math.max(0.02, Math.min(0.98, marker.y + marker.vy * frameScale));
     trail.push({ x: marker.x, y: marker.y });
     if (trail.length > trailMax) trail.shift();
-    epoch++;
+    epoch += frameScale;
     if (Math.hypot(marker.vx, marker.vy) < 0.0004 && epoch > 100) reseed();
 
     const currentLoss = loss(marker.x, marker.y);
     lossHistory.push(currentLoss);
     if (lossHistory.length > 44) lossHistory.shift();
     renderFrame();
-    updateHud(epoch, currentLoss, lossHistory);
+    updateHud(Math.floor(epoch), currentLoss, lossHistory);
 
     rafId = requestAnimationFrame(tick);
   }
@@ -188,10 +193,12 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     start() {
       if (running) return;
       running = true;
+      lastFrameTime = null;
       rafId = requestAnimationFrame(tick);
     },
     stop() {
       running = false;
+      lastFrameTime = null;
       cancelAnimationFrame(rafId);
     },
     drawStaticFrame() {
@@ -212,7 +219,7 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
       marker = { ...settled, vx: 0, vy: 0 };
       epoch = 240;
       renderFrame();
-      updateHud(epoch, loss(marker.x, marker.y), lossHistory);
+      updateHud(Math.floor(epoch), loss(marker.x, marker.y), lossHistory);
     },
     destroy() {
       running = false;

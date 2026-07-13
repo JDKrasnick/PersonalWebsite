@@ -277,6 +277,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   let rafId = 0;
   let running = false;
   let t = 0;
+  let lastFrameTime: number | null = null;
 
   function positionMarker(nx: number, ny: number) {
     const [wx, wy, wz] = toWorld(nx, ny);
@@ -331,7 +332,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     clickIndicator.visible = true;
     clickPulse = 1;
     positionMarker(m.x, m.y);
-    updateHud(epoch, loss(m.x, m.y), lossHistory);
+    updateHud(Math.floor(epoch), loss(m.x, m.y), lossHistory);
   }
 
   function onPointerDown(event: PointerEvent) {
@@ -361,15 +362,21 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     renderer.render(scene, camera);
   }
 
-  function tick() {
-    t += 0.005;
+  function tick(now: number) {
+    // Normalize the simulation to a 60 Hz reference so a high-refresh display
+    // does not make the marker travel faster. Cap long gaps to avoid a jump
+    // when the tab resumes after being inactive.
+    const frameScale = lastFrameTime === null ? 1 : Math.min(2, (now - lastFrameTime) / (1000 / 60));
+    lastFrameTime = now;
+    t += 0.005 * frameScale;
     const g = grad(m.x, m.y);
     // A slower descent keeps the marker readable as it crosses each grid ring.
-    m.vx = 0.8 * m.vx - 0.0052 * g[0];
-    m.vy = 0.8 * m.vy - 0.0052 * g[1];
-    m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx));
-    m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy));
-    epoch++;
+    const damping = Math.pow(0.8, frameScale);
+    m.vx = damping * m.vx - 0.0052 * g[0] * frameScale;
+    m.vy = damping * m.vy - 0.0052 * g[1] * frameScale;
+    m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx * frameScale));
+    m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy * frameScale));
+    epoch += frameScale;
     if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 110) {
       const settledAtGlobalMinimum = Math.hypot(m.x - GLOBAL_MIN.x, m.y - GLOBAL_MIN.y) < 0.12;
       if (!settledAtGlobalMinimum) showNonGlobalMaximumToast();
@@ -377,7 +384,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     }
 
     if (clickPulse > 0) {
-      clickPulse = Math.max(0, clickPulse - 0.014);
+      clickPulse = Math.max(0, clickPulse - 0.014 * frameScale);
       clickIndicator.scale.setScalar(1 + (1 - clickPulse) * 1.8);
       clickIndicatorMaterial.opacity = clickPulse * 0.8;
       clickIndicator.visible = clickPulse > 0;
@@ -399,7 +406,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     lossHistory.push(currentLoss);
     if (lossHistory.length > 44) lossHistory.shift();
     renderFrame();
-    updateHud(epoch, currentLoss, lossHistory);
+    updateHud(Math.floor(epoch), currentLoss, lossHistory);
 
     rafId = requestAnimationFrame(tick);
   }
@@ -439,10 +446,12 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   function start() {
     if (running || destroyed) return;
     running = true;
+    lastFrameTime = null;
     rafId = requestAnimationFrame(tick);
   }
   function stop() {
     running = false;
+    lastFrameTime = null;
     cancelAnimationFrame(rafId);
   }
 
