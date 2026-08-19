@@ -1,20 +1,58 @@
 ---
-const projects = [
+interface Project {
+  title: string;
+  description: string;
+  tags: string[];
+  link?: string;
+  video?: string;
+  demo?: string;
+  latest?: boolean;
+  featured: boolean;
+}
+
+const projects: Project[] = [
   {
-    title: "Investcorp ESG CLO Monitor",
-    description: "Built core services for Investcorp's ESG intelligence platform, including company-targeted news discovery, graph-backed event intelligence, and LLM-generated credit and covenant analyses.",
-    tags: ["TypeScript", "Next.js", "Fastify", "PostgreSQL", "Redis", "LLMs"],
-    link: "",
-    demo: "",
+    title: "Agent Arena",
+    description: "Adversarial evaluation harness that gives frontier coding agents the same task, then stress-tests their patches through executable attack-and-repair rounds before a human chooses what ships.",
+    tags: ["TypeScript", "Node.js", "Vitest", "Zod", "Git Worktrees", "AI Agents"],
+    link: "https://github.com/JDKrasnick/agentarena",
+    latest: true,
     featured: true,
   },
   {
-    title: "SafeStep",
-    description: "Full-stack pedestrian-routing platform that combines computer-vision hazard detection with accessibility-aware pathfinding to help users choose safer routes.",
-    tags: ["Java", "Spring Boot", "React", "TypeScript", "YOLOv8", "PostgreSQL", "FastAPI"],
-    link: "https://github.com/AndyDo0942/SafeStep",
-    demo: "",
+    title: "Mechanistic Routing",
+    description: "Research prototype for budget-aware LLM adaptation, using a counterfactual critic to route among prompt, activation-steering, and LoRA interventions without exhaustively running every candidate.",
+    tags: ["Python", "PyTorch", "Transformers", "LoRA", "Activation Steering", "Qwen"],
+    link: "https://github.com/JDKrasnick/mechanistic-routing",
     featured: true,
+  },
+  {
+    title: "The Workflow Gambit",
+    description: "Controlled nine-person experiment comparing AI-assisted development workflows by having each one build a UCI chess engine from the same spec and scoring the results with a shared evaluation harness.",
+    tags: ["Python", "LLM Workflows", "Evaluation", "Chess Engines", "UCI"],
+    link: "https://github.com/JDKrasnick/Point72Hackathon",
+    featured: true,
+  },
+  {
+    title: "Discrete Event Simulator",
+    description: "Interactive queueing-network simulator with a drag-and-drop canvas, WebSocket streaming, pluggable scheduling policies, and Gym-style environments for reinforcement-learning experiments.",
+    tags: ["Python", "FastAPI", "WebSockets", "Reinforcement Learning", "Queueing Theory"],
+    link: "https://github.com/JDKrasnick/DiscreteEventSimulator",
+    featured: false,
+  },
+  {
+    title: "Lead Surfacer",
+    description: "Client-facing discovery and enrichment pipeline that collects candidate domains, filters them with batched LLM classification, crawls promising leads, and serves a reviewable queue of scored results.",
+    tags: ["Python", "TypeScript", "FastAPI", "Next.js", "LLMs", "Firecrawl"],
+    link: "https://github.com/JDKrasnick/Lead-Surfacer",
+    featured: false,
+  },
+  {
+    title: "Internship Notifier",
+    description: "Serverless internship tracker that polls public job feeds, deduplicates openings, and sends push alerts and email digests without a continuously running server.",
+    tags: ["TypeScript", "AWS CDK", "Lambda", "DynamoDB", "Automation"],
+    link: "https://github.com/JDKrasnick/intern-notifs",
+    featured: false,
   },
   {
     title: "Cornell Lab Matchmaker",
@@ -22,22 +60,13 @@ const projects = [
     tags: ["Python", "Streamlit", "ChromaDB", "Embeddings", "Web Scraping"],
     link: "https://github.com/JDKrasnick/Cornell_Research_Agent",
     video: "https://www.dropbox.com/scl/fi/nzlyyiloqtasksiw64vkp/GENAI.mp4?rlkey=dvxhgv5y7mvrakspwo36i0k0p&st=0ozsyzsb&dl=0",
-    demo: "",
-    featured: true,
-  },
-  {
-    title: "LoanApproval",
-    description: "End-to-end lending platform combining configurable credit rules, ML default-risk scoring, document extraction, and immutable decision audit logs.",
-    tags: ["Next.js", "FastAPI", "PostgreSQL", "scikit-learn", "Credit Risk", "LLMs"],
-    link: "https://github.com/JDKrasnick/LoanApproval",
     featured: false,
   },
   {
-    title: "MarketSent",
-    description: "Deployed financial-intelligence dashboard that analyzes Reddit discussions with FinBERT to surface ticker-level sentiment, trends, and most-discussed names.",
-    tags: ["React", "TypeScript", "Python", "Flask", "FinBERT", "PostgreSQL"],
-    link: "https://github.com/JDKrasnick/MarketSent",
-    demo: "https://market-sent.vercel.app/",
+    title: "SafeStep",
+    description: "Full-stack pedestrian-routing platform that combines computer-vision hazard detection with accessibility-aware pathfinding to help users choose safer routes.",
+    tags: ["Java", "Spring Boot", "React", "YOLOv8", "PostgreSQL"],
+    link: "https://github.com/AndyBDo/SafeStep",
     featured: false,
   },
 ];
@@ -51,14 +80,17 @@ const otherProjects = projects.filter(p => !p.featured);
     <div class="section-label reveal"><span class="idx">03 /</span> Projects</div>
     <h2 class="section-title reveal reveal-delay-1">Selected Work</h2>
     <p class="section-subtitle reveal reveal-delay-2">
-      A collection of things I've built and shipped — ML systems, dashboards, and a brain-computer interface.
+      Systems for evaluating AI agents, researching adaptive models, and turning messy real-world workflows into dependable software.
     </p>
 
     <div class="projects-grid">
       {featuredProjects.map((project, i) => (
-        <div class={`project-card reveal reveal-delay-${(i % 4) + 1}`}>
+        <div class={`project-card ${project.latest ? 'project-card-latest' : ''} reveal reveal-delay-${(i % 4) + 1}`}>
           <div class="project-header">
-            <span class="project-number">{String(i + 1).padStart(2, '0')}</span>
+            <div class="project-index">
+              <span class="project-number">{String(i + 1).padStart(2, '0')}</span>
+              {project.latest && <span class="project-status">Latest</span>}
+            </div>
             <div class="project-links">
               {project.video && (
                 <a href={project.video} target="_blank" rel="noopener noreferrer" aria-label="Project video" class="project-link-icon">
@@ -155,6 +187,13 @@ const otherProjects = projects.filter(p => !p.featured);
     transition: all var(--transition-med);
   }
 
+  .project-card-latest {
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgba(124, 145, 255, 0.14), transparent 58%),
+      var(--bg-card);
+    border-color: rgba(157, 172, 255, 0.24);
+  }
+
   .project-card-compact {
     min-height: auto;
   }
@@ -171,10 +210,25 @@ const otherProjects = projects.filter(p => !p.featured);
     align-items: center;
   }
 
+  .project-index {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
   .project-number {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--text-muted);
+  }
+
+  .project-status {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-data);
   }
 
   .project-links {
