@@ -27,6 +27,7 @@ const WORLD = 34;
 const H_SCALE = 6;
 const TRAIL_LEN = 120;
 const GRID_LINES = 18;
+const DESCENT_FORCE = 0.0045;
 // Ultra-wide screens expose much more of the horizontal frustum. Keep the mesh
 // generously oversized so its edge never cuts into the hero background.
 const SURFACE_PAD = 1.5;
@@ -370,10 +371,10 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     lastFrameTime = now;
     t += 0.005 * frameScale;
     const g = grad(m.x, m.y);
-    // A slower descent keeps the marker readable as it crosses each grid ring.
+    // A measured descent keeps the marker readable as it crosses each grid ring.
     const damping = Math.pow(0.8, frameScale);
-    m.vx = damping * m.vx - 0.0052 * g[0] * frameScale;
-    m.vy = damping * m.vy - 0.0052 * g[1] * frameScale;
+    m.vx = damping * m.vx - DESCENT_FORCE * g[0] * frameScale;
+    m.vy = damping * m.vy - DESCENT_FORCE * g[1] * frameScale;
     m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx * frameScale));
     m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy * frameScale));
     epoch += frameScale;
