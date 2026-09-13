@@ -2,33 +2,22 @@
 const skillCategories = [
   {
     title: "Languages",
-    skills: ["Python", "TypeScript", "JavaScript", "C++", "SQL", "HTML/CSS"],
-  },
-  {
-    title: "Frontend",
-    skills: ["React", "Vite", "Streamlit", "React Router"],
+    skills: ["Python", "TypeScript", "Java", "SQL", "C++"],
   },
   {
     title: "AI / Machine Learning",
-    skills: ["PyTorch", "TensorFlow", "Keras", "Hugging Face", "OpenAI", "MediaPipe", "OpenCV", "FinBERT"],
+    skills: ["PyTorch", "JAX", "scikit-learn", "LLM Agents & Evals", "Deep Reinforcement Learning"],
   },
   {
     title: "Backend & Data",
-    skills: ["RESTful APIs", "FastAPI", "Flask", "PostgreSQL", "SQLite", "ChromaDB", "Supabase", "Pandas"],
+    skills: ["FastAPI", "Fastify", "MongoDB", "PostgreSQL", "Redis / BullMQ"],
   },
   {
-    title: "Tools & Deployment",
-    skills: ["Git", "Vercel", "Render"],
+    title: "Cloud & Infrastructure",
+    skills: ["Cloudflare Workers", "AWS", "Docker", "Airflow", "Snowflake"],
   },
 ];
 
-function toFileName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\+\+/g, "-plus-plus")
-    .replace(/\//g, "-")
-    .replace(/\s+/g, "-");
-}
 ---
 
 <section class="skills" id="skills">
@@ -36,7 +25,7 @@ function toFileName(name: string): string {
     <div class="section-label reveal"><span class="idx">04 /</span> Skills</div>
     <h2 class="section-title reveal reveal-delay-1">Tech Stack</h2>
     <p class="section-subtitle reveal reveal-delay-2">
-      Technologies and tools I work with to bring ideas to life.
+      The tools I use to evaluate models, build agentic systems, and ship reliable data products.
     </p>
 
     <div class="skills-grid">
@@ -46,14 +35,7 @@ function toFileName(name: string): string {
           <div class="skill-tags">
             {cat.skills.map(skill => (
               <span class="skill-tag">
-                <img
-                  class="skill-icon"
-                  src={`/icons/skills/${toFileName(skill)}.svg`}
-                  alt=""
-                  width="14"
-                  height="14"
-                  loading="lazy"
-                />
+                <span class="skill-marker" aria-hidden="true"></span>
                 {skill}
               </span>
             ))}
@@ -67,8 +49,8 @@ function toFileName(name: string): string {
 <style>
   .skills-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.75rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.25rem;
     margin-top: 2.75rem;
   }
 
@@ -105,18 +87,19 @@ function toFileName(name: string): string {
     color: var(--text-primary);
   }
 
-  .skill-icon {
-    width: 14px;
-    height: 14px;
+  .skill-marker {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
     flex-shrink: 0;
-    filter: invert(40%) sepia(0%) saturate(0%) brightness(90%);
-    transition: filter var(--transition-fast);
-    opacity: 0.6;
+    opacity: 0.55;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
   }
 
-  .skill-tag:hover .skill-icon {
-    filter: invert(70%) sepia(0%) saturate(0%) brightness(120%);
-    opacity: 0.9;
+  .skill-tag:hover .skill-marker {
+    opacity: 1;
+    transform: scale(1.35);
   }
 
   @media (max-width: 900px) {

@@ -1,28 +1,28 @@
 ---
 const experiences = [
   {
-    role: "AI Engineer",
+    role: "AI Engineer Intern",
     company: "Order.co",
     companyUrl: "https://www.order.co",
     period: "May — Aug 2026",
     highlights: [
-      "Built offline evals for live offers that raised core product field accuracy from <b>87% to 95%</b>",
-      "Shipped an inline LLM-as-judge online eval sampling <b>~10%</b> of live parses for real-time, per-field accuracy monitoring in production",
-      "Built a retry/fallback system with bot-block detection and jittered backoff for the vendor product-data scraper, raising recovery from <b>0%</b> to <b>82.7%</b> and overall success above <b>98%</b>",
-      "Built an agentic DOM-interaction flow that set delivery ZIP codes on vendor pages at a <b>90%+</b> completion rate, unlocking location-gated pricing for approximately <b>80%</b> of vendors",
+      "Raised product-offer ingestion success above <b>98%</b> across <b>5,000+ product pages per day</b>, recovering <b>82.7%</b> of blocked URLs through bot-block detection, fallback routing, and jittered backoff",
+      "Enabled field-level LLM-as-a-judge evaluation on <b>10%</b> of production parses by transforming OpenTelemetry traces through Airflow into Snowflake models and Metabase dashboards",
+      "Built an agentic DOM-interaction flow that set delivery ZIP codes at <b>90%+ completion</b>, unlocking location-aware pricing for approximately <b>80%</b> of vendors",
     ],
-    tags: ["Python", "LLM Evaluations", "Pydantic AI", "Browserbase", "Firecrawl", "Snowflake"],
+    tags: ["Python", "LLM Evaluations", "Airflow", "Snowflake", "Browserbase", "Firecrawl"],
   },
   {
-    role: "AI Engineer",
+    role: "Research Lead · previously AI Engineer",
     company: "Generative AI at Cornell",
     companyUrl: "https://www.cornellgenai.dev/",
     period: "Feb 2026 — Present",
     highlights: [
-      "Built an ingestion pipeline that discovers, dedupes, and scrapes news across <b>14+ providers</b> into a clustered event model",
-      "Built a graph-backed LLM analysis pipeline for <b>Investcorp</b> to classify events, extract geographic context, and assess credit and covenant impacts",
+      "Built and now lead the organization’s research track, recruiting Cornell faculty advisors and supervising teams running original <b>agent-harness optimization</b> experiments",
+      "Expanded ESG monitoring to <b>80 CLO portfolio companies</b> across <b>14+ news providers</b> for Investcorp with BullMQ/Redis ingestion, pgvector deduplication, and GPT-4o materiality classification",
+      "Shipped a <b>four-week MVP</b> that turns flagged ESG events into citation-backed credit and covenant summaries for analyst review",
     ],
-    tags: ["Python", "TypeScript", "AI Agents", "Anthropic API", "ESG Analytics", "Graph Databases"],
+    tags: ["TypeScript", "AI Agents", "GPT-4o", "BullMQ", "Redis", "PostgreSQL"],
   },
   {
     role: "Undergraduate Researcher",
@@ -30,32 +30,10 @@ const experiences = [
     companyUrl: "https://www.orie.cornell.edu",
     period: "Jan 2026 — Present",
     highlights: [
-      "Implemented <b>PPO</b> to learn routing and scheduling policies for multiclass queueing networks",
-      "Developed a web-based discrete-event simulator with pluggable scheduling policies and Gym-style RL environments, validated against <b>M/M/1 and M/M/c</b> closed-form results",
+      "Train deep-reinforcement-learning policies in PyTorch to learn routing and scheduling policies for multiclass queueing networks",
+      "Built a FastAPI/WebSocket discrete-event simulator with pluggable scheduling policies and Gym-style environments, validated against <b>M/M/1 and M/M/c</b> closed-form results",
     ],
-    tags: ["Reinforcement Learning", "PPO", "PyTorch", "FastAPI", "WebSockets", "Queueing Theory"],
-  },
-  {
-    role: "Financial Software Engineer",
-    company: "Cornell FinTech Club",
-    companyUrl: "https://www.cornellfintechclub.com/",
-    period: "Jan 2026 — Present",
-    highlights: [
-      "Built a fintech lending platform with <b>Next.js, FastAPI, and PostgreSQL</b> featuring ML-powered credit scoring",
-      "Implemented credit decisioning engine using logistic regression and gradient boosting models",
-    ],
-    tags: ["Next.js", "FastAPI", "PostgreSQL", "scikit-learn", "TypeScript", "Docker"],
-  },
-  {
-    role: "Research Assistant",
-    company: "University of Pennsylvania",
-    companyUrl: "https://www.law.upenn.edu",
-    period: "Jun — Aug 2025",
-    highlights: [
-      "Scraped, cleaned, and pipelined data from websites, Excel files, and PDFs using Python and NumPy",
-      "Produced organized CSV datasets for research analysis, streamlining the data processing workflow",
-    ],
-    tags: ["Python", "Pandas", "ETL", "Data Analysis", "Web Scraping", "PDF Parsing"],
+    tags: ["Deep Reinforcement Learning", "PyTorch", "OpenAI Gym", "FastAPI", "WebSockets", "Queueing Theory"],
   },
 ];
 ---
@@ -63,7 +41,7 @@ const experiences = [
 <section class="experience" id="experience">
   <div class="container">
     <div class="section-label reveal"><span class="idx">02 /</span> Experience</div>
-    <h2 class="section-title reveal reveal-delay-1">Where I've been training.</h2>
+    <h2 class="section-title reveal reveal-delay-1">Building systems that hold up in practice.</h2>
 
     <div class="exp-list">
       {experiences.map((exp, i) => (

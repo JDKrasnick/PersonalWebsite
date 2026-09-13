@@ -12,11 +12,18 @@ interface Project {
 
 const projects: Project[] = [
   {
+    title: "EvalBudget",
+    description: "Adaptive evaluation toolkit for paired model outputs that uses anytime-valid confidence sequences to stop once the evidence is decisive, while preserving raw outputs, grader configuration, and category-level results for auditability.",
+    tags: ["Python", "Sequential Testing", "LLM Evaluation", "Confidence Sequences"],
+    link: "https://github.com/JDKrasnick/evalbudget",
+    latest: true,
+    featured: true,
+  },
+  {
     title: "Agent Arena",
-    description: "Adversarial evaluation harness that gives frontier coding agents the same task, then stress-tests their patches through executable attack-and-repair rounds before a human chooses what ships.",
+    description: "Adversarial verification harness that ran 20+ PR-defense matches across Claude Code, Codex, and Gemini CLI, promoting only four-run reproducible test attacks and preserving resumable evidence across up to five attack-repair rounds.",
     tags: ["TypeScript", "Node.js", "Vitest", "Zod", "Git Worktrees", "AI Agents"],
     link: "https://github.com/JDKrasnick/agentarena",
-    latest: true,
     featured: true,
   },
   {
@@ -27,11 +34,16 @@ const projects: Project[] = [
     featured: true,
   },
   {
-    title: "The Workflow Gambit",
-    description: "Controlled nine-person experiment comparing AI-assisted development workflows by having each one build a UCI chess engine from the same spec and scoring the results with a shared evaluation harness.",
-    tags: ["Python", "LLM Workflows", "Evaluation", "Chess Engines", "UCI"],
-    link: "https://github.com/JDKrasnick/Point72Hackathon",
-    featured: true,
+    title: "Alloc",
+    description: "Local financial-intelligence agent that turns 36,000 transaction-level records across three companies into cited insights and forecasts, with 39–71 ms retrieval and deterministic, crash-safe proposal triage.",
+    tags: ["TypeScript", "OpenClaw", "Qwen", "Fastify", "MongoDB", "Human in the Loop"],
+    featured: false,
+  },
+  {
+    title: "Ntern",
+    description: "Event-driven internship discovery platform tracking 1,643 roles across 800 companies, with 99.9% metadata presence, 95.5% collection coverage, and grouped push notifications delivered within a 15-second p95 gate.",
+    tags: ["TypeScript", "Expo", "React Native", "Cloudflare Workers", "D1", "Queues"],
+    featured: false,
   },
   {
     title: "Discrete Event Simulator",
@@ -41,32 +53,17 @@ const projects: Project[] = [
     featured: false,
   },
   {
-    title: "Lead Surfacer",
-    description: "Client-facing discovery and enrichment pipeline that collects candidate domains, filters them with batched LLM classification, crawls promising leads, and serves a reviewable queue of scored results.",
-    tags: ["Python", "TypeScript", "FastAPI", "Next.js", "LLMs", "Firecrawl"],
-    link: "https://github.com/JDKrasnick/Lead-Surfacer",
+    title: "The Workflow Gambit",
+    description: "Controlled nine-person experiment comparing AI-assisted development workflows by having each one build a UCI chess engine from the same specification and scoring the results with a shared evaluation harness.",
+    tags: ["Python", "LLM Workflows", "Evaluation", "Chess Engines", "UCI"],
+    link: "https://github.com/JDKrasnick/Point72Hackathon",
     featured: false,
   },
   {
-    title: "Internship Notifier",
-    description: "Serverless internship tracker that polls public job feeds, deduplicates openings, and sends push alerts and email digests without a continuously running server.",
-    tags: ["TypeScript", "AWS CDK", "Lambda", "DynamoDB", "Automation"],
-    link: "https://github.com/JDKrasnick/intern-notifs",
-    featured: false,
-  },
-  {
-    title: "Cornell Lab Matchmaker",
-    description: "Research-discovery agent that aggregates faculty and publication data, matches students through semantic search, and generates tailored outreach drafts.",
-    tags: ["Python", "Streamlit", "ChromaDB", "Embeddings", "Web Scraping"],
-    link: "https://github.com/JDKrasnick/Cornell_Research_Agent",
-    video: "https://www.dropbox.com/scl/fi/nzlyyiloqtasksiw64vkp/GENAI.mp4?rlkey=dvxhgv5y7mvrakspwo36i0k0p&st=0ozsyzsb&dl=0",
-    featured: false,
-  },
-  {
-    title: "SafeStep",
-    description: "Full-stack pedestrian-routing platform that combines computer-vision hazard detection with accessibility-aware pathfinding to help users choose safer routes.",
-    tags: ["Java", "Spring Boot", "React", "YOLOv8", "PostgreSQL"],
-    link: "https://github.com/AndyBDo/SafeStep",
+    title: "MarketSent",
+    description: "Real-time market-sentiment dashboard that applies FinBERT to Reddit finance posts and serves the results through a Flask/PostgreSQL API and React visualizations.",
+    tags: ["Python", "FinBERT", "Flask", "PostgreSQL", "React", "Recharts"],
+    link: "https://github.com/JDKrasnick/MarketSent",
     featured: false,
   },
 ];
@@ -80,7 +77,7 @@ const otherProjects = projects.filter(p => !p.featured);
     <div class="section-label reveal"><span class="idx">03 /</span> Projects</div>
     <h2 class="section-title reveal reveal-delay-1">Selected Work</h2>
     <p class="section-subtitle reveal reveal-delay-2">
-      Systems for evaluating AI agents, researching adaptive models, and turning messy real-world workflows into dependable software.
+      Evaluation systems, adaptive-model research, and production software built around measurable reliability.
     </p>
 
     <div class="projects-grid">
