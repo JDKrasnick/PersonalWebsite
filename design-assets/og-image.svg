@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">JD Krasnick — AI Engineer and Researcher</title>
+  <desc id="description">A minimal navy social card with JD Krasnick's name, role, and a simple machine-learning loss-landscape mark.</desc>
+
+  <rect width="1200" height="630" fill="#080a15"/>
+
+  <g font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="76" y="302" fill="#f1f2fa" font-size="82" font-weight="700" letter-spacing="-2.5">JD KRASNICK</text>
+    <text x="80" y="375" fill="#9bacff" font-size="34" font-weight="500">AI Engineer &amp; Researcher</text>
+  </g>
+
+  <g fill="none" stroke="#7c91ff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M742 316C760 223 844 176 951 180C1060 184 1130 238 1124 322C1118 409 1037 458 934 450C831 442 725 406 742 316Z" stroke-opacity=".18" stroke-width="2"/>
+    <path d="M792 318C803 254 861 220 943 223C1024 226 1077 263 1073 320C1069 380 1008 414 938 408C866 402 781 379 792 318Z" stroke-opacity=".34" stroke-width="2.5"/>
+    <path d="M849 319C856 281 891 261 942 263C991 265 1022 287 1019 321C1016 356 980 376 938 372C894 369 843 356 849 319Z" stroke-opacity=".62" stroke-width="3"/>
+  </g>
+
+  <path d="M1095 210C1059 224 1037 249 1012 270C985 293 970 310 947 326" fill="none" stroke="#ffb454" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="1095" cy="210" r="5" fill="#ffb454"/>
+  <circle cx="947" cy="326" r="9" fill="#ffb454"/>
+  <circle cx="947" cy="326" r="3" fill="#fff4e3"/>
+</svg>

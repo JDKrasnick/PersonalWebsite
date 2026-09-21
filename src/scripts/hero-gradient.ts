@@ -1,42 +1,13 @@
 import type { HeroHandle, HeroOpts } from './hero-lifecycle';
 import { observeCanvasResize, supportsWebGL } from './hero-lifecycle';
-
-interface Well {
-  x: number;
-  y: number;
-  d: number;
-  s: number;
-}
-
-// The deepest well (global min) sits in the right half of normalized space — that's
-// also where the marker spawns/roams, so it reliably settles in the well that's
-// visually emphasized rather than drifting toward a shallower, off-center one.
-const WELLS: Well[] = [
-  { x: 0.78, y: 0.5, d: 0.9, s: 0.19 },
-  { x: 0.26, y: 0.34, d: 0.5, s: 0.12 },
-  { x: 0.62, y: 0.78, d: 0.4, s: 0.1 },
-];
-
-// Global minimum — deepest well, used as the settled marker position for the static frame.
-const GLOBAL_MIN = WELLS[0];
-
-function loss(nx: number, ny: number): number {
-  let v = 1;
-  for (const w of WELLS) {
-    const dx = nx - w.x;
-    const dy = ny - w.y;
-    v -= w.d * Math.exp(-(dx * dx + dy * dy) / (2 * w.s * w.s));
-  }
-  return v;
-}
-
-function grad(nx: number, ny: number): [number, number] {
-  const e = 0.001;
-  return [
-    (loss(nx + e, ny) - loss(nx - e, ny)) / (2 * e),
-    (loss(nx, ny + e) - loss(nx, ny - e)) / (2 * e),
-  ];
-}
+import { GLOBAL_MIN, loss, lossGradient } from './hero-landscape';
+import {
+  advanceHeroMarker,
+  HERO_MOTION,
+  lossHistoryToPoints,
+  nextHeroStart,
+  smoothReturnProgress,
+} from './hero-motion';
 
 function updateHud(epoch: number, lossValue: number, history: number[] = []) {
   const epochEl = document.getElementById('hero-epoch');
@@ -47,14 +18,7 @@ function updateHud(epoch: number, lossValue: number, history: number[] = []) {
   if (accuracyEl) accuracyEl.textContent = Math.max(0.5, Math.min(0.99, 1 - lossValue * 0.5)).toFixed(2);
   const chart = document.getElementById('hero-loss-chart');
   if (chart instanceof SVGPolylineElement && history.length > 0) {
-    const low = Math.min(...history);
-    const high = Math.max(...history, low + 0.001);
-    const points = history.map((value, i) => {
-      const x = history.length === 1 ? 111 : (i / (history.length - 1)) * 111;
-      const y = 2 + ((value - low) / (high - low)) * 25;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-    chart.setAttribute('points', points.join(' '));
+    chart.setAttribute('points', lossHistoryToPoints(history));
   }
 }
 
@@ -65,7 +29,8 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
   }
 
   const blockSize = opts.mobile ? 5 : 3;
-  const trailMax = opts.mobile ? 70 : 130;
+  const trailMax = opts.mobile ? 72 : 108;
+  const trailSampleMs = 1000 / 30;
 
   let width = 0;
   let height = 0;
@@ -73,11 +38,21 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
   let rafId = 0;
   let running = false;
   let lastFrameTime: number | null = null;
+  let simulationAccumulatorMs = 0;
 
   let marker = { x: 0.15, y: 0.2, vx: 0, vy: 0 };
   let trail: { x: number; y: number }[] = [];
   let epoch = 0;
+  let descentElapsedMs = 0;
+  let trailSampleElapsedMs = trailSampleMs;
   let lossHistory: number[] = [];
+  let returnMotion: {
+    fromX: number;
+    fromY: number;
+    toX: number;
+    toY: number;
+    elapsedMs: number;
+  } | null = null;
 
   function buildField() {
     if (!ctx || width === 0 || height === 0) return;
@@ -128,10 +103,14 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     // Keep the marker well clear of the text column and close enough to the global
     // well (0.78, 0.5) that it reliably falls into that well rather than a
     // shallower, off-camera one.
-    marker = { x: Math.random() * 0.25 + 0.65, y: Math.random() * 0.4 + 0.1, vx: 0, vy: 0 };
+    const start = nextHeroStart();
+    marker = { ...start, vx: 0, vy: 0 };
     trail = [];
     epoch = 0;
+    descentElapsedMs = 0;
+    trailSampleElapsedMs = trailSampleMs;
     lossHistory = [loss(marker.x, marker.y)];
+    returnMotion = null;
   }
   reseed();
 
@@ -165,24 +144,70 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
     ctx.fill();
   }
 
-  function tick(now: number) {
-    // Keep the simulation speed consistent across different display refresh rates.
-    const frameScale = lastFrameTime === null ? 1 : Math.min(2, (now - lastFrameTime) / (1000 / 60));
-    lastFrameTime = now;
-    const g = grad(marker.x, marker.y);
-    const damping = Math.pow(0.86, frameScale);
-    marker.vx = damping * marker.vx - 0.016 * g[0] * frameScale;
-    marker.vy = damping * marker.vy - 0.016 * g[1] * frameScale;
-    marker.x = Math.max(0.02, Math.min(0.98, marker.x + marker.vx * frameScale));
-    marker.y = Math.max(0.02, Math.min(0.98, marker.y + marker.vy * frameScale));
-    trail.push({ x: marker.x, y: marker.y });
-    if (trail.length > trailMax) trail.shift();
-    epoch += frameScale;
-    if (Math.hypot(marker.vx, marker.vy) < 0.0004 && epoch > 100) reseed();
+  function advanceSimulation() {
+    if (returnMotion) {
+      returnMotion.elapsedMs += HERO_MOTION.stepMs;
+      const progress = Math.min(1, returnMotion.elapsedMs / HERO_MOTION.returnDurationMs);
+      const eased = smoothReturnProgress(progress);
+      marker.x = returnMotion.fromX + (returnMotion.toX - returnMotion.fromX) * eased;
+      marker.y = returnMotion.fromY + (returnMotion.toY - returnMotion.fromY) * eased;
+      marker.vx = 0;
+      marker.vy = 0;
+      if (progress >= 1) {
+        returnMotion = null;
+        trail = [];
+        epoch = 0;
+        descentElapsedMs = 0;
+        trailSampleElapsedMs = trailSampleMs;
+        lossHistory = [loss(marker.x, marker.y)];
+      }
+      return;
+    }
+
+    advanceHeroMarker(marker, lossGradient(marker.x, marker.y), 0.02, 0.98);
+    descentElapsedMs += HERO_MOTION.stepMs;
+    trailSampleElapsedMs += HERO_MOTION.stepMs;
+    epoch += HERO_MOTION.stepMs / HERO_MOTION.referenceStepMs;
+    if (
+      Math.hypot(marker.vx, marker.vy) < HERO_MOTION.settledSpeedPerStep
+      && descentElapsedMs >= HERO_MOTION.minimumDescentMs
+    ) {
+      const start = nextHeroStart();
+      returnMotion = {
+        fromX: marker.x,
+        fromY: marker.y,
+        toX: start.x,
+        toY: start.y,
+        elapsedMs: 0,
+      };
+      trail = [];
+      marker.vx = 0;
+      marker.vy = 0;
+    }
+
+    if (!returnMotion && trailSampleElapsedMs >= trailSampleMs) {
+      trail.push({ x: marker.x, y: marker.y });
+      if (trail.length > trailMax) trail.shift();
+      trailSampleElapsedMs %= trailSampleMs;
+    }
 
     const currentLoss = loss(marker.x, marker.y);
     lossHistory.push(currentLoss);
     if (lossHistory.length > 44) lossHistory.shift();
+  }
+
+  function tick(now: number) {
+    const frameDeltaMs = lastFrameTime === null
+      ? HERO_MOTION.stepMs
+      : Math.min(HERO_MOTION.maxFrameDeltaMs, now - lastFrameTime);
+    lastFrameTime = now;
+    simulationAccumulatorMs += frameDeltaMs;
+    while (simulationAccumulatorMs >= HERO_MOTION.stepMs) {
+      advanceSimulation();
+      simulationAccumulatorMs -= HERO_MOTION.stepMs;
+    }
+
+    const currentLoss = loss(marker.x, marker.y);
     renderFrame();
     updateHud(Math.floor(epoch), currentLoss, lossHistory);
 
@@ -194,11 +219,13 @@ function build2D(canvas: HTMLCanvasElement, opts: HeroOpts): HeroHandle {
       if (running) return;
       running = true;
       lastFrameTime = null;
+      simulationAccumulatorMs = 0;
       rafId = requestAnimationFrame(tick);
     },
     stop() {
       running = false;
       lastFrameTime = null;
+      simulationAccumulatorMs = 0;
       cancelAnimationFrame(rafId);
     },
     drawStaticFrame() {

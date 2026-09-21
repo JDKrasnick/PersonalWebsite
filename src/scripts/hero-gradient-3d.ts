@@ -1,33 +1,22 @@
 import * as THREE from 'three';
 import type { HeroHandle, HeroOpts } from './hero-lifecycle';
 import { observeCanvasResize } from './hero-lifecycle';
-
-interface Well {
-  x: number;
-  y: number;
-  d: number;
-  s: number;
-}
-
-// The global minimum deliberately lives in the open right side of the hero. The
-// text stays quiet on the left, while the descent has a generous, visible runway.
-const WELLS: Well[] = [
-  { x: 0.76, y: 0.52, d: 0.7, s: 0.22 },
-  { x: 0.34, y: 0.29, d: 0.28, s: 0.12 },
-  // A deeper local basin keeps a distinct non-global destination with a broader
-  // capture region, instead of blending into the main basin.
-  { x: 0.59, y: 0.78, d: 0.36, s: 0.11 },
-];
-const GLOBAL_MIN = WELLS[0];
+import { GLOBAL_MIN, loss, lossGradient } from './hero-landscape';
+import {
+  advanceHeroMarker,
+  HERO_MOTION,
+  lossHistoryToPoints,
+  nextHeroStart,
+  smoothReturnProgress,
+} from './hero-motion';
 
 // This is intentionally much larger than the camera's frustum. It makes the
 // terrain feel like an environment rather than a finite object in one corner,
 // and removes the need to use fog to conceal a rectangular edge.
 const WORLD = 34;
-const H_SCALE = 6;
-const TRAIL_LEN = 120;
-const GRID_LINES = 18;
-const DESCENT_FORCE = 0.0045;
+const H_SCALE = 5.2;
+const TRAIL_LEN = 108;
+const TRAIL_SAMPLE_MS = 1000 / 30;
 // Ultra-wide screens expose much more of the horizontal frustum. Keep the mesh
 // generously oversized so its edge never cuts into the hero background.
 const SURFACE_PAD = 1.5;
@@ -43,31 +32,78 @@ function surfaceCoord(t: number): number {
 // Mid-tier GPUs (few logical cores) get a coarser surface — still 3D, just cheaper.
 const SEG = (navigator.hardwareConcurrency ?? 8) <= 4 ? 70 : 110;
 
-function loss(nx: number, ny: number): number {
-  // A broad, shallow basin gives the whole plane readable relief. The Gaussian
-  // wells then carve local minima into it instead of leaving a mostly-flat slab.
-  const dx = nx - 0.68;
-  const dy = ny - 0.52;
-  let v = 0.78 + 0.34 * (dx * dx + dy * dy * 0.76);
-  v += 0.028 * Math.sin(nx * Math.PI * 2.4) * Math.cos(ny * Math.PI * 2.1);
-  for (const w of WELLS) {
-    const wx = nx - w.x;
-    const wy = ny - w.y;
-    v -= w.d * Math.exp(-(wx * wx + wy * wy) / (2 * w.s * w.s));
-  }
-  return v;
-}
-
-function grad(nx: number, ny: number): [number, number] {
-  const e = 0.001;
-  return [
-    (loss(nx + e, ny) - loss(nx - e, ny)) / (2 * e),
-    (loss(nx, ny + e) - loss(nx, ny - e)) / (2 * e),
-  ];
-}
-
 function toWorld(nx: number, ny: number): [number, number, number] {
   return [(nx - 0.5) * WORLD, loss(nx, ny) * H_SCALE, (ny - 0.5) * WORLD];
+}
+
+interface ContourSample {
+  x: number;
+  y: number;
+  value: number;
+}
+
+function contourIntersection(a: ContourSample, b: ContourSample, level: number) {
+  const difference = b.value - a.value;
+  const t = Math.abs(difference) < 1e-9
+    ? 0.5
+    : Math.max(0, Math.min(1, (level - a.value) / difference));
+  return {
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+  };
+}
+
+// Extract exact level sets from a triangulated sampling of the same loss
+// function that shapes the surface. Within each triangle, contours at
+// different levels are parallel and therefore cannot cross.
+function buildContourPositions(levels: readonly number[]) {
+  const resolution = 84;
+  const fieldMin = -0.18;
+  const fieldMax = 1.18;
+  const samples: ContourSample[][] = [];
+  for (let row = 0; row <= resolution; row++) {
+    const y = fieldMin + (row / resolution) * (fieldMax - fieldMin);
+    const sampleRow: ContourSample[] = [];
+    for (let column = 0; column <= resolution; column++) {
+      const x = fieldMin + (column / resolution) * (fieldMax - fieldMin);
+      sampleRow.push({ x, y, value: loss(x, y) });
+    }
+    samples.push(sampleRow);
+  }
+
+  const positions: number[] = [];
+  const addTriangle = (triangle: readonly ContourSample[], level: number) => {
+    const intersections: { x: number; y: number }[] = [];
+    for (let edge = 0; edge < 3; edge++) {
+      const a = triangle[edge];
+      const b = triangle[(edge + 1) % 3];
+      if ((a.value < level) !== (b.value < level)) {
+        intersections.push(contourIntersection(a, b, level));
+      }
+    }
+    if (intersections.length !== 2) return;
+    for (const point of intersections) {
+      positions.push(
+        (point.x - 0.5) * WORLD,
+        level * H_SCALE + 0.075,
+        (point.y - 0.5) * WORLD,
+      );
+    }
+  };
+
+  for (const level of levels) {
+    for (let row = 0; row < resolution; row++) {
+      for (let column = 0; column < resolution; column++) {
+        const topLeft = samples[row][column];
+        const topRight = samples[row][column + 1];
+        const bottomRight = samples[row + 1][column + 1];
+        const bottomLeft = samples[row + 1][column];
+        addTriangle([topLeft, topRight, bottomRight], level);
+        addTriangle([topLeft, bottomRight, bottomLeft], level);
+      }
+    }
+  }
+  return positions;
 }
 
 function updateHud(epoch: number, lossValue: number, history: number[] = []) {
@@ -79,14 +115,7 @@ function updateHud(epoch: number, lossValue: number, history: number[] = []) {
   if (accuracyEl) accuracyEl.textContent = Math.max(0.5, Math.min(0.99, 1 - lossValue * 0.5)).toFixed(2);
   const chart = document.getElementById('hero-loss-chart');
   if (chart instanceof SVGPolylineElement && history.length > 0) {
-    const low = Math.min(...history);
-    const high = Math.max(...history, low + 0.001);
-    const points = history.map((value, i) => {
-      const x = history.length === 1 ? 111 : (i / (history.length - 1)) * 111;
-      const y = 2 + ((value - low) / (high - low)) * 25;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-    chart.setAttribute('points', points.join(' '));
+    chart.setAttribute('points', lossHistoryToPoints(history));
   }
 }
 
@@ -144,65 +173,65 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     roughness: 0.62,
     metalness: 0.18,
     emissive: 0x101638,
-    emissiveIntensity: 0.28,
+    emissiveIntensity: 0.18,
     flatShading: false,
     side: THREE.DoubleSide,
   });
   const surface = new THREE.Mesh(geo, surfaceMaterial);
   scene.add(surface);
 
-  // A coarse, separate line grid remains legible at hero scale. A dense mesh
-  // wireframe aliases away on high-DPI screens and makes the material look noisy.
-  const gridPositions: number[] = [];
-  for (let line = 0; line <= GRID_LINES; line++) {
-    const u = surfaceCoord(line / GRID_LINES);
-    for (let step = 0; step < SEG; step++) {
-      const a = surfaceCoord(step / SEG);
-      const b = surfaceCoord((step + 1) / SEG);
-      const rowA = toWorld(a, u);
-      const rowB = toWorld(b, u);
-      const colA = toWorld(u, a);
-      const colB = toWorld(u, b);
-      gridPositions.push(...rowA, ...rowB, ...colA, ...colB);
-    }
+  // Deterministic samples turn the terrain into a model surface rather than a
+  // decorative mesh. Warmer points mark lower-loss regions.
+  const samplePositions: number[] = [];
+  const sampleColors: number[] = [];
+  const sampleHigh = new THREE.Color(0x9bacff);
+  const sampleLow = new THREE.Color(0xffbd69);
+  for (let i = 0; i < 56; i++) {
+    const nx = 0.04 + (((i * 37) % 101) / 100) * 1.12;
+    const ny = 0.03 + (((i * 61 + 17) % 103) / 102) * 1.02;
+    const [wx, wy, wz] = toWorld(nx, ny);
+    samplePositions.push(wx, wy + 0.12, wz);
+    const lowLossWeight = Math.max(0, Math.min(1, 1 - loss(nx, ny)));
+    const color = sampleHigh.clone().lerp(sampleLow, lowLossWeight * 0.8);
+    sampleColors.push(color.r, color.g, color.b);
   }
-  const gridGeo = new THREE.BufferGeometry();
-  gridGeo.setAttribute('position', new THREE.Float32BufferAttribute(gridPositions, 3));
-  const gridMaterial = new THREE.LineBasicMaterial({
-    color: 0xaab9ff,
+  const sampleGeo = new THREE.BufferGeometry();
+  sampleGeo.setAttribute('position', new THREE.Float32BufferAttribute(samplePositions, 3));
+  sampleGeo.setAttribute('color', new THREE.Float32BufferAttribute(sampleColors, 3));
+  const sampleMaterial = new THREE.PointsMaterial({
+    vertexColors: true,
+    size: 0.1,
     transparent: true,
-    opacity: 0.3,
+    opacity: 0.32,
+    sizeAttenuation: true,
     depthWrite: false,
   });
-  const grid = new THREE.LineSegments(gridGeo, gridMaterial);
-  grid.renderOrder = 1;
-  scene.add(grid);
+  const samples = new THREE.Points(sampleGeo, sampleMaterial);
+  samples.renderOrder = 2;
+  scene.add(samples);
 
-  // Concentric contours make the destination read as a true basin without
-  // relying on the marker's glow.
-  const contourMaterial = new THREE.LineBasicMaterial({
-    color: 0xffd49a,
-    transparent: true,
-    opacity: 0.38,
-    depthWrite: false,
-  });
   const contourGeometries: THREE.BufferGeometry[] = [];
-  for (const radius of [0.055, 0.09, 0.13, 0.17, 0.215, 0.265]) {
-    const contourPositions: number[] = [];
-    for (let step = 0; step < 72; step++) {
-      const theta = (step / 72) * Math.PI * 2;
-      const nx = GLOBAL_MIN.x + Math.cos(theta) * radius;
-      const ny = GLOBAL_MIN.y + Math.sin(theta) * radius;
-      const [wx, wy, wz] = toWorld(nx, ny);
-      contourPositions.push(wx, wy + 0.075, wz);
-    }
+  const contourMaterials: THREE.LineBasicMaterial[] = [];
+  const addContours = (levels: readonly number[], color: number, opacity: number) => {
     const contourGeo = new THREE.BufferGeometry();
-    contourGeo.setAttribute('position', new THREE.Float32BufferAttribute(contourPositions, 3));
+    contourGeo.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(buildContourPositions(levels), 3),
+    );
+    const contourMaterial = new THREE.LineBasicMaterial({
+      color,
+      transparent: true,
+      opacity,
+      depthWrite: false,
+    });
     contourGeometries.push(contourGeo);
-    const contour = new THREE.LineLoop(contourGeo, contourMaterial);
-    contour.renderOrder = 2;
-    scene.add(contour);
-  }
+    contourMaterials.push(contourMaterial);
+    const contours = new THREE.LineSegments(contourGeo, contourMaterial);
+    contours.renderOrder = 2;
+    scene.add(contours);
+  };
+  addContours([0.08, 0.16, 0.26, 0.38], 0xffd49a, 0.26);
+  addContours([0.52, 0.68, 0.84, 1], 0xaab9ff, 0.16);
 
   const ambient = new THREE.HemisphereLight(0x9fb0ff, 0x111122, 1.45);
   scene.add(ambient);
@@ -244,18 +273,42 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   const trailPositions = new Float32Array(TRAIL_LEN * 3);
   const trailGeo = new THREE.BufferGeometry();
   trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+  trailGeo.setDrawRange(0, 0);
   const trailMaterial = new THREE.LineBasicMaterial({
     color: 0xffb454,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.62,
+    depthTest: false,
   });
   const trail = new THREE.Line(trailGeo, trailMaterial);
+  trail.renderOrder = 3;
   scene.add(trail);
+  const trailPointMaterial = new THREE.PointsMaterial({
+    color: 0xffd49a,
+    size: 0.075,
+    transparent: true,
+    opacity: 0.72,
+    sizeAttenuation: true,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const trailPoints = new THREE.Points(trailGeo, trailPointMaterial);
+  trailPoints.renderOrder = 4;
+  scene.add(trailPoints);
   let trailPts: [number, number, number][] = [];
 
   let m = { x: 0.8, y: 0.2, vx: 0, vy: 0 };
   let epoch = 0;
+  let descentElapsedMs = 0;
+  let trailSampleElapsedMs = TRAIL_SAMPLE_MS;
   let lossHistory: number[] = [];
+  let returnMotion: {
+    fromX: number;
+    fromY: number;
+    toX: number;
+    toY: number;
+    elapsedMs: number;
+  } | null = null;
   function seedAt(x: number, y: number) {
     m = {
       x: Math.max(FIELD_MIN, Math.min(FIELD_MAX, x)),
@@ -265,13 +318,17 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     };
     trailPts = [];
     epoch = 0;
+    descentElapsedMs = 0;
+    trailSampleElapsedMs = TRAIL_SAMPLE_MS;
     lossHistory = [loss(m.x, m.y)];
+    returnMotion = null;
   }
   function reseed() {
     // Keep the marker well clear of the text column and close enough to the global
     // well (0.78, 0.5) that it reliably falls into that well rather than a
     // shallower, off-camera one.
-    seedAt(Math.random() * 0.22 + 0.64, Math.random() * 0.58 + 0.18);
+    const start = nextHeroStart(0.69 + camera.aspect * 0.09);
+    seedAt(start.x, start.y);
   }
   reseed();
 
@@ -279,6 +336,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
   let running = false;
   let t = 0;
   let lastFrameTime: number | null = null;
+  let simulationAccumulatorMs = 0;
 
   function positionMarker(nx: number, ny: number) {
     const [wx, wy, wz] = toWorld(nx, ny);
@@ -324,7 +382,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     const hit = raycaster.intersectObject(surface, false)[0];
     if (!hit) return;
     seedAt(hit.point.x / WORLD + 0.5, hit.point.z / WORLD + 0.5);
-    const [dx, dy] = grad(m.x, m.y);
+    const [dx, dy] = lossGradient(m.x, m.y);
     clickNormal.set(-(dx * H_SCALE) / WORLD, 1, -(dy * H_SCALE) / WORLD).normalize();
     clickIndicator.position.copy(hit.point).addScaledVector(clickNormal, 0.08);
     clickIndicator.quaternion.setFromUnitVectors(ringNormal, clickNormal);
@@ -363,37 +421,90 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     renderer.render(scene, camera);
   }
 
-  function tick(now: number) {
-    // Normalize the simulation to a 60 Hz reference so a high-refresh display
-    // does not make the marker travel faster. Cap long gaps to avoid a jump
-    // when the tab resumes after being inactive.
-    const frameScale = lastFrameTime === null ? 1 : Math.min(2, (now - lastFrameTime) / (1000 / 60));
-    lastFrameTime = now;
-    t += 0.005 * frameScale;
-    const g = grad(m.x, m.y);
-    // A measured descent keeps the marker readable as it crosses each grid ring.
-    const damping = Math.pow(0.8, frameScale);
-    m.vx = damping * m.vx - DESCENT_FORCE * g[0] * frameScale;
-    m.vy = damping * m.vy - DESCENT_FORCE * g[1] * frameScale;
-    m.x = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.x + m.vx * frameScale));
-    m.y = Math.max(FIELD_MIN, Math.min(FIELD_MAX, m.y + m.vy * frameScale));
-    epoch += frameScale;
-    if (Math.hypot(m.vx, m.vy) < 0.0004 && epoch > 110) {
+  function advanceSimulation() {
+    if (returnMotion) {
+      returnMotion.elapsedMs += HERO_MOTION.stepMs;
+      const progress = Math.min(1, returnMotion.elapsedMs / HERO_MOTION.returnDurationMs);
+      const eased = smoothReturnProgress(progress);
+      m.x = returnMotion.fromX + (returnMotion.toX - returnMotion.fromX) * eased;
+      m.y = returnMotion.fromY + (returnMotion.toY - returnMotion.fromY) * eased;
+      m.vx = 0;
+      m.vy = 0;
+
+      positionMarker(m.x, m.y);
+
+      if (progress >= 1) {
+        returnMotion = null;
+        trailPts = [];
+        epoch = 0;
+        descentElapsedMs = 0;
+        trailSampleElapsedMs = TRAIL_SAMPLE_MS;
+        lossHistory = [loss(m.x, m.y)];
+      }
+      return;
+    }
+
+    advanceHeroMarker(m, lossGradient(m.x, m.y), FIELD_MIN, FIELD_MAX);
+    descentElapsedMs += HERO_MOTION.stepMs;
+    trailSampleElapsedMs += HERO_MOTION.stepMs;
+    epoch += HERO_MOTION.stepMs / HERO_MOTION.referenceStepMs;
+    if (
+      Math.hypot(m.vx, m.vy) < HERO_MOTION.settledSpeedPerStep
+      && descentElapsedMs >= HERO_MOTION.minimumDescentMs
+    ) {
       const settledAtGlobalMinimum = Math.hypot(m.x - GLOBAL_MIN.x, m.y - GLOBAL_MIN.y) < 0.12;
       if (!settledAtGlobalMinimum) showNonGlobalMaximumToast();
-      reseed();
+      const start = nextHeroStart(0.69 + camera.aspect * 0.09);
+      returnMotion = {
+        fromX: m.x,
+        fromY: m.y,
+        toX: start.x,
+        toY: start.y,
+        elapsedMs: 0,
+      };
+      // Repositioning is not an optimization step. Clear the completed descent
+      // so the uphill reset cannot read as a second training trajectory.
+      trailPts = [];
+      m.vx = 0;
+      m.vy = 0;
+    }
+
+    const [wx, wy, wz] = positionMarker(m.x, m.y);
+    if (!returnMotion && trailSampleElapsedMs >= TRAIL_SAMPLE_MS) {
+      trailPts.push([wx, wy + 0.13, wz]);
+      if (trailPts.length > TRAIL_LEN) trailPts.shift();
+      trailSampleElapsedMs %= TRAIL_SAMPLE_MS;
+    }
+
+    const currentLoss = loss(m.x, m.y);
+    lossHistory.push(currentLoss);
+    if (lossHistory.length > 44) lossHistory.shift();
+  }
+
+  function tick(now: number) {
+    // A fixed simulation step makes the marker's path and speed identical on
+    // 60 Hz, 120 Hz, and variable-refresh displays. Long inactive-tab gaps are
+    // discarded so returning to the page cannot make the ball jump ahead.
+    const frameDeltaMs = lastFrameTime === null
+      ? HERO_MOTION.stepMs
+      : Math.min(HERO_MOTION.maxFrameDeltaMs, now - lastFrameTime);
+    lastFrameTime = now;
+    simulationAccumulatorMs += frameDeltaMs;
+    t += frameDeltaMs * 0.0003;
+
+    while (simulationAccumulatorMs >= HERO_MOTION.stepMs) {
+      advanceSimulation();
+      simulationAccumulatorMs -= HERO_MOTION.stepMs;
     }
 
     if (clickPulse > 0) {
-      clickPulse = Math.max(0, clickPulse - 0.014 * frameScale);
+      clickPulse = Math.max(0, clickPulse - frameDeltaMs * 0.00084);
       clickIndicator.scale.setScalar(1 + (1 - clickPulse) * 1.8);
       clickIndicatorMaterial.opacity = clickPulse * 0.8;
       clickIndicator.visible = clickPulse > 0;
     }
 
     const [wx, wy, wz] = positionMarker(m.x, m.y);
-    trailPts.push([wx, wy + 0.08, wz]);
-    if (trailPts.length > TRAIL_LEN) trailPts.shift();
     for (let i = 0; i < TRAIL_LEN; i++) {
       const p = trailPts[i] || trailPts[0] || [wx, wy, wz];
       trailPositions[i * 3] = p[0];
@@ -404,8 +515,6 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     trailGeo.setDrawRange(0, trailPts.length);
 
     const currentLoss = loss(m.x, m.y);
-    lossHistory.push(currentLoss);
-    if (lossHistory.length > 44) lossHistory.shift();
     renderFrame();
     updateHud(Math.floor(epoch), currentLoss, lossHistory);
 
@@ -448,11 +557,13 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
     if (running || destroyed) return;
     running = true;
     lastFrameTime = null;
+    simulationAccumulatorMs = 0;
     rafId = requestAnimationFrame(tick);
   }
   function stop() {
     running = false;
     lastFrameTime = null;
+    simulationAccumulatorMs = 0;
     cancelAnimationFrame(rafId);
   }
 
@@ -468,7 +579,7 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
         const nx = 0.65 + (GLOBAL_MIN.x - 0.65) * tt;
         const ny = 0.15 + (GLOBAL_MIN.y - 0.15) * tt;
         const [wx, wy, wz] = toWorld(nx, ny);
-        trailPts.push([wx, wy + 0.08, wz]);
+        trailPts.push([wx, wy + 0.13, wz]);
         lossHistory.push(loss(nx, ny));
       }
       for (let i = 0; i < TRAIL_LEN; i++) {
@@ -498,16 +609,17 @@ export function initHero(canvas: HTMLCanvasElement, _opts: HeroOpts): HeroHandle
       interactionTarget.removeEventListener('pointercancel', stopDraggingMarker);
       geo.dispose();
       surfaceMaterial.dispose();
-      gridGeo.dispose();
-      gridMaterial.dispose();
+      sampleGeo.dispose();
+      sampleMaterial.dispose();
       contourGeometries.forEach((contourGeo) => contourGeo.dispose());
-      contourMaterial.dispose();
+      contourMaterials.forEach((contourMaterial) => contourMaterial.dispose());
       markerGeometry.dispose();
       markerMaterial.dispose();
       clickIndicatorGeometry.dispose();
       clickIndicatorMaterial.dispose();
       trailGeo.dispose();
       trailMaterial.dispose();
+      trailPointMaterial.dispose();
       renderer.dispose();
     },
   };

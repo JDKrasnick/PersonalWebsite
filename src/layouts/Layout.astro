@@ -8,7 +8,7 @@ interface Props {
 const {
   title = "JD Krasnick | AI Engineer & Researcher",
   description = "JD Krasnick is an AI engineer and Cornell researcher building reliable agentic systems, evaluation harnesses, and reinforcement-learning tools.",
-  image = "/og-image.png",
+  image = "/og-image-v5.png",
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://www.jdkrasnick.com";
@@ -72,14 +72,14 @@ const structuredData = {
     <meta property="og:site_name" content="JD Krasnick" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:image" content={imageUrl} />
-    <meta property="og:image:width" content="1730" />
-    <meta property="og:image:height" content="909" />
-    <meta property="og:image:alt" content="JD Krasnick, AI/ML Engineer" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="JD Krasnick — AI Engineer &amp; Researcher" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
-    <meta name="twitter:image:alt" content="JD Krasnick, AI/ML Engineer" />
+    <meta name="twitter:image:alt" content="JD Krasnick — AI Engineer &amp; Researcher" />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
