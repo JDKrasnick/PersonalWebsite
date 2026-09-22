@@ -1,4 +1,8 @@
 ---
+import { experiences } from '../data/experience';
+import { projects } from '../data/projects';
+import { programmingLanguages, skillCategories } from '../data/skills';
+
 interface Props {
   title?: string;
   description?: string;
@@ -7,47 +11,138 @@ interface Props {
 
 const {
   title = "JD Krasnick | AI Engineer & Researcher",
-  description = "JD Krasnick is an AI engineer and Cornell researcher building reliable agentic systems, evaluation harnesses, and reinforcement-learning tools.",
+  description = "AI engineer and researcher at Cornell building reliable agents, LLM evaluation systems, and reinforcement-learning tools that hold up on real-world data.",
   image = "/og-image-v9.png",
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://www.jdkrasnick.com";
 const canonicalUrl = new URL(Astro.url.pathname, `${siteUrl}/`).toString();
 const imageUrl = new URL(image, `${siteUrl}/`).toString();
+
+const personId = `${siteUrl}/#person`;
+const websiteId = `${siteUrl}/#website`;
+
+type JsonLdNode = Record<string, unknown>;
+
+// A Role repeats the property that carries it, so the organization sits one
+// hop behind the role that records the title and dates.
+const roleProperties = {
+  employee: "worksFor",
+  member: "memberOf",
+  affiliate: "affiliation",
+} as const;
+
+const rolesByProperty: Record<string, JsonLdNode[]> = {};
+const organizations = new Map<string, JsonLdNode>();
+
+for (const entry of experiences) {
+  // Entries whose listed credit is a person rather than an organization
+  // carry no association and stay out of the organization roles.
+  if (!entry.association) continue;
+
+  const organizationUrl = entry.organizationUrl ?? entry.companyUrl;
+  const organizationId = `${organizationUrl}#organization`;
+  const property = roleProperties[entry.association];
+
+  organizations.set(entry.company, {
+    "@type": entry.companyType ?? "Organization",
+    "@id": organizationId,
+    name: entry.company,
+    url: organizationUrl,
+  });
+
+  rolesByProperty[property] = rolesByProperty[property] ?? [];
+  rolesByProperty[property].push({
+    "@type": entry.association === "employee" ? "EmployeeRole" : "OrganizationRole",
+    [property]: { "@id": organizationId },
+    roleName: entry.role,
+    startDate: entry.startDate,
+    ...(entry.endDate ? { endDate: entry.endDate } : {}),
+  });
+}
+
+const person: JsonLdNode = {
+  "@type": "Person",
+  "@id": personId,
+  name: "JD Krasnick",
+  alternateName: "John Krasnick",
+  url: siteUrl,
+  image: imageUrl,
+  jobTitle: "AI Engineer",
+  description,
+  email: "jdkrasnick@gmail.com",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Wayne",
+    addressRegion: "PA",
+    addressCountry: "US",
+  },
+  sameAs: [
+    "https://github.com/JDKrasnick",
+    "https://www.linkedin.com/in/jdkrasnick",
+  ],
+  knowsAbout: ["AI Evaluation", "Agentic Systems", "Reinforcement Learning"],
+  skills: skillCategories.flatMap((category) => category.skills),
+  seeks: {
+    "@type": "Demand",
+    name: "AI/ML and software engineering roles",
+  },
+  ...rolesByProperty,
+};
+
+const projectNodes: JsonLdNode[] = projects.map((project) => ({
+  "@type": "SoftwareSourceCode",
+  "@id": project.link ?? `${siteUrl}/#${project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+  name: project.title,
+  description: project.description,
+  keywords: project.tags.join(", "),
+  programmingLanguage: project.tags.filter((tag) => programmingLanguages.includes(tag)),
+  ...(project.link ? { codeRepository: project.link } : {}),
+  ...(project.demo ?? project.link ? { url: project.demo ?? project.link } : {}),
+  author: { "@id": personId },
+}));
+
+const projectList: JsonLdNode = {
+  "@type": "ItemList",
+  "@id": `${siteUrl}/#projects`,
+  name: "Projects",
+  numberOfItems: projectNodes.length,
+  itemListElement: projectNodes.map((node, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    item: { "@id": node["@id"] },
+  })),
+};
+
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Person",
-      "@id": `${siteUrl}/#person`,
-      name: "JD Krasnick",
-      url: siteUrl,
-      jobTitle: "AI/ML Engineer",
+      "@type": "ProfilePage",
+      "@id": canonicalUrl,
+      url: canonicalUrl,
+      name: title,
       description,
-      email: "mailto:jdkrasnick@gmail.com",
-      sameAs: [
-        "https://github.com/JDKrasnick",
-        "https://www.linkedin.com/in/jdkrasnick",
-      ],
-      knowsAbout: [
-        "Machine Learning",
-        "Large Language Models",
-        "AI Evaluations",
-        "AI Agents",
-        "Reinforcement Learning",
-        "Artificial Intelligence",
-        "Data Engineering",
-        "Full-stack Development",
-      ],
+      inLanguage: "en-US",
+      isPartOf: { "@id": websiteId },
+      mainEntity: { "@id": personId },
+      about: { "@id": personId },
+      primaryImageOfPage: { "@type": "ImageObject", url: imageUrl },
+      mentions: { "@id": projectList["@id"] },
     },
+    person,
     {
       "@type": "WebSite",
-      "@id": `${siteUrl}/#website`,
+      "@id": websiteId,
       url: siteUrl,
       name: "JD Krasnick",
       description,
-      publisher: { "@id": `${siteUrl}/#person` },
+      inLanguage: "en-US",
+      publisher: { "@id": personId },
     },
+    ...organizations.values(),
+    projectList,
+    ...projectNodes,
   ],
 };
 ---
