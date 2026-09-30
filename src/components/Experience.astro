@@ -13,7 +13,8 @@ const experiences = [
     tags: ["Python", "LLM Evaluations", "Airflow", "Snowflake", "Browserbase", "Firecrawl"],
   },
   {
-    role: "Research Lead · previously AI Engineer",
+    role: "Head of Research",
+    previousRoles: ["Research Lead", "AI Engineer"],
     company: "Generative AI at Cornell",
     companyUrl: "https://www.cornellgenai.dev/",
     period: "Feb 2026 — Present",
@@ -75,12 +76,19 @@ const experiences = [
           </div>
           <div class="exp-content">
             <div class="exp-header">
-              <h3 class="exp-role">{exp.role}</h3>
+              {!exp.previousRoles && <h3 class="exp-role">{exp.role}</h3>}
               <a href={exp.companyUrl} target="_blank" rel="noopener noreferrer" class="exp-company">
                 {exp.company}
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
               </a>
             </div>
+            {exp.previousRoles && (
+              <ol class="exp-role-timeline" aria-label={`${exp.company} role progression`}>
+                {[exp.role, ...exp.previousRoles].map((role, index) => (
+                  <li>{index === 0 ? <h3 class="exp-role">{role}</h3> : role}</li>
+                ))}
+              </ol>
+            )}
             <ul class="exp-highlights">
               {exp.highlights.map(h => (
                 <li set:html={h} />
@@ -154,6 +162,50 @@ const experiences = [
     font-size: 0.875rem;
     color: var(--accent);
     margin-top: 0.15rem;
+  }
+
+  .exp-role-timeline {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0 0 0 1.35rem;
+  }
+
+  .exp-role-timeline li {
+    position: relative;
+    padding: 0 0 0.8rem 0.55rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .exp-role-timeline li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0.6rem;
+    bottom: -0.6rem;
+    width: 1px;
+    background: rgba(124, 145, 255, 0.5);
+  }
+
+  .exp-role-timeline li::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    left: -4px;
+    top: 0.4rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .exp-role-timeline li:first-child {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .exp-role-timeline li:last-child {
+    padding-bottom: 0;
   }
 
   .exp-highlights {
