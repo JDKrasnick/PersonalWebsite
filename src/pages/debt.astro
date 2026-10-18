@@ -33,13 +33,13 @@ const dollars = new Intl.NumberFormat('en-US', {
           <tr><th scope="col">Name</th><th scope="col">Amount (USD)</th></tr>
         </thead>
         <tbody>
-          {debts.map(({ name, amount, crossedOut }) => (
+          {debts.map(({ name, amount, crossedOut, displayAmount }) => (
             <tr class:list={{ 'crossed-out': crossedOut }}>
               <th scope="row">{name}</th>
               <td>
                 {amount === null
                   ? <span class="sr-only">Amount not entered</span>
-                  : `~${dollars.format(amount)}`}
+                  : displayAmount ?? `~${dollars.format(amount)}`}
               </td>
             </tr>
           ))}
