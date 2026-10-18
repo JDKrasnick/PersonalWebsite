@@ -5,6 +5,8 @@ import { debts } from '../data/debts';
 const dollars = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
 });
 ---
 
@@ -37,7 +39,7 @@ const dollars = new Intl.NumberFormat('en-US', {
               <td>
                 {amount === null
                   ? <span class="sr-only">Amount not entered</span>
-                  : dollars.format(amount)}
+                  : `~${dollars.format(amount)}`}
               </td>
             </tr>
           ))}
