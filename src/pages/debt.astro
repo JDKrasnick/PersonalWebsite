@@ -33,8 +33,8 @@ const dollars = new Intl.NumberFormat('en-US', {
           <tr><th scope="col">Name</th><th scope="col">Amount (USD)</th></tr>
         </thead>
         <tbody>
-          {debts.map(({ name, amount }) => (
-            <tr>
+          {debts.map(({ name, amount, crossedOut }) => (
+            <tr class:list={{ 'crossed-out': crossedOut }}>
               <th scope="row">{name}</th>
               <td>
                 {amount === null
@@ -91,6 +91,7 @@ const dollars = new Intl.NumberFormat('en-US', {
   tbody tr { border-top: 1px solid var(--border-color); }
   tbody th, td { padding: 0.875rem 0; font-size: 1rem; }
   tbody th { font-weight: 500; }
+  .crossed-out th, .crossed-out td { text-decoration: line-through; }
   td { font-variant-numeric: tabular-nums; }
 
   footer { margin-top: 2rem; }

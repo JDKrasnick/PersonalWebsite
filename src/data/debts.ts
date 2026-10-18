@@ -1,11 +1,10 @@
 // Temporary amounts in USD, approximately $60 each. null leaves an amount blank.
-export const debts: { name: string; amount: number | null }[] = [
+export const debts: { name: string; amount: number | null; crossedOut?: boolean }[] = [
   { name: 'Akshara', amount: 60 },
   { name: 'Arianna', amount: 60 },
-  { name: 'Eric', amount: 60 },
+  { name: 'Eric', amount: 60, crossedOut: true },
   { name: 'Ethan N.', amount: 60 },
   { name: 'Ethan C.', amount: 60 },
-  { name: 'Jonathan', amount: 60 },
   { name: 'Kai', amount: 60 },
   { name: 'Kevin', amount: 60 },
   { name: 'Luke', amount: 60 },
