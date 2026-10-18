@@ -1,4 +1,6 @@
 User-agent: *
+Disallow: /debt
+Disallow: /debt-media/
 Allow: /
 
 Sitemap: https://www.jdkrasnick.com/sitemap.xml

@@ -15,7 +15,7 @@ const dollars = new Intl.NumberFormat('en-US', {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex, nofollow" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <title>Debt | JD Krasnick</title>
     <meta name="description" content="Individual balances and JD's Venmo." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -53,6 +53,16 @@ const dollars = new Intl.NumberFormat('en-US', {
           <span class="sr-only"> (opens in a new tab)</span>
         </a>
       </footer>
+
+      <img
+        class="debt-photo"
+        src="/debt-media/venmo-request.jpg"
+        alt="Venmo request from Andy Do for $0.01."
+        width="1047"
+        height="1568"
+        loading="lazy"
+        decoding="async"
+      />
     </main>
   </body>
 </html>
@@ -84,6 +94,13 @@ const dollars = new Intl.NumberFormat('en-US', {
   td { font-variant-numeric: tabular-nums; }
 
   footer { margin-top: 2rem; }
+  .debt-photo {
+    display: block;
+    width: min(100%, 24rem);
+    height: auto;
+    margin: 2.5rem auto 0;
+    border-radius: 12px;
+  }
   footer p { font-size: 0.875rem; margin-bottom: 0.25rem; }
   footer a {
     display: inline-flex;
