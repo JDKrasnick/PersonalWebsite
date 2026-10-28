@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T20:18:25.284239+00:00",
+  "title": "Design System: JD Krasnick",
+  "extensions": {
+    "colorMeta": {
+      "bg-primary": {
+        "role": "neutral",
+        "displayName": "Midnight",
+        "tonalRamp": [
+          "oklch(15% 0.0240 274.74)",
+          "oklch(26% 0.0240 274.74)",
+          "oklch(38% 0.0240 274.74)",
+          "oklch(49% 0.0240 274.74)",
+          "oklch(61% 0.0240 274.74)",
+          "oklch(72% 0.0240 274.74)",
+          "oklch(84% 0.0240 274.74)",
+          "oklch(95% 0.0240 274.74)"
+        ]
+      },
+      "bg-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary midnight",
+        "tonalRamp": [
+          "oklch(15% 0.0333 274.50)",
+          "oklch(26% 0.0333 274.50)",
+          "oklch(38% 0.0333 274.50)",
+          "oklch(49% 0.0333 274.50)",
+          "oklch(61% 0.0333 274.50)",
+          "oklch(72% 0.0333 274.50)",
+          "oklch(84% 0.0333 274.50)",
+          "oklch(95% 0.0333 274.50)"
+        ]
+      },
+      "bg-card": {
+        "role": "neutral",
+        "displayName": "Translucent blue card",
+        "tonalRamp": [
+          "oklch(15% 0.1735 272.88)",
+          "oklch(26% 0.1735 272.88)",
+          "oklch(38% 0.1735 272.88)",
+          "oklch(49% 0.1735 272.88)",
+          "oklch(61% 0.1735 272.88)",
+          "oklch(72% 0.1735 272.88)",
+          "oklch(84% 0.1735 272.88)",
+          "oklch(95% 0.1735 272.88)"
+        ]
+      },
+      "border-color": {
+        "role": "neutral",
+        "displayName": "Fine blue border",
+        "tonalRamp": [
+          "oklch(15% 0.1389 274.76)",
+          "oklch(26% 0.1389 274.76)",
+          "oklch(38% 0.1389 274.76)",
+          "oklch(49% 0.1389 274.76)",
+          "oklch(61% 0.1389 274.76)",
+          "oklch(72% 0.1389 274.76)",
+          "oklch(84% 0.1389 274.76)",
+          "oklch(95% 0.1389 274.76)"
+        ]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Near-white ink",
+        "tonalRamp": [
+          "oklch(15% 0.0107 280.48)",
+          "oklch(26% 0.0107 280.48)",
+          "oklch(38% 0.0107 280.48)",
+          "oklch(49% 0.0107 280.48)",
+          "oklch(61% 0.0107 280.48)",
+          "oklch(72% 0.0107 280.48)",
+          "oklch(84% 0.0107 280.48)",
+          "oklch(95% 0.0107 280.48)"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Cool gray text",
+        "tonalRamp": [
+          "oklch(15% 0.0279 273.98)",
+          "oklch(26% 0.0279 273.98)",
+          "oklch(38% 0.0279 273.98)",
+          "oklch(49% 0.0279 273.98)",
+          "oklch(61% 0.0279 273.98)",
+          "oklch(72% 0.0279 273.98)",
+          "oklch(84% 0.0279 273.98)",
+          "oklch(95% 0.0279 273.98)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Periwinkle",
+        "tonalRamp": [
+          "oklch(15% 0.1627 273.28)",
+          "oklch(26% 0.1627 273.28)",
+          "oklch(38% 0.1627 273.28)",
+          "oklch(49% 0.1627 273.28)",
+          "oklch(61% 0.1627 273.28)",
+          "oklch(72% 0.1627 273.28)",
+          "oklch(84% 0.1627 273.28)",
+          "oklch(95% 0.1627 273.28)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Light periwinkle",
+        "tonalRamp": [
+          "oklch(15% 0.1208 274.36)",
+          "oklch(26% 0.1208 274.36)",
+          "oklch(38% 0.1208 274.36)",
+          "oklch(49% 0.1208 274.36)",
+          "oklch(61% 0.1208 274.36)",
+          "oklch(72% 0.1208 274.36)",
+          "oklch(84% 0.1208 274.36)",
+          "oklch(95% 0.1208 274.36)"
+        ]
+      },
+      "blog-panel": {
+        "role": "neutral",
+        "displayName": "Blog panel",
+        "tonalRamp": [
+          "oklch(15% 0.0335 272.08)",
+          "oklch(26% 0.0335 272.08)",
+          "oklch(38% 0.0335 272.08)",
+          "oklch(49% 0.0335 272.08)",
+          "oklch(61% 0.0335 272.08)",
+          "oklch(72% 0.0335 272.08)",
+          "oklch(84% 0.0335 272.08)",
+          "oklch(95% 0.0335 272.08)"
+        ]
+      },
+      "blog-line": {
+        "role": "neutral",
+        "displayName": "Blog divider",
+        "tonalRamp": [
+          "oklch(15% 0.0445 272.73)",
+          "oklch(26% 0.0445 272.73)",
+          "oklch(38% 0.0445 272.73)",
+          "oklch(49% 0.0445 272.73)",
+          "oklch(61% 0.0445 272.73)",
+          "oklch(72% 0.0445 272.73)",
+          "oklch(84% 0.0445 272.73)",
+          "oklch(95% 0.0445 272.73)"
+        ]
+      },
+      "blog-quiet": {
+        "role": "neutral",
+        "displayName": "Quiet blog metadata",
+        "tonalRamp": [
+          "oklch(15% 0.0355 265.15)",
+          "oklch(26% 0.0355 265.15)",
+          "oklch(38% 0.0355 265.15)",
+          "oklch(49% 0.0355 265.15)",
+          "oklch(61% 0.0355 265.15)",
+          "oklch(72% 0.0355 265.15)",
+          "oklch(84% 0.0355 265.15)",
+          "oklch(95% 0.0355 265.15)"
+        ]
+      },
+      "blog-body-ink": {
+        "role": "neutral",
+        "displayName": "Bright reading ink",
+        "tonalRamp": [
+          "oklch(15% 0.0117 264.51)",
+          "oklch(26% 0.0117 264.51)",
+          "oklch(38% 0.0117 264.51)",
+          "oklch(49% 0.0117 264.51)",
+          "oklch(61% 0.0117 264.51)",
+          "oklch(72% 0.0117 264.51)",
+          "oklch(84% 0.0117 264.51)",
+          "oklch(95% 0.0117 264.51)"
+        ]
+      },
+      "blog-reading-link": {
+        "role": "primary",
+        "displayName": "Reading periwinkle",
+        "tonalRamp": [
+          "oklch(15% 0.0816 273.80)",
+          "oklch(26% 0.0816 273.80)",
+          "oklch(38% 0.0816 273.80)",
+          "oklch(49% 0.0816 273.80)",
+          "oklch(61% 0.0816 273.80)",
+          "oklch(72% 0.0816 273.80)",
+          "oklch(84% 0.0816 273.80)",
+          "oklch(95% 0.0816 273.80)"
+        ]
+      },
+      "blog-subtle": {
+        "role": "neutral",
+        "displayName": "Supporting blog text",
+        "tonalRamp": [
+          "oklch(15% 0.0273 264.41)",
+          "oklch(26% 0.0273 264.41)",
+          "oklch(38% 0.0273 264.41)",
+          "oklch(49% 0.0273 264.41)",
+          "oklch(61% 0.0273 264.41)",
+          "oklch(72% 0.0273 264.41)",
+          "oklch(84% 0.0273 264.41)",
+          "oklch(95% 0.0273 264.41)"
+        ]
+      },
+      "scrollbar-track": {
+        "role": "neutral",
+        "displayName": "Midnight scrollbar track",
+        "tonalRamp": [
+          "oklch(15% 0.0240 274.74)",
+          "oklch(26% 0.0240 274.74)",
+          "oklch(38% 0.0240 274.74)",
+          "oklch(49% 0.0240 274.74)",
+          "oklch(61% 0.0240 274.74)",
+          "oklch(72% 0.0240 274.74)",
+          "oklch(84% 0.0240 274.74)",
+          "oklch(95% 0.0240 274.74)"
+        ]
+      },
+      "scrollbar-thumb": {
+        "role": "neutral",
+        "displayName": "Blue-gray scrollbar thumb",
+        "tonalRamp": [
+          "oklch(15% 0.0673 270.85)",
+          "oklch(26% 0.0673 270.85)",
+          "oklch(38% 0.0673 270.85)",
+          "oklch(49% 0.0673 270.85)",
+          "oklch(61% 0.0673 270.85)",
+          "oklch(72% 0.0673 270.85)",
+          "oklch(84% 0.0673 270.85)",
+          "oklch(95% 0.0673 270.85)"
+        ]
+      },
+      "scrollbar-thumb-hover": {
+        "role": "neutral",
+        "displayName": "Hovered scrollbar thumb",
+        "tonalRamp": [
+          "oklch(15% 0.1014 271.74)",
+          "oklch(26% 0.1014 271.74)",
+          "oklch(38% 0.1014 271.74)",
+          "oklch(49% 0.1014 271.74)",
+          "oklch(61% 0.1014 271.74)",
+          "oklch(72% 0.1014 271.74)",
+          "oklch(84% 0.1014 271.74)",
+          "oklch(95% 0.1014 271.74)"
+        ]
+      },
+      "scrollbar-thumb-active": {
+        "role": "neutral",
+        "displayName": "Active scrollbar thumb",
+        "tonalRamp": [
+          "oklch(15% 0.0816 273.80)",
+          "oklch(26% 0.0816 273.80)",
+          "oklch(38% 0.0816 273.80)",
+          "oklch(49% 0.0816 273.80)",
+          "oklch(61% 0.0816 273.80)",
+          "oklch(72% 0.0816 273.80)",
+          "oklch(84% 0.0816 273.80)",
+          "oklch(95% 0.0816 273.80)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "blog-display": {
+        "displayName": "Blog index heading",
+        "purpose": "Compact 28px index heading, 26px on mobile."
+      },
+      "blog-prose": {
+        "displayName": "Blog prose",
+        "purpose": "Shared reading/editor body: bright 19px desktop, 18px mobile, regular weight, line height 1.8; paragraphs/lists/quotes use the same full column as code, tables, pictures and demos, without a separate measure cap."
+      },
+      "mono": {
+        "displayName": "Monospaced technical text",
+        "purpose": "Code, optional Markdown source and technical identity."
+      },
+      "blog-headline": {
+        "displayName": "Article heading",
+        "purpose": "Semibold article and editable titles; preserves the fluid desktop scale and 35px mobile size."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "transition-fast",
+        "value": "0.15s ease",
+        "purpose": "Incumbent color and control transitions."
+      },
+      {
+        "name": "blog-reduced-motion",
+        "value": "transition: none; scroll-behavior: auto",
+        "purpose": "Blog reduced-motion override."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "portfolio-mobile",
+        "value": "768px"
+      },
+      {
+        "name": "blog-mobile",
+        "value": "650px"
+      },
+      {
+        "name": "editor-compact-actions",
+        "value": "1050px"
+      },
+      {
+        "name": "editor-wide",
+        "value": "1600px"
+      },
+      {
+        "name": "archive-panel-inline",
+        "value": "850px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Blog Primary Button",
+      "kind": "button",
+      "refersTo": "blog-button-primary",
+      "description": "Explicit publishing and comment actions.",
+      "html": "<button class=\"ds-button ds-primary\">Publish</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:40px;padding:9px 16px;border-radius:7px;border:1px solid transparent;font:500 13px/1.4 var(--font-body,Inter,sans-serif);cursor:pointer;transition:background .15s,border-color .15s}.ds-button:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}.ds-primary{background:var(--accent,#7c91ff);color:#090d23}.ds-primary:hover{background:#9bacff}"
+    },
+    {
+      "name": "Blog Quiet Button",
+      "kind": "button",
+      "refersTo": "blog-button-quiet",
+      "description": "Secondary workspace and editor actions.",
+      "html": "<button class=\"ds-button ds-quiet\">Save draft</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:40px;padding:9px 16px;border-radius:7px;border:1px solid transparent;font:500 13px/1.4 var(--font-body,Inter,sans-serif);cursor:pointer;transition:background .15s,border-color .15s}.ds-button:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}.ds-quiet{background:transparent;color:#f1f2fa;border-color:#262c44}.ds-quiet:hover{background:#171d35;border-color:#404b77}"
+    },
+    {
+      "name": "Comment Field",
+      "kind": "input",
+      "description": "Visible labels and dark outlined input surfaces.",
+      "html": "<label class=\"ds-label\" for=\"ds-name\">Your name</label><input class=\"ds-field\" id=\"ds-name\" placeholder=\"Name\" />",
+      "css": ".ds-label{display:block;margin-bottom:8px;color:var(--subtle,#b4bdcf);font:12px var(--font-body,Inter,sans-serif)}.ds-field{max-width:310px;width:100%;padding:12px 14px;background:#0d1121;border:1px solid #303750;border-radius:7px;color:#f1f2fa;font:14px var(--font-body,Inter,sans-serif);caret-color:var(--accent,#7c91ff)}.ds-field::placeholder{color:#8991ab;opacity:1}.ds-field:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:2px}"
+    },
+    {
+      "name": "Blog Navigation",
+      "kind": "nav",
+      "description": "In-flow text links with an active underline.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"/\">Portfolio</a><a href=\"/blog\" aria-current=\"page\">Blog</a></nav>",
+      "css": ".ds-nav{display:flex;gap:30px;font:14px var(--font-body,Inter,sans-serif)}.ds-nav a{color:var(--subtle,#b4bdcf);text-decoration:none}.ds-nav a:hover,.ds-nav a[aria-current]{color:var(--text-primary,#f1f2fa)}.ds-nav a[aria-current]{text-decoration:underline;text-decoration-color:var(--accent,#7c91ff);text-underline-offset:10px}.ds-nav a:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}"
+    },
+    {
+      "name": "Topic Filter",
+      "kind": "chip",
+      "description": "Full-width sidebar topic control; selected topics use a restrained tonal blue surface.",
+      "html": "<button class=\"ds-topic\" aria-pressed=\"true\">All topics</button>",
+      "css": ".ds-topic{padding:6px 13px;min-height:40px;width:100%;text-align:left;border:1px solid transparent;border-radius:6px;background:transparent;color:#b4bdcf;font:13px var(--font-body,Inter,sans-serif);cursor:pointer}.ds-topic:hover{color:#f1f2fa}.ds-topic[aria-pressed=true]{background:#1b2340;color:#b6c2ff;border-color:#303d67}.ds-topic:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}"
+    },
+    {
+      "name": "Article Row",
+      "kind": "custom",
+      "description": "Near-white semibold titles: 22px desktop, 24px beside pictures, 20px mobile. Leading pictures remain 220x144px desktop or 128x96px mobile; dates are 14px/13px.",
+      "html": "<article class=\"ds-article-row\"><time datetime=\"2026-10-28\">Oct 28, 2026</time><div class=\"ds-post-row-copy\"><h2><a href=\"/blog\">A technical experiment</a></h2></div></article>",
+      "css": ".ds-article-row{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:baseline;gap:14px;padding:11px 0;color:#f1f2fa;font-family:var(--font-body,Inter,sans-serif)}.ds-article-row time{font-size:14px;color:#b4bdcf;font-variant-numeric:tabular-nums}.ds-post-row-copy{min-width:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 12px}.ds-post-row-copy h2{margin:0;font-size:22px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}.ds-post-row-copy a{color:#f1f2fa;text-decoration:underline;text-decoration-color:#65739f;text-decoration-thickness:1px;text-underline-offset:5px}.ds-post-row-copy a:hover{color:#b8c6ff;text-decoration-color:currentColor}.ds-post-row-copy a:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}.ds-article-row.ds-has-picture{grid-template-columns:220px minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;column-gap:28px;row-gap:8px;padding:20px 0}.ds-has-picture time{grid-column:2;grid-row:1;padding-top:4px}.ds-has-picture .ds-post-row-copy{grid-column:2;grid-row:2;display:block}.ds-has-picture h2{font-size:24px;line-height:1.4}.ds-post-thumbnail{display:block;grid-column:1;grid-row:1 / span 2}.ds-post-thumbnail img{display:block;width:220px;height:144px;object-fit:cover;border-radius:6px}@media(max-width:650px){.ds-article-row{grid-template-columns:minmax(0,1fr);gap:6px;padding:13px 0}.ds-article-row.ds-has-picture{grid-template-columns:128px minmax(0,1fr);column-gap:16px;padding:16px 0}.ds-article-row time{font-size:13px}.ds-post-row-copy h2,.ds-has-picture h2{font-size:20px;line-height:1.45}.ds-has-picture time{padding-top:0}.ds-post-thumbnail img{width:128px;height:96px}}"
+    },
+    {
+      "name": "Reading Code Block",
+      "kind": "custom",
+      "description": "Monospaced code stays contained and horizontally scrollable.",
+      "html": "<pre class=\"ds-code\"><code>result = evaluate(model, cases)</code></pre>",
+      "css": ".ds-code{padding:28px 24px;background:#0f1528;border:1px solid #262c44;border-radius:10px;overflow:auto;line-height:1.8;color:#e2e6ee}.ds-code code{font:14px/1.8 var(--font-mono,\"JetBrains Mono\",monospace);white-space:pre}@media(max-width:650px){.ds-code code{font-size:13px}}"
+    },
+    {
+      "name": "Archive Search Toggle",
+      "kind": "button",
+      "description": "Accessible magnifying-glass control opens the nonmodal right search/topic panel. Active filters remain highlighted after closing.",
+      "html": "<button class=\"ds-archive-search-toggle\" type=\"button\" aria-label=\"Search and filter posts\" aria-expanded=\"true\"><svg width=\"21\" height=\"21\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"m16 16 4 4\"/></svg></button>",
+      "css": ".ds-archive-search-toggle{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:40px;height:40px;border:0;border-radius:6px;background:transparent;color:var(--subtle,#b4bdcf);cursor:pointer}.ds-archive-search-toggle:hover,.ds-archive-search-toggle[aria-expanded=true]{color:var(--text-primary,#f1f2fa);background:#171d35}.ds-archive-search-toggle.ds-has-filters{color:#b6c2ff;background:#1b2340}.ds-archive-search-toggle:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}"
+    },
+    {
+      "name": "Editable Demo Configuration",
+      "kind": "custom",
+      "description": "Write shows an editable JSON code block; Preview runs the sandboxed figure. The reader uses a full-width bordered frame, caption and Open demo link.",
+      "html": "<pre class=\"ds-demo-config\"><code>{\n  \"src\": \"/blog-demos/gradient-descent.html\",\n  \"title\": \"Gradient descent: try the learning rate\",\n  \"height\": 420\n}</code></pre><p class=\"ds-demo-hint\">Edit the JSON here; Preview runs the demo.</p>",
+      "css": ".ds-demo-config{padding:28px 24px;background:#0f1528;border:1px solid #262c44;border-radius:10px;overflow:auto;color:#e2e6ee}.ds-demo-config code{font:14px/1.8 var(--font-mono,\"JetBrains Mono\",monospace);white-space:pre}.ds-demo-hint{margin:16px 0;color:var(--subtle,#b4bdcf);font:12px/1.7 var(--font-body,Inter,sans-serif)}@media(max-width:650px){.ds-demo-config code{font-size:13px}}"
+    },
+    {
+      "name": "Native Scrollbar",
+      "kind": "custom",
+      "description": "Global native scrolling: 10px WebKit/Blink tracks, 40px minimum thumb, hover/active colors, standard thin fallback and forced-colors overrides.",
+      "html": "<div class=\"ds-scrollport\" tabindex=\"0\" aria-label=\"Scrollable content\"><pre class=\"ds-scroll-content\">Native scrolling\nBlue-gray thumb\nHover to lighten\nDrag for active color\nSystem colors in forced-colors mode\nKeyboard scrolling remains native\nHorizontal content extends across this scroll area.</pre></div>",
+      "css": ".ds-scrollport{width:280px;height:100px;overflow:auto;background:var(--scrollbar-track,#080a15);color:var(--text-primary,#f1f2fa)}.ds-scroll-content{min-width:420px;margin:0;font:14px/1.8 var(--font-mono,\"JetBrains Mono\",monospace)}.ds-scrollport:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}.ds-scrollport::-webkit-scrollbar{width:10px;height:10px}.ds-scrollport::-webkit-scrollbar-track,.ds-scrollport::-webkit-scrollbar-corner{background:var(--scrollbar-track,#080a15)}.ds-scrollport::-webkit-scrollbar-thumb{min-height:40px;min-width:40px;border:2px solid var(--scrollbar-track,#080a15);border-radius:8px;background:var(--scrollbar-thumb,#65729c);background-clip:padding-box}.ds-scrollport::-webkit-scrollbar-thumb:hover{background-color:var(--scrollbar-thumb-hover,#91a4e8)}.ds-scrollport::-webkit-scrollbar-thumb:active{background-color:var(--scrollbar-thumb-active,#b8c6ff)}@supports not selector(::-webkit-scrollbar){.ds-scrollport{scrollbar-width:thin;scrollbar-color:var(--scrollbar-thumb,#65729c) var(--scrollbar-track,#080a15)}}@media(forced-colors:active){.ds-scrollport{scrollbar-color:auto}.ds-scrollport::-webkit-scrollbar-thumb{background-color:CanvasText;border-color:Canvas}.ds-scrollport::-webkit-scrollbar-track,.ds-scrollport::-webkit-scrollbar-corner{background:Canvas}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Midnight systems",
+    "overview": "This records the incumbent portfolio identity named in the global stylesheet: blue-black surfaces, periwinkle accents, restrained borders, and clear technical typography. The user explicitly confirmed preserving the dark blue identity. This is a scan of implemented work, with no new visual world or approved system replacement.\n\nThe blog extends that identity with a wide, compact article index and a full-size editable article. The user's Dan Luu reference guides the blog toward plain linked writing with minimal clutter. Compact author controls sit above the shared reading and editing document layout. Optional interactive figures sit within that reading flow; their plain-text configuration stays editable by people and agents. This is a surface-specific refinement; the homepage retains its incumbent visual system.",
+    "keyCharacteristics": [
+      "Blue-black surfaces with restrained periwinkle emphasis.",
+      "Inter reading text and JetBrains Mono for code and technical identity.",
+      "Fine dividers, tonal panels, and gently rounded controls."
+    ],
+    "rules": [
+      {
+        "name": "The Shared Identity Rule",
+        "body": "Extend the existing dark blue palette rather than introducing a replacement identity for a new surface.",
+        "section": "colors"
+      },
+      {
+        "name": "The Visible Interaction Rule",
+        "body": "Blog keyboard focus uses a visible accent outline; selection uses dark text on the accent fill. Preserve both when adding controls.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** reuse the incumbent dark blue palette and font families.",
+      "**Do** keep author controls compact above the shared reading and editing document layout.",
+      "**Do** preserve visible keyboard focus, readable selection, and native Tab navigation.",
+      "**Do** use inline SVG arrows and explicit labels for actionable controls."
+    ],
+    "donts": [
+      "**Don't** treat the blog's article index or single-document editor as a homepage redesign.",
+      "**Don't** replace the confirmed dark blue identity when adding a new surface.",
+      "**Don't** inherit the homepage's older white-on-accent selection treatment into blog controls; the blog deliberately uses dark selection text."
+    ]
+  }
+}

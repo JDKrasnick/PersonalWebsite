@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gradient descent</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0d1121; color: #f1f2fa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; }
+    h1 { font-size: 18px; line-height: 1.4; margin: 0 0 4px; font-weight: 600; }
+    p { margin: 0; color: #b4bdcf; font-size: 14px; line-height: 1.6; }
+    .rate { display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; font-size: 14px; }
+    .rate label { white-space: nowrap; }
+    input { flex: 1; min-width: 40px; accent-color: #9bacff; }
+    output { font-variant-numeric: tabular-nums; }
+    svg { display: block; width: 100%; height: 180px; overflow: visible; }
+    .axis { stroke: #414a67; stroke-width: 1; }
+    .curve { stroke: #a6b4ff; stroke-width: 2.5; fill: none; }
+    #point { fill: #ecc58d; transition: transform 250ms ease-out; }
+    text { fill: #a5aabd; font-size: 22px; }
+    .actions { display: flex; gap: 8px; margin: 12px 0; }
+    button { min-height: 38px; padding: 8px 16px; border: 1px solid #414a67; background: transparent; border-radius: 5px; color: #f1f2fa; font: inherit; font-size: 14px; cursor: pointer; }
+    button:hover { background: #1b2340; }
+    button:disabled { opacity: .55; cursor: default; }
+    button:focus-visible, input:focus-visible { outline: 2px solid #a6b4ff; outline-offset: 4px; }
+    #state { display: block; color: #e2e6ee; font-size: 14px; line-height: 1.7; }
+    ::selection { background: #7c91ff; color: #080a15; }
+    @media (prefers-reduced-motion: reduce) { #point { transition: none; } }
+    @media (max-width: 400px) { body { padding: 16px; } .rate { gap: 8px; } button { padding: 8px 14px; } }
+  </style>
+</head>
+<body>
+  <h1>Gradient descent</h1>
+  <p id="hint">Adjust the learning rate, then step or play.</p>
+  <div class="rate"><label for="rate">Learning rate</label><input id="rate" type="range" min="0.02" max="0.95" step="0.01" value="0.12" /><output id="rate-value" for="rate">0.12</output></div>
+  <svg viewBox="0 0 600 220" role="img" aria-labelledby="chart-title chart-description">
+    <title id="chart-title">Minimizing f(x) = x squared</title>
+    <desc id="chart-description">The point follows the curve toward its minimum at x equals zero. Use the buttons to change its position; the current loss is reported below.</desc>
+    <path class="axis" d="M30 195H570M300 195V15" />
+    <path id="curve" class="curve" />
+    <circle id="point" r="6" />
+    <text x="309" y="214">0</text><text x="534" y="214">x</text><text x="314" y="28">f(x) = x²</text>
+  </svg>
+  <div class="actions"><button id="step" type="button">Step</button><button id="play" type="button" aria-pressed="false">Play</button><button id="reset" type="button">Reset</button></div>
+  <output id="state" aria-live="polite">Step 0 · x = 3.20 · loss = 10.24</output>
+  <script>
+    // This file is the entire demo. No framework, dependencies, or build step.
+    const rate = document.getElementById('rate');
+    const point = document.getElementById('point');
+    const state = document.getElementById('state');
+    const play = document.getElementById('play');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const px = x => 300 + x * 62;
+    const py = x => 195 - x * x * 10;
+    const curve = Array.from({ length: 81 }, (_, i) => { const x = -4 + i / 10; return `${i ? 'L' : 'M'}${px(x)},${py(x)}`; }).join(' ');
+    document.getElementById('curve').setAttribute('d', curve);
+    let x = 3.2, steps = 0, timer;
+    function draw() {
+      point.style.transform = `translate(${px(x)}px, ${py(x)}px)`;
+      state.textContent = `Step ${steps} · x = ${x.toFixed(2)} · loss = ${(x*x).toFixed(2)}`;
+    }
+    function pause() {
+      clearInterval(timer); timer = undefined;
+      play.textContent = 'Play'; play.setAttribute('aria-pressed', 'false'); state.setAttribute('aria-live', 'polite');
+    }
+    function step() {
+      x -= Number(rate.value) * 2 * x; steps++; draw();
+      if (Math.abs(x) < .001 || steps >= 200) pause();
+    }
+    function reset() { pause(); x = 3.2; steps = 0; draw(); }
+    document.getElementById('step').addEventListener('click', () => { pause(); step(); });
+    document.getElementById('reset').addEventListener('click', reset);
+    rate.addEventListener('input', () => { document.getElementById('rate-value').textContent = Number(rate.value).toFixed(2); reset(); });
+    play.addEventListener('click', () => {
+      if (timer) { pause(); return; }
+      if (Math.abs(x) < .001 || steps >= 200) reset();
+      play.textContent = 'Pause'; play.setAttribute('aria-pressed', 'true'); state.setAttribute('aria-live', 'off');
+      step(); if (Math.abs(x) >= .001 && steps < 200) timer = setInterval(step, 350);
+    });
+    function syncMotionPreference() {
+      pause(); play.disabled = reducedMotion.matches;
+      document.getElementById('hint').textContent = reducedMotion.matches ? 'Reduced motion: adjust the rate and use Step.' : 'Adjust the learning rate, then step or play.';
+    }
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+    new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pause(); }).observe(document.body);
+    reducedMotion.addEventListener('change', syncMotionPreference);
+    syncMotionPreference(); draw();
+  </script>
+</body>
+</html>

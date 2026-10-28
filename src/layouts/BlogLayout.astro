@@ -1,0 +1,26 @@
+---
+import Layout from './Layout.astro';
+import BlogArrow from '../components/BlogArrow.astro';
+import '../styles/blog.css';
+interface Props { title?: string; editor?: boolean; }
+const { title = 'Blog', editor = false } = Astro.props;
+---
+<Layout title={`${title} | JD Krasnick`} description="Technical notes on AI, software, and the experiments behind them." noindex={editor || import.meta.env.DEV}>
+  <div class:list={['blog-shell', { 'editor-shell': editor }]}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="blog-header">
+      <a href="/" class="blog-brand">JD Krasnick<span class="brand-slash" aria-hidden="true">/</span></a>
+      <nav aria-label="Main navigation">
+        <a href="/">Portfolio</a>
+        <a href="/blog" aria-current={editor ? undefined : 'page'}>Blog</a>
+      </nav>
+      {import.meta.env.DEV && <a class:list={['button', 'button-quiet', 'editor-entry', { selected: editor }]} href="/blog/editor">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m16 3 5 5L9 20l-6 1 1-6Z"/><path d="m14 5 5 5"/></svg>
+        <span>Editor</span>
+      </a>}
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="blog-footer"><a href="/">JD Krasnick</a><span>Notes from the work.</span><a href="https://github.com/JDKrasnick" target="_blank" rel="noreferrer">GitHub <BlogArrow direction="up-right" /></a></footer>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+</Layout>

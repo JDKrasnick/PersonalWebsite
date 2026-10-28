@@ -1,0 +1,33 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+import BlogArrow from '../components/BlogArrow.astro';
+---
+<BlogLayout title="Editor" editor>
+  <div class="editor-bar">
+    <div class="post-picker"><label class="sr-only" for="post-selector">Choose a post</label><select id="post-selector" aria-label="Choose a post"><option>Loading posts…</option></select><button id="new-post" class="button button-quiet">New post</button></div>
+    <div class="editor-actions"><span id="save-state" role="status">Ready to write</span><button id="save-draft" class="button button-quiet">Save draft</button><button id="open-preview" class="button button-quiet">Preview <BlogArrow direction="up-right" /></button><button id="publish-post" class="button button-primary">Prepare for GitHub</button></div>
+  </div>
+  <div id="editor-error" class="notice error editor-error" role="alert" hidden></div>
+  <article class="article-editor" aria-label="Editable blog post">
+    <header class="article-header editable-header">
+      <div class="editor-article-meta"><span>JD Krasnick</span><span id="post-state" class="status-badge">Draft</span></div>
+      <label class="sr-only" for="post-title">Post title</label><textarea id="post-title" class="article-edit-title" rows="1" placeholder="Untitled post" maxlength="180"></textarea>
+      <label class="sr-only" for="post-excerpt">Description</label><textarea id="post-excerpt" class="article-edit-description" rows="1" placeholder="Add a short description…" maxlength="400"></textarea>
+      <div id="editor-picture" class="article-picture" hidden><div id="editor-picture-preview"></div><p id="editor-picture-error" class="picture-error" hidden>Picture could not load. Check the image URL below.</p></div>
+      <details id="picture-settings" class="picture-settings"><summary>Add picture</summary><div class="picture-fields"><div><label for="post-image">Picture URL</label><input id="post-image" maxlength="2000" placeholder="https://… or /images/your-picture.jpg" aria-describedby="picture-help" /><p id="picture-help">Optional. Paste an image link, or use a file from the public folder.</p></div><div><label for="post-image-alt">Describe the picture</label><input id="post-image-alt" maxlength="240" placeholder="A short description for screen readers" /></div><button id="remove-picture" type="button" class="text-button" hidden>Remove picture</button></div></details>
+      <details class="post-settings"><summary>Post settings</summary><div class="post-fields"><div><label for="post-slug">URL slug</label><input id="post-slug" maxlength="100" placeholder="your-post-title" autocomplete="off" /></div><div><label for="post-tags">Tags</label><input id="post-tags" maxlength="200" placeholder="AI, Engineering" /></div></div></details>
+    </header>
+    <div class="document-toolbar" role="toolbar" aria-label="Text formatting">
+      <div class="format-actions"><button type="button" data-format="heading" title="Heading" aria-label="Heading" aria-pressed="false">H2</button><button type="button" data-format="bold" title="Bold" aria-label="Bold" aria-pressed="false"><strong>B</strong></button><button type="button" data-format="italic" title="Italic" aria-label="Italic" aria-pressed="false"><em>I</em></button><button type="button" data-format="link" title="Link" aria-label="Insert link"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m10 13 4-4m-6 7-2 2a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0m2 1 2-2a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0" transform="translate(1 0)"/></svg></button><button type="button" data-format="code" title="Code block" aria-label="Code block" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5M14 4l-4 16"/></svg></button><button type="button" data-format="list" title="Bullet list" aria-label="Bullet list" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1"/></svg></button></div>
+      <div class="document-modes" role="group" aria-label="Editing mode"><button type="button" data-editor-mode="document" aria-pressed="true">Write</button><button type="button" data-editor-mode="markdown" aria-pressed="false">Markdown</button></div>
+      <button id="insert-demo" type="button" class="text-button" title="Insert an interactive demo block">Insert demo</button>
+    </div>
+    <div id="rich-editor" class="document-editor"></div>
+    <div id="markdown-source" hidden><label class="sr-only" for="post-content">Markdown source</label><textarea id="post-content" class="markdown-source" rows="10" placeholder="Write your article…" spellcheck="false"></textarea></div>
+    <p id="demo-editor-hint" class="demo-editor-hint" hidden>Demo blocks reference HTML files in public/blog-demos. Edit the JSON here; Preview runs the demo.</p>
+    <div class="writing-footer"><span id="word-count">0 words</span><span>Drafts save automatically.</span></div>
+    <div class="post-management"><span id="published-note">Only you can see this draft.</span><div><button id="unpublish-post" class="text-button" hidden>Remove GitHub file</button><button id="delete-post" class="text-button danger">Delete post</button></div></div>
+  </article>
+  <noscript><p class="notice">Enable JavaScript to use the editor.</p></noscript>
+</BlogLayout>
+<script>import { initEditor } from '../scripts/blog-editor'; initEditor();</script>

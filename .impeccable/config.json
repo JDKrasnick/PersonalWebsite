@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-28T18:12:26.015Z",
+        "reason": "Agent decision: Inter is the incumbent portfolio typeface in src/styles/global.css. The blog extends that existing identity; the independent design review explicitly accepted its Inter hierarchy. No typography redesign was requested."
+      }
+    ]
+  }
+}

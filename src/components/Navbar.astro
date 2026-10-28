@@ -1,6 +1,7 @@
 ---
 const navLinks = [
   { label: "About", href: "#about" },
+  { label: "Blog", href: "/blog" },
   { label: "Skills", href: "#skills" },
   { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
@@ -20,14 +21,14 @@ const navLinks = [
       Resume
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
     </a>
-    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
       <span></span>
       <span></span>
     </button>
   </div>
 
   <!-- Mobile menu -->
-  <div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu" id="mobile-menu" inert>
     <ul class="mobile-links">
       {navLinks.map(link => (
         <li><a href={link.href}>{link.label}</a></li>
@@ -202,17 +203,29 @@ const navLinks = [
     lastScroll = current;
   });
 
-  toggle?.addEventListener('click', () => {
-    toggle.classList.toggle('active');
-    mobileMenu?.classList.toggle('open');
-    document.body.style.overflow = mobileMenu?.classList.contains('open') ? 'hidden' : '';
-  });
+  const setMenuOpen = (open: boolean) => {
+    toggle?.classList.toggle('active', open);
+    toggle?.setAttribute('aria-expanded', String(open));
+    mobileMenu?.classList.toggle('open', open);
+    if (mobileMenu) mobileMenu.inert = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
+  };
+
+  toggle?.addEventListener('click', () => setMenuOpen(!mobileMenu?.classList.contains('open')));
 
   mobileMenu?.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
-      toggle?.classList.remove('active');
-      mobileMenu?.classList.remove('open');
-      document.body.style.overflow = '';
+      setMenuOpen(false);
     });
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && mobileMenu?.classList.contains('open')) {
+      setMenuOpen(false);
+      toggle?.focus();
+    }
+  });
+  matchMedia('(max-width: 768px)').addEventListener('change', event => {
+    if (!event.matches) setMenuOpen(false);
   });
 </script>
