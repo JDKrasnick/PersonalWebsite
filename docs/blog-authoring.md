@@ -2,6 +2,14 @@
 
 Posts are Markdown files in `content/blog/`. The localhost editor stores private drafts separately; **Prepare for GitHub** writes the reviewed Markdown file. Commit and push the post and any assets together to publish.
 
+## Add pictures
+
+Open **Add picture** to drop or choose a cover image. Drop or paste a picture into the article to insert it at the cursor; **Insert picture** opens a file picker for the body. Both Write and Markdown modes support pictures. Add a cover description in the picture settings; inline alternative text can be edited in Markdown (`![Description](path)`). Existing image URLs still work.
+
+Uploads accept PNG, JPG, WebP, GIF, and AVIF up to 10 MB and 40 megapixels (including animation frames). The local server validates the actual image data and saves the original file under `public/blog-images/uploads/`, with a safe filename and content hash. Markdown and cover metadata reference the resulting relative URL. Re-uploading the same named image reuses its path; different images never overwrite one another. SVG uploads are excluded; export them as PNG first.
+
+Commit the image files along with the prepared post. Uploaded files are public assets in any deployment that includes them, even if the draft is not prepared. Removing a picture or deleting a draft keeps its file, so other posts using it continue to work. Delete unused files manually when appropriate. The upload endpoint exists only in the localhost development server; there is no public upload API.
+
 ## Add an animation or interactive element
 
 1. Create a standalone HTML file in `public/blog-demos/`, containing its HTML, CSS, and JavaScript. No framework or build step is required. Copy `gradient-descent.html` to start.

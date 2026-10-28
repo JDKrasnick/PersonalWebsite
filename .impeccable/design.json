@@ -272,7 +272,19 @@
       },
       "blog-headline": {
         "displayName": "Article heading",
-        "purpose": "Semibold article and editable titles; preserves the fluid desktop scale and 35px mobile size."
+        "purpose": "Approved Roomy & familiar Inter article and editable titles: fluid 36-52px desktop, semibold, line height 1.15 and tracking -0.025em; 28px gap before the subtitle. Mobile uses its own headline role."
+      },
+      "blog-headline-mobile": {
+        "displayName": "Mobile article heading",
+        "purpose": "Reader and editor article titles at 36px, semibold, line height 1.18; 24px gap before the subtitle."
+      },
+      "blog-subtitle": {
+        "displayName": "Article subtitle",
+        "purpose": "Reader excerpt and editable description in Inter: bright body ink, 22px regular, line height 1.6, maximum measure 780px. Reader subtitle bottom margin is 26px; header-to-picture gap is 52px. Editor description leaves 52px before the picture. Article headers omit the author byline; reader date and editor state remain."
+      },
+      "blog-subtitle-mobile": {
+        "displayName": "Mobile article subtitle",
+        "purpose": "Reader excerpt and editable description at 20px regular with line height 1.6. Reader subtitle bottom margin is 24px and header-to-picture gap is 36px; editor description leaves 36px before the picture. Body prose retains its separate 18px mobile role."
       }
     },
     "shadows": [],

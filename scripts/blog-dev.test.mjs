@@ -6,11 +6,17 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blogDevPlugin } from './blog-dev.mjs';
 import { readPublishedPosts } from './blog-content.mjs';
+import sharp from 'sharp';
 
 async function start(directory) {
-  let middleware;
-  blogDevPlugin({ directory, publishedDirectory: join(directory, 'published') }).configureServer({ middlewares: { use(_path, handler) { middleware = handler; } }, config: { logger: { error() {} } } });
-  const server = createServer((req, res) => { req.url = req.url.replace(/^\/api\/blog/, ''); void middleware(req, res); });
+  const routes = [];
+  blogDevPlugin({ directory, publishedDirectory: join(directory, 'published'), uploadDirectory: join(directory, 'uploads') }).configureServer({ middlewares: { use(path, handler) { routes.push({ path, handler }); } }, config: { logger: { error() {} } } });
+  const server = createServer((req, res) => {
+    const route = routes.find(route => req.url.startsWith(`${route.path}/`) || req.url === route.path);
+    if (!route) { res.statusCode = 404; res.end(); return; }
+    req.url = req.url.slice(route.path.length) || '/';
+    void route.handler(req, res, () => { res.statusCode = 404; res.end(); });
+  });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   const request = async (path, body, headers = {}) => {
@@ -118,4 +124,35 @@ test('local blog: durable lifecycle, draft isolation, conflicts, validation and 
     assert.equal((await app.request('drafts')).data.some(p => p.id === post.id), false);
     assert.equal((await app.request('posts')).data.some(p => p.id === 'example'), true);
   });
+});
+
+test('local image uploads validate, persist, and travel with prepared Markdown', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'jd-blog-upload-'));
+  const app = await start(directory);
+  t.after(async () => { await app.close(); await rm(directory, { recursive: true, force: true }); });
+  const png = await sharp({ create: { width: 20, height: 10, channels: 3, background: '#7c91ff' } }).png().toBuffer();
+  const upload = async (buffer = png, headers = {}) => {
+    const response = await fetch(`${app.base}/api/blog/upload`, { method: 'POST', headers: { Origin: app.base, 'Content-Type': 'image/png', 'X-Image-Name': encodeURIComponent('../../My illustration.html'), ...headers }, body: buffer });
+    return { status: response.status, data: await response.json() };
+  };
+  const result = await upload();
+  assert.equal(result.status, 200);
+  assert.match(result.data.image, /^\/blog-images\/uploads\/my-illustration-[a-f0-9]{24}\.png$/);
+  assert.deepEqual(await readFile(join(directory, 'uploads', result.data.image.split('/').pop())), png);
+  const served = await fetch(`${app.base}${result.data.image}`);
+  assert.equal(served.headers.get('content-type'), 'image/png');
+  assert.deepEqual(Buffer.from(await served.arrayBuffer()), png, 'uploaded files render immediately without a watcher delay');
+  assert.equal((await upload()).data.image, result.data.image, 're-uploading the same file reuses its URL');
+  const draft = (await app.request('save', { title: 'Uploaded picture', slug: 'uploaded-picture', excerpt: '', tags: '', image: result.data.image, imageAlt: 'An illustration', content: `Body picture:\n\n![An illustration](${result.data.image})` })).data;
+  assert.equal((await app.request('publish', { id: draft.id, revision: draft.revision })).status, 200);
+  const prepared = (await readPublishedPosts(join(directory, 'published')))[0];
+  assert.equal(prepared.image, result.data.image);
+  assert.ok(prepared.content.includes(result.data.image));
+  assert.equal((await upload(Buffer.from('<html>not a picture</html>'))).status, 400);
+  assert.equal((await upload(png.subarray(0, 45))).status, 400, 'truncated image data is rejected');
+  assert.equal((await upload(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>'), { 'Content-Type': 'image/svg+xml' })).status, 415);
+  assert.equal((await upload(Buffer.alloc(10 * 1024 * 1024 + 1))).status, 413);
+  assert.equal((await upload(png, { Origin: 'https://elsewhere.example' })).status, 403);
+  assert.equal((await upload(png, { Origin: '' })).status, 403);
+  assert.equal((await upload(png, { 'X-Image-Name': '%bad-encoding' })).status, 400);
 });

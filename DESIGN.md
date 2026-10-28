@@ -34,10 +34,15 @@ typography:
     letterSpacing: "-0.02em"
   blog-headline:
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
-    fontSize: "clamp(32px, 4vw, 46px)"
+    fontSize: "clamp(36px, 4vw, 52px)"
     fontWeight: 600
-    lineHeight: 1.17
-    letterSpacing: "-0.03em"
+    lineHeight: 1.15
+    letterSpacing: "-0.025em"
+  blog-subtitle:
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+    fontSize: "22px"
+    fontWeight: 400
+    lineHeight: 1.6
   body:
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
     fontSize: "16px"
@@ -54,8 +59,13 @@ typography:
   blog-display-mobile:
     fontSize: "26px"
   blog-headline-mobile:
-    fontSize: "35px"
+    fontSize: "36px"
     fontWeight: 600
+    lineHeight: 1.18
+  blog-subtitle-mobile:
+    fontSize: "20px"
+    fontWeight: 400
+    lineHeight: 1.6
   blog-archive-title:
     fontSize: "22px"
     fontWeight: 600
@@ -179,9 +189,9 @@ Midnight (`bg-primary`) is the shared base. The incumbent secondary and transluc
 
 Inter is the shared heading and body family, including the visual article editor; JetBrains Mono carries the brand, code, and optional Markdown source view. Font stacks and reusable roles are normative in the frontmatter.
 
-Portfolio headings inherit semibold typography. The blog index retains its compact medium-weight heading. Article titles, archive titles, and prose subheadings use semibold weight (600). Archive titles are 22px, rising to 24px in picture rows; their color and weight establish them as article entry points. Article subheadings descend through 32px, 25px, 20px, and 17px. Reader/editor paragraphs and descriptions use the brighter body ink at regular weight (400), 19px, with 1.8 line height.
+Portfolio headings inherit semibold typography. The blog index retains its compact medium-weight heading. Article titles, archive titles, and prose subheadings use semibold weight (600). The approved Roomy & familiar article header uses a fluid Inter title and a distinct regular-weight subtitle in brighter body ink, with a maximum subtitle measure of 780px. Reader subtitles display the escaped post excerpt; the editor description shares this scale. Archive titles are 22px, rising to 24px in picture rows; their color and weight establish them as article entry points. Article subheadings descend through 32px, 25px, 20px, and 17px. Reader/editor body paragraphs retain brighter body ink at regular weight (400), 19px, with 1.8 line height.
 
-At the blog's mobile breakpoint, the index heading is 26px, archive links are 20px with 1.45 line height, article title is 35px, and prose/descriptions are 18px with 1.8 line height. Dates are 14px desktop and 13px mobile. Code is 14px/13px, tables 16px/15px, and comment body text 16px. Markdown source is 16px. Code remains monospaced and preserves whitespace with horizontal overflow where needed.
+At the blog's mobile breakpoint, the index heading is 26px and archive links are 20px with 1.45 line height. Article titles and subtitles use their mobile frontmatter roles; body prose remains 18px with 1.8 line height. Dates are 14px desktop and 13px mobile. Code is 14px/13px, tables 16px/15px, and comment body text 16px. Markdown source is 16px. Code remains monospaced and preserves whitespace with horizontal overflow where needed.
 
 The smaller frontmatter roles describe ancillary UI, not a second reading scale: 10px is limited to the code-copy utility and mobile footer; 11px to badges and compact mobile actions; 12px to labels, captions, and status text; 13px to controls; and 14px to dates, navigation, and fields. These observed roles are not permission to shrink article text. Legacy avatar-only sizing is excluded because avatars are not part of the current article header.
 
@@ -191,7 +201,9 @@ The portfolio container is capped at 1100px with 2rem side padding, reduced to 1
 
 The blog header and index are capped at 1600px with 48px desktop gutters. The index has a plain Blog heading without a subtitle, then chronological date/title rows capped at 1160px. Optional pictures lead on the left with date and title to their right; rows without pictures remain compact. A magnifying-glass button opens search and topics in a nonmodal right sidebar (280px). At 850px and below, that panel moves above the results, aligned right with a maximum width of 340px. At 650px gutters are 24px. Reader and visual editor share a 1160px document container, including their gutters.
 
-The editor is a single editable article, with the same title and prose scale as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving, preview, and GitHub preparation. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. There is no sidebar or split preview window.
+The editor is a single editable article, with the same title, subtitle, and prose scales as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving, preview, and GitHub preparation. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. There is no sidebar or split preview window.
+
+Article headers have no border or bottom padding. The desktop title-to-subtitle margin is 28px, subtitle bottom margin is 26px, and reader header-to-picture margin is 52px; mobile uses 24px, 24px, and 36px. The editor matches the title gap and leaves 52px after the description before the picture on desktop, 36px on mobile. Article headers and local typography previews omit the author byline; the reader keeps its date and example labeling, and the editor keeps its state badge. The site's name remains in navigation and footer.
 
 Paragraphs, lists, blockquotes, code, tables, pictures, and interactive figures share the full document column and its outer alignment. The 1160px desktop container includes two 48px gutters, leaving 1064px for content when the container reaches its maximum width. Mobile uses 24px gutters, leaving 342px at a 390px viewport. There is no separate paragraph-width cap or mobile code-block breakout; text and media follow the same left and right column edges.
 
@@ -217,7 +229,7 @@ Browsers without `::-webkit-scrollbar` selector support use standard `scrollbar-
 
 ### Inputs / Fields
 
-Comment inputs use a dark panel, a fine blue-gray stroke, gentle corners, and visible labels. Search has an outlined field. The editor title and description are borderless auto-expanding text areas; rich article content uses the reader's typography. Metadata is collapsed under Post settings. Add picture exposes a URL and alternative-text field, with live preview, load-error feedback, and removal. Native Tab navigation and visible keyboard focus remain available; formatting comes from the toolbar or keyboard shortcuts.
+Comment inputs use a dark panel, a fine blue-gray stroke, gentle corners, and visible labels. Search has an outlined field. The editor title and description are borderless auto-expanding text areas; rich article content uses the reader's typography. Metadata is collapsed under Post settings. Add picture discloses a cover dropzone and file picker, an optional URL and alternative-text field, with live preview, load-error feedback, and removal. Insert picture opens a body file picker; both Write and Markdown accept file drops and clipboard pictures at the drop position or current selection. Upload progress and errors appear in a status message; successful uploads remind the author to commit the image with the post. Removing a picture retains its file for shared references. Native Tab navigation and visible keyboard focus remain available; formatting comes from the toolbar or keyboard shortcuts.
 
 ### Navigation
 
@@ -233,9 +245,9 @@ The icon-only magnifying-glass toggle has an accessible label, `aria-expanded`, 
 
 ### Cards / Rows / Reading
 
-Each article appears once with its date and underlined, neutral near-white semibold title link. Post icons are absent from the list and editor, including the icon picker. Rows omit excerpts, topic labels, reading time, arrows, and dividers. An optional picture leads on the left (220×144px desktop; 128×96px mobile), with date and title on the right. The desktop picture/text gap is 28px, reducing to 16px on mobile. Picture-row titles are 24px on desktop; all mobile row titles are 20px. Rows without a picture retain compact date/title formatting with 22px desktop titles. The reader header contains the title, author, and date, with example labeling when applicable. An optional document-width picture sits between header and body; avatars, tags, excerpts, and reading time do not appear in the reader header. Reader and editor prose is 19px on desktop and 18px on mobile, with 1.8 line height and bright body ink. Links, code, tables, and blockquotes remain clearly distinguished.
+Each article appears once with its date and underlined, neutral near-white semibold title link. Post icons are absent from the list and editor, including the icon picker. Rows omit excerpts, topic labels, reading time, arrows, and dividers. An optional picture leads on the left (220×144px desktop; 128×96px mobile), with date and title on the right. The desktop picture/text gap is 28px, reducing to 16px on mobile. Picture-row titles are 24px on desktop; all mobile row titles are 20px. Rows without a picture retain compact date/title formatting with 22px desktop titles. The reader header contains the title, optional excerpt as a subtitle, and date, with example labeling when applicable. An optional document-width picture sits between header and body; author bylines, avatars, tags, and reading time do not appear in the reader header. Reader and editor body prose is 19px on desktop and 18px on mobile, with 1.8 line height and bright body ink. Links, code, tables, and blockquotes remain clearly distinguished.
 
-Pictures are optional author-provided assets, not a default decoration. The user-requested local example uses a circuit-board photograph at `public/blog-images/technical-experiment.jpg`; its photographer, source, license link, and illustrative-use description are recorded in `public/blog-images/credits.json`. It is not a photograph of the author's own work. Preserve descriptive alternative text in the article; index thumbnails are decorative duplicates of the linked article.
+Pictures are optional author-provided assets, not a default decoration. Cover pictures have transparent backing, so empty space around the contained image shows the page background without a colored frame. The user-requested local example uses a circuit-board photograph at `public/blog-images/technical-experiment.jpg`; its photographer, source, license link, and illustrative-use description are recorded in `public/blog-images/credits.json`. It is not a photograph of the author's own work. Preserve descriptive alternative text in the article; index thumbnails are decorative duplicates of the linked article.
 
 ### Interactive Figures
 
