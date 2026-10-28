@@ -15,6 +15,9 @@ export async function initEditor() {
   let version = 0, savedVersion = 0, slugEdited = false, timer: ReturnType<typeof setTimeout>;
   let saveQueue: Promise<unknown> = Promise.resolve();
   let busy = false;
+  let uploading = false;
+  type PictureTarget = { cover: true } | { cover: false; source: boolean; start: number; end: number };
+  let pictureTarget: PictureTarget = { cover: true };
   const backupKey = () => `jd-blog-recovery:${current?.id ?? 'new'}`;
   const values = () => ({ title: fields.title.value, excerpt: fields.excerpt.value, slug: fields.slug.value, tags: fields.tags.value, image: fields.image.value, imageAlt: fields.imageAlt.value, content: fields.content.value });
   const status = (value: string) => { $('save-state').textContent = value; };
@@ -53,6 +56,7 @@ export async function initEditor() {
     fields.image.value = draft?.image || ''; fields.imageAlt.value = draft?.imageAlt || '';
     history.replaceState(null, '', draft ? `/blog/editor?id=${encodeURIComponent(draft.id)}` : '/blog/editor');
     $('editor-error').hidden = true;
+    $('picture-upload-state').hidden = true;
     status(draft ? 'All changes saved' : 'Ready to write');
     try {
       const recovery = localStorage.getItem(backupKey());
@@ -103,6 +107,8 @@ export async function initEditor() {
     richEditor?.setEditable(!value, false);
     $<HTMLButtonElement>('remove-picture').disabled = value;
     $<HTMLButtonElement>('insert-demo').disabled = value;
+    ['choose-cover', 'insert-picture', 'picture-file'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
+    document.querySelectorAll<HTMLButtonElement>('[data-editor-mode]').forEach(button => { button.disabled = value; });
     document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = value; });
     if (!value) $<HTMLButtonElement>('delete-post').disabled = !current;
   };
@@ -114,6 +120,89 @@ export async function initEditor() {
   $('editor-picture-preview').addEventListener('error', () => { $('editor-picture-preview').hidden = true; $('editor-picture-error').hidden = false; });
   $('editor-picture-preview').addEventListener('load', () => { $('editor-picture-preview').hidden = false; $('editor-picture-error').hidden = true; });
   $('remove-picture').addEventListener('click', () => { fields.image.value = ''; fields.imageAlt.value = ''; changed(); });
+  const articleTarget = (event?: DragEvent): PictureTarget => {
+    const position = event && !sourceMode ? richEditor?.view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos : undefined;
+    return { cover: false, source: sourceMode, start: sourceMode ? fields.content.selectionStart : (position ?? richEditor?.state.selection.from ?? 0), end: sourceMode ? fields.content.selectionEnd : (position ?? richEditor?.state.selection.to ?? 0) };
+  };
+  const uploadPicture = async (files: File[], target: PictureTarget) => {
+    if (busy || !files.length) return;
+    const state = $('picture-upload-state');
+    state.hidden = false;
+    if (files.length !== 1) { state.textContent = 'Choose one picture at a time.'; toast(state.textContent); return; }
+    const file = files[0];
+    if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'].includes(file.type)) { state.textContent = 'Use a PNG, JPG, WebP, GIF, or AVIF picture.'; toast(state.textContent); return; }
+    if (file.size > 10 * 1024 * 1024) { state.textContent = 'Choose a picture under 10 MB.'; toast(state.textContent); return; }
+    clearTimeout(timer);
+    uploading = true; setBusy(true);
+    state.textContent = 'Uploading picture…';
+    status('Uploading picture…');
+    try {
+      const response = await fetch('/api/blog/upload', { method: 'POST', headers: { 'Content-Type': file.type, 'X-Image-Name': encodeURIComponent(file.name) }, body: file });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not upload this picture. Try again.');
+      if (target.cover) {
+        fields.image.value = result.image; fields.imageAlt.value = '';
+        $<HTMLDetailsElement>('picture-settings').open = true;
+        changed();
+      } else if (target.source) {
+        fields.content.setRangeText(`\n\n![](${result.image})\n\n`, target.start, target.end, 'end');
+        changed();
+      } else {
+        richEditor?.chain().setTextSelection({ from: target.start, to: target.end }).setImage({ src: result.image, alt: '' }).run();
+      }
+      state.textContent = 'Picture added. Commit the image file with your post to publish it.';
+      status('Unsaved changes');
+      toast('Picture added.');
+      $('editor-error').hidden = true;
+    } catch (value) {
+      state.textContent = 'Picture upload failed. Your article is unchanged.';
+      status('Picture upload failed');
+      toast('Picture upload failed. Try again.');
+      showError('editor-error', value);
+    } finally {
+      uploading = false; setBusy(false);
+      if (version !== savedVersion) { clearTimeout(timer); timer = setTimeout(() => { void save().catch(() => {}); }, 1000); }
+      if (target.cover) fields.imageAlt.focus();
+      else if (target.source) fields.content.focus();
+      else richEditor?.commands.focus();
+    }
+  };
+  const choosePicture = (target: PictureTarget) => {
+    if (busy) return;
+    pictureTarget = target;
+    const input = $<HTMLInputElement>('picture-file'); input.value = ''; input.click();
+  };
+  $('choose-cover').addEventListener('click', () => choosePicture({ cover: true }));
+  $('insert-picture').addEventListener('click', () => choosePicture(articleTarget()));
+  $('picture-file').addEventListener('change', () => { void uploadPicture(Array.from($<HTMLInputElement>('picture-file').files ?? []), pictureTarget); });
+  // Capture file drops before the rich editor/browser attempts to open or insert them.
+  const article = document.querySelector<HTMLElement>('.article-editor')!;
+  const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files');
+  const clearDrag = () => { article.classList.remove('is-dragging'); ['rich-editor', 'markdown-source', 'choose-cover'].forEach(id => $(id).classList.remove('is-dragging')); };
+  article.addEventListener('dragover', event => {
+    if (!hasFiles(event)) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = busy ? 'none' : 'copy';
+    clearDrag();
+    if (!busy) {
+      const body = (event.target as HTMLElement).closest('#rich-editor, #markdown-source');
+      if (body) body.classList.add('is-dragging'); else article.classList.add('is-dragging');
+    }
+  }, true);
+  article.addEventListener('dragleave', event => { if (!article.contains(event.relatedTarget as Node | null)) clearDrag(); });
+  article.addEventListener('drop', event => {
+    if (!hasFiles(event)) return;
+    event.preventDefault(); event.stopPropagation(); clearDrag();
+    const body = (event.target as HTMLElement).closest('#rich-editor, #markdown-source');
+    void uploadPicture(Array.from(event.dataTransfer?.files ?? []), body ? articleTarget(event) : { cover: true });
+  }, true);
+  article.addEventListener('paste', event => {
+    const files = Array.from(event.clipboardData?.files ?? []);
+    if (!files.length) return;
+    event.preventDefault(); event.stopPropagation();
+    const body = (event.target as HTMLElement).closest('#rich-editor, #markdown-source');
+    void uploadPicture(files, body ? articleTarget() : { cover: true });
+  }, true);
   $('insert-demo').addEventListener('click', () => {
     if (busy) return;
     if (sourceMode) {
@@ -198,7 +287,7 @@ export async function initEditor() {
     const format: Record<string, string> = { heading: `\n## ${selection || 'Heading'}\n`, bold: `**${selection || 'bold text'}**`, italic: `*${selection || 'italic text'}*`, link: `[${selection || 'link text'}](https://example.com)`, code: `\n\`\`\`python\n${selection || '# Your code here'}\n\`\`\`\n`, list: `\n- ${selection || 'List item'}\n` };
     fields.content.setRangeText(format[button.dataset.format!], start, end, 'select'); fields.content.focus(); changed();
   }));
-  window.addEventListener('beforeunload', event => { if (version !== savedVersion) event.preventDefault(); });
+  window.addEventListener('beforeunload', event => { if (uploading || version !== savedVersion) event.preventDefault(); });
   window.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 's') { event.preventDefault(); if (!busy) void save().then(() => toast('Draft saved.')).catch(() => {}); } });
   window.addEventListener('resize', refreshPreview);
   setBusy(true);

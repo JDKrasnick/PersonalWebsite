@@ -88,18 +88,24 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
 .blog-footer a:last-child { margin-left: auto; }
 .reader-wrap { max-width: 1160px; padding: 48px 48px 90px; margin: auto; }
 .back-link { color: var(--subtle); display: inline-flex; gap: 10px; align-items: center; font-size: 13px; margin-bottom: 44px; }
-.article-header { padding-bottom: 32px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.article-header { padding-bottom: 0; border: 0; margin-bottom: 52px; }
 .article-picture { margin: 0 0 32px; }
-.article-picture img { display: block; width: 100%; height: auto; max-height: 560px; object-fit: contain; background: var(--panel); }
+.article-picture img { display: block; width: 100%; height: auto; max-height: 560px; object-fit: contain; background: transparent; }
 .picture-settings { font-size: 12px; color: var(--subtle); margin: 18px 0; }
 .picture-settings summary { padding: 8px 0; width: fit-content; cursor: pointer; }
 .picture-fields { display: grid; gap: 18px; padding: 16px 0 0; }
 .picture-fields input { width: 100%; padding: 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; }
 .picture-fields p, .picture-error { color: var(--subtle); font-size: 12px; line-height: 1.7; margin-top: 8px; }
 .picture-fields button { justify-self: start; }
+.picture-fields .picture-dropzone { justify-self: stretch; width: 100%; padding: 24px 16px; border: 1px dashed var(--line); border-radius: 6px; background: transparent; color: var(--subtle); font-size: 14px; line-height: 1.6; text-align: center; }
+.picture-dropzone span { color: var(--reading-link); text-decoration: underline; text-underline-offset: 3px; }
+.picture-dropzone:hover, .picture-dropzone:focus-visible, .picture-dropzone.is-dragging { border-color: var(--accent); background: var(--panel); }
+.picture-fields #picture-help { margin: -10px 0 0; }
+.picture-upload-state { color: var(--subtle); font-size: 13px; line-height: 1.6; margin: 12px 0; }
+.article-editor.is-dragging .editable-header, .document-editor.is-dragging, #markdown-source.is-dragging { outline: 2px dashed var(--accent); outline-offset: 8px; }
 .picture-settings summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.article-header h1 { font-size: clamp(32px, 4vw, 46px); font-weight: 600; letter-spacing: -.03em; line-height: 1.17; margin: 21px 0 20px; overflow-wrap: anywhere; text-wrap: balance; }
-.article-description { color: var(--body-ink); font-size: 19px; line-height: 1.8; margin-bottom: 26px; }
+.article-header h1 { font-size: clamp(36px, 4vw, 52px); font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 28px; overflow-wrap: anywhere; text-wrap: balance; }
+.article-description { color: var(--body-ink); font-size: 22px; line-height: 1.6; max-width: 780px; margin: 0 0 26px; text-wrap: pretty; }
 .prose { color: var(--body-ink); font-size: 19px; font-weight: 400; line-height: 1.8; overflow-wrap: anywhere; }
 .prose > :first-child { margin-top: 0; }
 .prose p, .prose ul, .prose ol, .prose pre, .prose blockquote, .prose table { margin: 0 0 24px; }
@@ -155,8 +161,8 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
 .status-badge { padding: 3px 8px; border-radius: 4px; background: #202942; color: #bdc8eb; font-size: 11px; }
 .status-badge.published { background: #18342e; color: #a9dec7; }
 .article-edit-title, .article-edit-description { display: block; width: 100%; resize: none; overflow: hidden; color: var(--ink); border: 0; background: transparent; border-radius: 0; padding: 0; }
-.article-editor .article-edit-title { font-size: clamp(32px, 4vw, 46px) !important; font-weight: 600 !important; line-height: 1.2; letter-spacing: -.03em; margin-bottom: 20px; min-height: 56px; }
-.article-editor .article-edit-description { font-size: 19px !important; line-height: 1.8; color: var(--body-ink); min-height: 35px; margin-bottom: 22px; }
+.article-editor .article-edit-title { font-size: clamp(36px, 4vw, 52px) !important; font-weight: 600 !important; line-height: 1.15; letter-spacing: -.025em; margin-bottom: 28px; min-height: 60px; }
+.article-editor .article-edit-description { font-size: 22px !important; line-height: 1.6; color: var(--body-ink); max-width: 780px; min-height: 36px; margin-bottom: 52px; }
 .post-settings { margin-top: 15px; color: var(--subtle); font-size: 12px; }
 .post-settings summary { cursor: pointer; width: fit-content; padding: 5px 0; }
 .post-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 22px 0 8px; }
@@ -165,6 +171,7 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
 .blog-shell select:focus-visible, .post-settings summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .document-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
 .format-actions, .document-modes { display: flex; align-items: center; gap: 5px; }
+.insert-actions { display: flex; align-items: center; gap: 18px; }
 .format-actions button, .document-modes button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; border: 0; border-radius: 5px; color: var(--subtle); background: transparent; }
 .format-actions button { width: 36px; font-size: 14px; }
 .document-modes button { padding: 7px 11px; font-size: 12px; }
@@ -196,11 +203,11 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
   .archive-sidebar .search-box input { font-size: 16px; }
   .post-row { grid-template-columns: minmax(0,1fr); gap: 6px; padding: 13px 0; }.post-row.has-picture { grid-template-columns: 128px minmax(0,1fr); column-gap: 16px; padding: 16px 0; }.post-row time { font-size: 13px; }.post-row h2, .post-row.has-picture h2 { font-size: 20px; line-height: 1.45; }.post-row.has-picture time { padding-top: 0; }.post-row.has-picture .example-badge { margin-top: 8px; }.post-thumbnail img { width: 128px; height: 96px; }.picture-fields input { font-size: 16px; }
   .blog-footer { padding: 24px; gap: 12px; font-size: 10px; }.blog-footer > span { display: none; }
-  .reader-wrap { padding: 32px 24px 64px; }.back-link { margin-bottom: 30px; }.article-header h1 { font-size: 35px; }.article-description { font-size: 18px; }.prose { font-size: 18px; line-height: 1.8; }
+  .reader-wrap { padding: 32px 24px 64px; }.back-link { margin-bottom: 30px; }.article-header { margin-bottom: 36px; }.article-header h1 { font-size: 36px; line-height: 1.18; margin-bottom: 24px; }.article-description { font-size: 20px; margin-bottom: 24px; }.prose { font-size: 18px; line-height: 1.8; }
   .prose pre { padding: 30px 16px 20px; }.prose pre code { font-size: 13px; }.prose h2 { font-size: 23px; }.prose table { font-size: 15px; }.discussion-heading > span { display: none; }
   .comment-form-footer { align-items: flex-start; }.comment-form-footer p { max-width: 130px; }.comment-form-footer .button { font-size: 12px; }
   .editor-bar { padding: 12px 20px; gap: 10px; }.post-picker { justify-content: space-between; width: 100%; }.post-picker select { max-width: 235px; min-width: 0; flex: 1; font-size: 16px; }.post-picker .button { font-size: 12px; }.editor-actions { width: 100%; justify-content: flex-end; gap: 7px; }.editor-actions .button { padding: 9px 12px; font-size: 11px; }
-  .article-editor { padding: 32px 24px 48px; }.article-editor .article-edit-title { font-size: 35px !important; min-height: 42px; }.article-editor .article-edit-description { font-size: 18px !important; }.editor-article-meta { flex-wrap: wrap; gap: 10px; }
+  .article-editor { padding: 32px 24px 48px; }.article-editor .article-edit-title { font-size: 36px !important; line-height: 1.18; margin-bottom: 24px; min-height: 43px; }.article-editor .article-edit-description { font-size: 20px !important; margin-bottom: 36px; }.editor-article-meta { flex-wrap: wrap; gap: 10px; }
   .post-fields { grid-template-columns: 1fr; gap: 14px; }.post-fields input, .post-fields select { font-size: 16px; }.document-toolbar { gap: 8px; }.format-actions { gap: 2px; }.format-actions button { width: 32px; }.document-modes button { font-size: 11px; padding: 7px 8px; }
   .markdown-source { font-size: 16px !important; }.writing-footer { font-size: 11px; }.post-management { flex-direction: column; gap: 14px; font-size: 11px; }.post-management > div { width: 100%; justify-content: flex-end; }
 }

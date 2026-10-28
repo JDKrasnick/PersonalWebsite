@@ -5,6 +5,7 @@ import { readPublishedPosts, writePublishedPost, removePublishedPost, publishedD
 import { BLOG_ICONS, defaultPostIcon } from '../src/lib/blog-icons.js';
 import { postImage } from '../src/lib/blog-images.js';
 import { demoFence, exampleDemo } from '../src/lib/blog-demos.js';
+import { MAX_IMAGE_BYTES, saveBlogImage } from './blog-upload.mjs';
 
 export const exampleContent = `A technical experiment is most useful when someone else can follow the reasoning, reproduce the setup, and understand where the result stops applying.
 
@@ -78,6 +79,7 @@ const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[\u0300-
 export function blogDevPlugin(options = {}) {
   const filename = resolve(options.directory ?? '.local', 'blog.json');
   const publishedPath = resolve(options.publishedDirectory ?? publishedDirectory);
+  const uploadPath = resolve(options.uploadDirectory ?? 'public/blog-images/uploads');
   let queue = Promise.resolve();
   const loadLocal = async () => {
     try { return JSON.parse(await readFile(filename, 'utf8')); }
@@ -116,6 +118,22 @@ export function blogDevPlugin(options = {}) {
     name: 'local-blog',
     apply: /** @type {const} */ ('serve'),
     configureServer(server) {
+      // Serve new uploads immediately; Vite's public-file watcher can lag behind the POST.
+      server.middlewares.use('/blog-images/uploads', async (req, res, next) => {
+        const path = new URL(req.url, 'http://localhost').pathname;
+        const match = /^\/([a-z0-9-]+-[a-f0-9]{24}\.(png|jpg|webp|gif|avif))$/.exec(path);
+        if (!match || !['GET', 'HEAD'].includes(req.method)) return next();
+        try {
+          const buffer = await readFile(resolve(uploadPath, match[1]));
+          res.setHeader('Content-Type', `image/${match[2] === 'jpg' ? 'jpeg' : match[2]}`);
+          res.setHeader('Content-Length', buffer.length);
+          res.setHeader('X-Content-Type-Options', 'nosniff');
+          res.end(req.method === 'HEAD' ? undefined : buffer);
+        } catch (error) {
+          if (error.code !== 'ENOENT') server.config.logger.error(`[local-blog] ${error.message}`);
+          next();
+        }
+      });
       server.middlewares.use('/blog/editor', (req, res, next) => {
         if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress) || !/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(req.headers.host ?? '')) {
           res.statusCode = 403; res.end('The editor is only available on your computer.'); return;
@@ -141,6 +159,22 @@ export function blogDevPlugin(options = {}) {
             throw fail(404, 'Not found.');
           }
           if (req.method !== 'POST') throw fail(405, 'Method not allowed.');
+          if (url.pathname === '/upload') {
+            if (req.headers.origin !== `http://${host}`) throw fail(403, 'Upload pictures from the localhost editor.');
+            if (!/^image\/(png|jpeg|webp|gif|avif)(?:;|$)/i.test(req.headers['content-type'] ?? '')) throw fail(415, 'Use a PNG, JPG, WebP, GIF, or AVIF picture.');
+            if (Number(req.headers['content-length']) > MAX_IMAGE_BYTES) throw fail(413, 'Choose a picture under 10 MB.');
+            const chunks = [];
+            let bytes = 0;
+            for await (const chunk of req) {
+              bytes += chunk.length;
+              if (bytes > MAX_IMAGE_BYTES) throw fail(413, 'Choose a picture under 10 MB.');
+              chunks.push(chunk);
+            }
+            let name;
+            try { name = decodeURIComponent(String(req.headers['x-image-name'] ?? 'picture')); }
+            catch { throw fail(400, 'The picture filename could not be read. Choose the file again.'); }
+            return respond(200, await saveBlogImage(Buffer.concat(chunks), name, uploadPath));
+          }
           if (!req.headers['content-type']?.startsWith('application/json')) throw fail(415, 'Send JSON content.');
           const chunks = [];
           let bytes = 0;
