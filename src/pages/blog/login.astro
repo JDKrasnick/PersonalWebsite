@@ -1,0 +1,42 @@
+---
+import BlogLayout from '../../layouts/BlogLayout.astro';
+import { editorAuthorized, editorConfig, editorConfigured, privateHeaders, privateRedirect, safeEditorReturn, signInEditor } from '../../../scripts/blog-auth.mjs';
+import { privateBlogStore } from '../../../scripts/blog-private-store.mjs';
+export const prerender = false;
+const config = editorConfig();
+for (const [key, value] of Object.entries(privateHeaders)) Astro.response.headers.set(key, value);
+const destination = safeEditorReturn(Astro.url.searchParams.get('next'));
+if (editorAuthorized(Astro.request, config) && Astro.request.method === 'GET') return privateRedirect(destination);
+const configured = editorConfigured(config);
+let error = configured ? '' : 'Private writing is not available yet.';
+if (!configured) Astro.response.status = 503;
+if (Astro.request.method === 'POST') {
+  try { return await signInEditor(Astro.request, config, privateBlogStore(config), Astro.clientAddress); }
+  catch (value) {
+    const failure = value as Error & { status?: number };
+    Astro.response.status = failure.status || 503;
+    error = failure.status ? failure.message : 'Sign-in is temporarily unavailable. Please try again shortly.';
+  }
+} else if (Astro.request.method !== 'GET') Astro.response.status = 405;
+---
+<BlogLayout title="Private writing" privatePage>
+  <section class="private-login" aria-labelledby="login-title">
+    <h1 id="login-title">Private writing</h1>
+    <p>Sign in to continue your drafts.</p>
+    {error && <p class="notice error" role="alert">{error}</p>}
+    {configured && <form method="post" action="/blog/login">
+      <input type="hidden" name="next" value={destination} />
+      <label for="editor-password">Password</label>
+      <input id="editor-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required />
+      <button class="button button-primary" type="submit">Sign in</button>
+    </form>}
+  </section>
+</BlogLayout>
+<style>
+  .private-login { width: calc(100% - 48px); max-width: 24rem; margin: clamp(2rem, 9vh, 6rem) auto; }
+  .private-login h1 { font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+  .private-login > p { color: var(--text-secondary); margin-bottom: 1.75rem; }
+  .private-login form { display: grid; gap: 0.75rem; }
+  .private-login input[type="password"] { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--ink); font-size: 16px; }
+  .private-login button { margin-top: 0.5rem; min-height: 44px; justify-content: center; }
+</style>

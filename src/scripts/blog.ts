@@ -17,10 +17,15 @@ const arrow = (direction: 'left' | 'right' | 'up-right' = 'right') => `<svg clas
 const slugify = (value: string) => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
 
 async function api<T>(path: string, body?: unknown): Promise<T> {
-  if (!import.meta.env.DEV && (path !== 'posts' || body !== undefined)) throw new Error('The writing workspace is only available on your computer.');
-  const url = import.meta.env.DEV ? `/api/blog/${path}` : '/blog/posts.json';
+  const privateWorkspace = document.querySelector('[data-blog-editor], [data-draft-preview="true"]');
+  if (!import.meta.env.DEV && path !== 'posts' && !privateWorkspace) throw new Error('Sign in to the private writing workspace first.');
+  const url = !import.meta.env.DEV && path === 'posts' ? '/blog/posts.json' : `/api/blog/${path}`;
   const response = await fetch(url, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The blog is available in the local development server. Run npm run dev to open your writing workspace.');
+  if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The writing workspace is temporarily unavailable. Please try again.');
+  if (response.status === 401) {
+    const signIn = document.getElementById('editor-sign-in') as HTMLAnchorElement | null;
+    if (signIn) { signIn.hidden = false; signIn.href = `/blog/login?next=${encodeURIComponent(location.pathname + location.search)}`; }
+  }
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
   return data;
@@ -88,7 +93,8 @@ export async function initIndex() {
 
 export async function initReader() {
   const params = new URLSearchParams(location.search);
-  const draftId = import.meta.env.DEV ? params.get('draft') : null;
+  const privatePreview = Boolean(document.querySelector('[data-draft-preview="true"]'));
+  const draftId = import.meta.env.DEV || privatePreview ? params.get('draft') : null;
   try {
     let post: Post;
     if (draftId) {

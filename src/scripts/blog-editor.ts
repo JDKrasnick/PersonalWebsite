@@ -4,6 +4,7 @@ import { postImage } from '../lib/blog-images';
 import { demoFence, exampleDemo } from '../lib/blog-demos';
 
 export async function initEditor() {
+  const hosted = document.querySelector<HTMLElement>('[data-blog-editor]')?.dataset.hosted === 'true';
   const pictureElement = document.createElement('img');
   pictureElement.id = 'editor-picture-preview'; pictureElement.alt = '';
   $('editor-picture-preview').replaceWith(pictureElement);
@@ -42,7 +43,8 @@ export async function initEditor() {
   };
   const renderRail = () => {
     $('post-selector').innerHTML = `<option value="" disabled${!current ? ' selected' : ''}>New draft</option>${drafts.map(draft => `<option value="${escape(draft.id)}"${draft.id === current?.id ? ' selected' : ''}>${escape(draft.title || 'Untitled post')}</option>`).join('')}`;
-    const published = Boolean(current?.prepared);
+    const published = !hosted && Boolean(current?.prepared);
+    $('publish-post').hidden = hosted;
     $('post-state').textContent = published ? 'Ready for GitHub' : 'Draft';
     $('post-state').classList.toggle('published', published);
     $('publish-post').textContent = published ? 'Update GitHub file' : 'Prepare for GitHub';
@@ -131,7 +133,8 @@ export async function initEditor() {
     if (files.length !== 1) { state.textContent = 'Choose one picture at a time.'; toast(state.textContent); return; }
     const file = files[0];
     if (!['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'].includes(file.type)) { state.textContent = 'Use a PNG, JPG, WebP, GIF, or AVIF picture.'; toast(state.textContent); return; }
-    if (file.size > 10 * 1024 * 1024) { state.textContent = 'Choose a picture under 10 MB.'; toast(state.textContent); return; }
+    const maxMegabytes = hosted ? 4 : 10;
+    if (file.size > maxMegabytes * 1024 * 1024) { state.textContent = `Choose a picture under ${maxMegabytes} MB.`; toast(state.textContent); return; }
     clearTimeout(timer);
     uploading = true; setBusy(true);
     state.textContent = 'Uploading picture…';
@@ -150,7 +153,7 @@ export async function initEditor() {
       } else {
         richEditor?.chain().setTextSelection({ from: target.start, to: target.end }).setImage({ src: result.image, alt: '' }).run();
       }
-      state.textContent = 'Picture added. Commit the image file with your post to publish it.';
+      state.textContent = hosted ? 'Picture added. It is stored privately with your drafts.' : 'Picture added. Commit the image file with your post to publish it.';
       status('Unsaved changes');
       toast('Picture added.');
       $('editor-error').hidden = true;
@@ -226,11 +229,12 @@ export async function initEditor() {
     const tab = window.open('about:blank', '_blank');
     if (tab) tab.opener = null;
     setBusy(true);
-    try { const post = await save(); if (!post) throw new Error('Write something before opening a preview.'); const href = `/blog/post?draft=${encodeURIComponent(post.id)}`; if (tab) tab.location.href = href; else { toast('Your browser blocked the preview tab. Allow pop-ups for this site, or use the Preview view below.'); } }
+    try { const post = await save(); if (!post) throw new Error('Write something before opening a preview.'); const href = `${hosted ? '/blog/preview' : '/blog/post'}?draft=${encodeURIComponent(post.id)}`; if (tab) tab.location.href = href; else { toast('Your browser blocked the preview tab. Allow pop-ups for this site, or use the Preview view below.'); } }
     catch (value) { tab?.close(); error(value); }
     finally { setBusy(false); }
   });
   $('publish-post').addEventListener('click', async () => {
+    if (hosted) return;
     setBusy(true);
     try {
       const post = await save();
@@ -242,13 +246,14 @@ export async function initEditor() {
     finally { setBusy(false); }
   });
   $('unpublish-post').addEventListener('click', async () => {
+    if (hosted) return;
     if (!current || !confirm('Remove this post’s GitHub file? Your draft is kept. Commit and push the removal to take it off the live site.')) return;
     setBusy(true);
     try { const post = await save(); const result = await api<Draft>('unpublish', { id: post!.id, revision: post!.revision }); drafts[drafts.findIndex(draft => draft.id === result.id)] = result; current = result; renderRail(); toast('GitHub file removed. Commit and push to unpublish.'); }
     catch (value) { error(value); } finally { setBusy(false); }
   });
   $('delete-post').addEventListener('click', async () => {
-    if (!current || !confirm('Permanently delete this draft and remove its GitHub file? Live changes still require a commit and push.')) return;
+    if (!current || !confirm(hosted ? 'Permanently delete this private draft?' : 'Permanently delete this draft and remove its GitHub file? Live changes still require a commit and push.')) return;
     clearTimeout(timer); setBusy(true);
     try { await saveQueue; await api('delete', { id: current.id, revision: current.revision }); localStorage.removeItem(backupKey()); drafts = drafts.filter(draft => draft.id !== current!.id); version = savedVersion; load(drafts[0]); toast('Post deleted.'); }
     catch (value) { error(value); } finally { setBusy(false); }

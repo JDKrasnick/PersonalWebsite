@@ -1,20 +1,47 @@
 ---
-const skillCategories = [
+import { skillIcons, type SkillIconName } from '../lib/skill-icons';
+
+const skillCategories: { title: string; skills: { name: string; icon: SkillIconName }[] }[] = [
   {
     title: "Languages",
-    skills: ["Python", "TypeScript", "Java", "SQL", "C++"],
+    skills: [
+      { name: "Python", icon: "python" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "Java", icon: "java" },
+      { name: "SQL", icon: "sql" },
+      { name: "C++", icon: "cpp" },
+    ],
   },
   {
     title: "AI / Machine Learning",
-    skills: ["PyTorch", "JAX", "scikit-learn", "LLM Agents & Evals", "Deep Reinforcement Learning"],
+    skills: [
+      { name: "PyTorch", icon: "pytorch" },
+      { name: "JAX", icon: "jax" },
+      { name: "CUDA", icon: "cuda" },
+      { name: "scikit-learn", icon: "scikit-learn" },
+      { name: "LLM Agents & Evals", icon: "agents-evals" },
+      { name: "Reinforcement Learning", icon: "rl" },
+    ],
   },
   {
     title: "Backend & Data",
-    skills: ["FastAPI", "Fastify", "MongoDB", "PostgreSQL", "Redis / BullMQ"],
+    skills: [
+      { name: "FastAPI", icon: "fastapi" },
+      { name: "Fastify", icon: "fastify" },
+      { name: "MongoDB", icon: "mongodb" },
+      { name: "PostgreSQL", icon: "postgresql" },
+      { name: "Redis / BullMQ", icon: "redis" },
+    ],
   },
   {
     title: "Cloud & Infrastructure",
-    skills: ["Cloudflare Workers", "AWS", "Docker", "Airflow", "Snowflake"],
+    skills: [
+      { name: "Cloudflare", icon: "cloudflare" },
+      { name: "AWS", icon: "aws" },
+      { name: "Docker", icon: "docker" },
+      { name: "Airflow", icon: "airflow" },
+      { name: "Snowflake", icon: "snowflake" },
+    ],
   },
 ];
 
@@ -32,14 +59,16 @@ const skillCategories = [
       {skillCategories.map((cat, i) => (
         <div class={`skill-category reveal reveal-delay-${(i % 4) + 1}`}>
           <h3 class="category-title">{cat.title}</h3>
-          <div class="skill-tags">
-            {cat.skills.map(skill => (
-              <span class="skill-tag">
-                <span class="skill-marker" aria-hidden="true"></span>
-                {skill}
-              </span>
-            ))}
-          </div>
+          <ul class="skill-tags" role="list">
+            {cat.skills.map(skill => {
+              const icon = skillIcons[skill.icon];
+              const src = `/icons/skills/official/native/${icon.file}`;
+              return <li class="skill-tag">
+                <span class="skill-icon" data-icon={skill.icon} style={`--skill-icon: url('${src}')`} aria-hidden="true"></span>
+                <span>{skill.name}</span>
+              </li>;
+            })}
+          </ul>
         </div>
       ))}
     </div>
@@ -47,6 +76,10 @@ const skillCategories = [
 </section>
 
 <style>
+  .skills {
+    padding-top: 2.5rem;
+  }
+
   .skills-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -71,13 +104,17 @@ const skillCategories = [
   .skill-tags {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   .skill-tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
+    min-height: 1.5rem;
     font-size: 0.83rem;
     color: var(--text-secondary);
     transition: color var(--transition-fast);
@@ -87,19 +124,24 @@ const skillCategories = [
     color: var(--text-primary);
   }
 
-  .skill-marker {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    flex-shrink: 0;
-    opacity: 0.55;
-    transition: opacity var(--transition-fast), transform var(--transition-fast);
+  .skill-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    background: #9b8af7;
+    mask: var(--skill-icon) center / contain no-repeat;
+    opacity: 0.82;
+    transition: opacity var(--transition-fast);
   }
 
-  .skill-tag:hover .skill-marker {
+  .skill-tag:hover .skill-icon {
     opacity: 1;
-    transform: scale(1.35);
+  }
+
+  /* The eye's visual weight sits below the center of its SVG canvas. */
+  .skill-icon[data-icon="cuda"] {
+    transform: translateY(-1px);
   }
 
   @media (max-width: 900px) {

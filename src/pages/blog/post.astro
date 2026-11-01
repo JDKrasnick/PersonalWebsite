@@ -1,9 +1,11 @@
 ---
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import BlogArrow from '../../components/BlogArrow.astro';
+interface Props { draftPreview?: boolean; }
+const { draftPreview = false } = Astro.props;
 ---
-<BlogLayout title="Article">
-  <div class="reader-wrap">
+<BlogLayout title="Article" privatePage={draftPreview}>
+  <div class="reader-wrap" data-draft-preview={draftPreview ? 'true' : undefined}>
     <a class="back-link" href="/blog"><BlogArrow direction="left" /> All writing</a>
     <div id="reader-notice" class="notice" hidden></div>
     <article id="article"><p class="loading-line">Loading article…</p></article>

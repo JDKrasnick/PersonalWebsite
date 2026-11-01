@@ -9,23 +9,46 @@ import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
 import Contact from '../components/Contact.astro';
+import BackgroundPreview from '../components/backgrounds/BackgroundPreview';
+import type { BackgroundVariant } from '../lib/backgrounds';
+import type { AboutEffectVariant } from '../lib/about-effects';
+import type { DitherArtVariant } from '../lib/dither-art';
+
+interface Props {
+  background?: BackgroundVariant;
+  aboutEffect?: AboutEffectVariant;
+  ditherImage?: DitherArtVariant;
+}
+const { background, aboutEffect, ditherImage } = Astro.props;
+const activeBackground = background ?? 'ghost-fibers';
+const activeAboutEffect = aboutEffect ?? 'laser-flow';
 ---
 
-<Layout>
+<Layout noindex={Boolean(background || aboutEffect)}>
   <Navbar />
   <ScrollRail topLabel="loss 1.00" bottomLabel="min" />
-  <main>
+  <main class="background-variation">
+    <BackgroundPreview variant={activeBackground} showControls={Boolean(background)} client:only="react" />
     <Hero />
-    <About />
-    <Divider variant="periwinkle" />
-    <Experience />
-    <Divider variant="amber" />
-    <Projects />
-    <Skills />
-    <Divider variant="periwinkle-thin" />
-    <Contact />
+    <div class="portfolio-body">
+      <About effect={activeAboutEffect} ditherImage={ditherImage} preview={Boolean(aboutEffect)} />
+      <Divider variant="periwinkle" />
+      <Experience />
+      <Projects />
+      <Skills />
+      <Divider variant="periwinkle-thin" />
+      <Contact />
+    </div>
   </main>
 </Layout>
+
+<style>
+  .background-variation {
+    position: relative;
+    isolation: isolate;
+    background: #080a15;
+  }
+</style>
 
 <script>
   // Scroll reveal
@@ -68,7 +91,7 @@ import Contact from '../components/Contact.astro';
     const scrollY = window.scrollY + 200;
     sections.forEach((section) => {
       const sectionEl = section as HTMLElement;
-      const top = sectionEl.offsetTop;
+      const top = sectionEl.getBoundingClientRect().top + window.scrollY;
       const height = sectionEl.offsetHeight;
       const id = sectionEl.getAttribute('id');
 

@@ -1,20 +1,19 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
+import react from '@astrojs/react';
 import { blogDevPlugin } from './scripts/blog-dev.mjs';
 
 export default defineConfig({
   site: 'https://www.jdkrasnick.com',
   output: 'static',
+  compressHTML: true,
   adapter: vercel(),
   devToolbar: { enabled: false },
-  integrations: [{
-    name: 'private-local-editor',
-    hooks: {
-      'astro:config:setup': ({ command, injectRoute }) => {
-        if (command === 'dev') injectRoute({ pattern: '/blog/editor', entrypoint: './src/dev/blog-editor.astro' });
-      },
-    },
-  }],
-  vite: { plugins: [blogDevPlugin()], server: { fs: { deny: ['**/.local/**', '**/.env', '**/.env.*', '**/*.{crt,pem}', '**/.git/**'] } } },
+  integrations: [react()],
+  vite: {
+    plugins: [blogDevPlugin()],
+    optimizeDeps: { include: ['ogl', 'vgpu'] },
+    server: { fs: { deny: ['**/.local/**', '**/.env', '**/.env.*', '**/*.{crt,pem}', '**/.git/**'] } },
+  },
 });

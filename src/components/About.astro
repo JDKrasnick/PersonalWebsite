@@ -1,8 +1,13 @@
 ---
+import AboutEffect from './about-effects/AboutEffect';
+import type { AboutEffectVariant } from '../lib/about-effects';
+import type { DitherArtVariant } from '../lib/dither-art';
 
+interface Props { effect?: AboutEffectVariant; ditherImage?: DitherArtVariant; preview?: boolean; }
+const { effect, ditherImage, preview = false } = Astro.props;
 ---
 
-<section class="about" id="about">
+<section class:list={['about', { 'about--effect': effect }]} id="about">
   <div class="container">
     <div class="section-label reveal"><span class="idx">01 /</span> About</div>
     <div class="about-grid">
@@ -18,6 +23,7 @@
           When I'm not coding, you'll find me out running on a trail, in the gym, or halfway through the latest YouTube video essay that wandered into my feed.
         </p>
       </div>
+      <div class:list={['about-side', { 'about-side--laser-flow': effect === 'laser-flow' }]}>
       <div class="spec-sheet reveal reveal-delay-3">
         <div class="spec-row">
           <span class="spec-key">Location</span>
@@ -36,13 +42,15 @@
           <span class="spec-value">Python · PyTorch · TypeScript · FastAPI · Cloudflare</span>
         </div>
       </div>
+      {effect && <AboutEffect variant={effect} imageOption={ditherImage} showControls={preview} client:only="react" />}
+      </div>
     </div>
   </div>
 </section>
 
 <style>
   .about {
-    border-top: 1px solid var(--border-color);
+    border-top: 0;
   }
 
   .about-grid {
@@ -50,6 +58,11 @@
     grid-template-columns: 1.2fr 1fr;
     gap: 4rem;
     align-items: start;
+  }
+
+  .about-side {
+    position: relative;
+    min-width: 0;
   }
 
   .about-text p {

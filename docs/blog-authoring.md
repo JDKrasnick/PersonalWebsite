@@ -2,6 +2,16 @@
 
 Posts are Markdown files in `content/blog/`. The localhost editor stores private drafts separately; **Prepare for GitHub** writes the reviewed Markdown file. Commit and push the post and any assets together to publish.
 
+## Edit private drafts on the website
+
+Open `https://www.jdkrasnick.com/blog/editor` and sign in with the owner password. The editor is absent from public navigation. Its page, previews, draft APIs, and uploaded pictures require a server-verified session and are excluded from public caches and indexing.
+
+The hosted editor saves drafts and pictures to a private Vercel Blob store. **Save draft**, autosave, Write/Markdown modes, and private previews work across devices. Saving never publishes an article. GitHub preparation and publication remain in the local workflow. Concurrent tabs cannot silently overwrite a newer saved version.
+
+Hosted picture uploads accept the same image types as localhost, up to 4 MB per picture. They use authenticated image URLs and are not public assets. Before publishing a draft that uses these pictures, copy the pictures into `public/blog-images/uploads/` and update its references as part of the reviewed GitHub publication.
+
+Owner setup and recovery are documented in `docs/private-blog-editor.md`.
+
 ## Add pictures
 
 Open **Add picture** to drop or choose a cover image. Drop or paste a picture into the article to insert it at the cursor; **Insert picture** opens a file picker for the body. Both Write and Markdown modes support pictures. Add a cover description in the picture settings; inline alternative text can be edited in Markdown (`![Description](path)`). Existing image URLs still work.
