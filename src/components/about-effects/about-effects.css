@@ -1,0 +1,148 @@
+.about-art {
+  position: relative;
+  height: 342px;
+  margin: 24px 0 0;
+}
+.about-art-stage { width: 100%; height: calc(100% - 30px); }
+.about-art-caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+  color: var(--text-secondary);
+  font: 11px/1.5 var(--font-body);
+}
+.about-art-caption button {
+  border: 0;
+  background: transparent;
+  padding: 8px 0;
+  font: inherit;
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.about-art-caption button:disabled { opacity: 0.5; cursor: default; }
+.about-art--dither-veil { height: 390px; }
+.about-art--dither-veil .about-art-stage { height: calc(100% - 78px); border-radius: 8px; overflow: hidden; background: var(--bg-primary); }
+.dither-image-options { display: flex; justify-content: center; align-items: center; gap: 5px; height: 48px; }
+.dither-image-options a {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  font: 11px/1.4 var(--font-body);
+  white-space: nowrap;
+}
+.dither-image-options a[aria-current="page"] { background: var(--accent-muted); color: var(--text-primary); border-color: var(--border-color); }
+.dither-image-options a:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.dither-image-options a:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 3px; }
+.about-side--laser-flow {
+  --laser-hero-overlap: clamp(24px, 4vh, 48px);
+  --laser-source-fade: calc(var(--laser-hero-overlap) + 64px);
+  padding-top: 64px;
+}
+.about-side--laser-flow .spec-sheet {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-secondary);
+}
+.about-side--laser-flow .spec-sheet.reveal { transform: none; }
+.about-side--laser-flow .spec-row {
+  position: relative;
+  z-index: 2;
+}
+.about-side--laser-flow .about-art--laser-flow {
+  position: absolute;
+  z-index: 0;
+  top: calc(-164px - var(--laser-hero-overlap));
+  right: calc(-1 * clamp(24px, (100vw - 1100px) / 2, 128px));
+  left: -80px;
+  /* Render the beam and spill, rather than transparent pixels behind the whole panel. */
+  height: calc(164px + var(--laser-hero-overlap) + 64px + 240px);
+  margin: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease-out;
+}
+.about-art--laser-flow .about-art-stage {
+  height: 100%;
+  /* Feather only the outer canvas, leaving room for the original smoke and spill. */
+  mask-image:
+    linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--laser-source-fade), #000 calc(100% - 48px), transparent);
+  mask-composite: intersect;
+}
+.about-art-loading { width: 100%; height: 100%; background: transparent; }
+.about-art-error { color: var(--text-secondary); font: 13px/1.6 var(--font-body); padding: 24px; }
+.about-effect-switcher {
+  position: fixed;
+  z-index: 160;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 7px;
+  border: 1px solid var(--border-hover);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  font: 12px/1.4 var(--font-body);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+.about-effect-label { color: var(--text-secondary); padding: 0 10px; font-size: 11px; }
+.about-effect-options { display: flex; gap: 3px; }
+.about-effect-switcher :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.about-effect-options a[aria-current="page"] { background: var(--accent-muted); color: var(--text-primary); }
+.about-effect-switcher :is(a, button):hover { color: var(--text-primary); background: var(--bg-card-hover); }
+.about-effect-source { width: 28px; }
+.about-effect-select { display: none; }
+.about-effect-switcher :is(a, button, select):focus-visible, .about-art-caption button:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+  .about-art { height: 330px; }
+  .about-art--dither-veil { height: 378px; }
+  .about-side--laser-flow {
+    --laser-source-fade: 32px;
+    padding-top: 172px;
+  }
+  .about-side--laser-flow .about-art--laser-flow { inset: 0 -20px auto; height: 412px; }
+  .about-effect-label, .about-effect-options, .about-effect-source { display: none; }
+  .about-effect-select {
+    display: block;
+    min-width: 0;
+    width: 166px;
+    min-height: 40px;
+    padding: 0 8px;
+    border: 1px solid var(--border-hover);
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font: inherit;
+    color-scheme: dark;
+  }
+  .about-effect-switcher :is(a, button) { min-height: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-effect-switcher * { transition: none; }
+}

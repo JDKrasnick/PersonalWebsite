@@ -1,0 +1,47 @@
+---
+import Experience from '../components/Experience.astro';
+import '../styles/global.css';
+if (!import.meta.env.DEV) return new Response(null, { status: 404 });
+const variants = [
+  { background: 'midnight' as const, title: 'A · Blue mist', description: 'A soft tint of the site’s blue. Applied to the homepage.' },
+  { background: 'slate' as const, title: 'B · Soft periwinkle', description: 'A stronger tint of the site’s accent blue.' },
+  { background: 'periwinkle' as const, title: 'C · Periwinkle', description: 'The site’s accent color, with the original logo colors.' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Experience icon frames — local preview</title>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/#experience">Back to experience ↗</a>
+      <h1>Pick a background for your experience icons.</h1>
+      <p class="intro">Original logo colors. Blue backgrounds from the site’s palette. Centered artwork in every frame.</p>
+      <div class="variants">
+        {variants.map(({ background, title, description }) => (
+          <article>
+            <header><h2>{title}</h2><p>{description}</p></header>
+            <Experience background={background} preview />
+          </article>
+        ))}
+      </div>
+    </main>
+  </body>
+</html>
+<style>
+  main { max-width: 1600px; margin: 0 auto; padding: 40px; }
+  .back { display: inline-block; margin-bottom: 28px; font-size: 0.875rem; }
+  h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); letter-spacing: -0.03em; }
+  .intro { color: var(--text-secondary); margin-top: 12px; }
+  .variants { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 40px; }
+  header { min-height: 76px; }
+  h2 { font-size: 1.125rem; }
+  header p { font-size: 0.875rem; color: var(--text-secondary); margin-top: 8px; max-width: 32ch; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+  @media (max-width: 1100px) { .variants { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .variants { grid-template-columns: 1fr; gap: 40px; } main { padding: 32px 24px; } }
+</style>

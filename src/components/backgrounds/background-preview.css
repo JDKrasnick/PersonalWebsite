@@ -1,0 +1,146 @@
+.background-track {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Keep particles out of the hero's long fade; blend only at its bottom edge.
+     Stops follow the measured hero height, including responsive copy wrapping. */
+  mask-image: linear-gradient(to bottom,
+    transparent var(--background-reveal-start, 100vh),
+    #000 var(--background-reveal-end, calc(100vh + 80px)));
+}
+
+.background-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #080a15;
+}
+
+.background-effect {
+  position: absolute;
+  inset: 0;
+  opacity: 0.24;
+}
+
+.background-track--pattern-waves .background-effect { opacity: 0.14; }
+.background-track--gradient-ascii .background-effect { opacity: 0.16; }
+.background-track--ghost-fibers {
+  --ghost-open-opacity: 0.5;
+  --ghost-reading-opacity: 0.24;
+}
+.background-track--ghost-fibers .background-effect { opacity: var(--ghost-reading-opacity); }
+.background-track--particles .background-effect { opacity: 0.72; }
+.background-track--pixel-blast .background-effect { opacity: 0.15; }
+
+.background-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(8, 10, 21, 0.48), rgba(8, 10, 21, 0.18) 52%, rgba(8, 10, 21, 0.32));
+}
+
+/* Keep a quiet, even reading surface across the entire content column. */
+.background-track:not(.background-track--particles) .background-shade {
+  background: linear-gradient(90deg, rgba(8, 10, 21, 0.5), rgba(8, 10, 21, 0.58) 50%, rgba(8, 10, 21, 0.45));
+}
+
+.background-switcher {
+  position: fixed;
+  z-index: 150;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  width: max-content;
+  border: 1px solid #343e61;
+  border-radius: 10px;
+  background: #0d1121;
+  color: #e3e8f5;
+  font-family: var(--font-body);
+  font-size: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+.background-switcher-row { display: flex; align-items: center; gap: 5px; padding: 7px; }
+.background-switcher-label { padding: 0 10px; color: #b2bcd6; font-size: 11px; }
+.background-options { display: flex; gap: 3px; }
+.background-options a, .background-original, .background-source, .background-motion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #b8c2dc;
+  white-space: nowrap;
+  font: inherit;
+  cursor: pointer;
+}
+.background-option-number { font-size: 10px; font-variant-numeric: tabular-nums; opacity: 0.75; }
+.background-options a[aria-current="page"] { background: #28345e; color: #f0f3ff; }
+.background-options a:hover, .background-original:hover, .background-source:hover, .background-motion:hover { color: #fff; background: #202a47; }
+.background-motion { width: 36px; padding: 0; margin-left: 4px; }
+.background-source { padding: 0; width: 28px; }
+.background-switcher :is(a, button, select):focus-visible { outline: 2px solid #a8b9ff; outline-offset: 3px; }
+.background-select { display: none; }
+.background-error { padding: 12px 16px 5px; max-width: 620px; color: #e7cc9d; }
+
+@media (max-width: 1050px) {
+  .background-options { display: none; }
+  .background-select {
+    display: block;
+    min-height: 40px;
+    min-width: 170px;
+    border: 1px solid #3c496f;
+    border-radius: 5px;
+    padding: 0 28px 0 10px;
+    background: #17203b;
+    color: #f0f3ff;
+    font: inherit;
+    color-scheme: dark;
+  }
+  .background-switcher :is(a, button) { min-height: 40px; }
+  .background-error { max-width: 370px; }
+}
+
+@media (max-width: 480px) {
+  .background-track--aero-shards .background-effect { opacity: 0.18; }
+  .background-track--pattern-waves .background-effect { opacity: 0.1; }
+  .background-track--pixel-blast .background-effect { opacity: 0.11; }
+  .background-track--gradient-ascii .background-effect { opacity: 0.12; }
+  .background-track--ghost-fibers {
+    --ghost-open-opacity: 0.4;
+    --ghost-reading-opacity: 0.22;
+  }
+  .background-switcher-label, .background-source { display: none; }
+  .background-switcher-row { gap: 4px; }
+  .background-motion { min-width: 40px; }
+  .background-select { min-width: 0; width: 172px; }
+  .background-original { padding: 0 8px; }
+  .background-error { max-width: 310px; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .background-track--ghost-fibers .background-effect {
+    opacity: var(--ghost-open-opacity);
+    transition: opacity 650ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .background-variation:has(.portfolio-body :is(
+    p, h2, h3, li, .about-text, .spec-sheet, .exp-item, .project-card,
+    .skill-category, .contact-card, .section-label, .footer-inner
+  ):hover) .background-track--ghost-fibers .background-effect,
+  .background-variation:has(.portfolio-body :focus-visible) .background-track--ghost-fibers .background-effect {
+    opacity: var(--ghost-reading-opacity);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .background-track--ghost-fibers .background-effect { transition: none; }
+  .background-switcher * { transition: none; }
+}

@@ -1,0 +1,10 @@
+---
+import BlogEditor from '../../components/BlogEditor.astro';
+import { editorAuthorized, editorConfig, privateHeaders, privateRedirect } from '../../../scripts/blog-auth.mjs';
+export const prerender = false;
+for (const [key, value] of Object.entries(privateHeaders)) Astro.response.headers.set(key, value);
+if (!import.meta.env.DEV && !editorAuthorized(Astro.request, editorConfig())) {
+  return privateRedirect(`/blog/login?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`);
+}
+---
+<BlogEditor hosted={!import.meta.env.DEV} />

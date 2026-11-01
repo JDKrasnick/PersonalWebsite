@@ -1,0 +1,12 @@
+---
+import Home from '../index.astro';
+import { backgrounds } from '../../lib/backgrounds';
+
+export function getStaticPaths() {
+  return backgrounds.map(({ slug }) => ({ params: { variant: slug }, props: { background: slug } }));
+}
+
+const { background } = Astro.props;
+---
+
+<Home background={background} />

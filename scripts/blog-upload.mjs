@@ -8,8 +8,8 @@ const fail = (status, message) => Object.assign(new Error(message), { status });
 const formats = { jpeg: 'jpg', png: 'png', webp: 'webp', gif: 'gif', avif: 'avif', heif: 'avif' };
 
 // The URL and extension come from decoded image data, never a client-supplied path.
-export async function saveBlogImage(buffer, filename, directory) {
-  if (!buffer.length || buffer.length > MAX_IMAGE_BYTES) throw fail(413, 'Choose a picture under 10 MB.');
+export async function validateBlogImage(buffer, filename, maxBytes = MAX_IMAGE_BYTES) {
+  if (!buffer.length || buffer.length > maxBytes) throw fail(413, `Choose a picture under ${maxBytes / 1024 / 1024} MB.`);
   let metadata;
   try {
     const image = sharp(buffer, { animated: true, limitInputPixels: 40_000_000, failOn: 'error' });
@@ -22,6 +22,11 @@ export async function saveBlogImage(buffer, filename, directory) {
   const stem = String(filename || 'picture').split(/[\\/]/).pop().replace(/\.[^.]*$/, '').normalize('NFKD').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 60) || 'picture';
   const hash = createHash('sha256').update(buffer).digest('hex').slice(0, 24);
   const name = `${stem}-${hash}.${formats[metadata.format]}`;
+  return { name, contentType: `image/${metadata.format === 'jpeg' ? 'jpeg' : formats[metadata.format]}` };
+}
+
+export async function saveBlogImage(buffer, filename, directory) {
+  const { name } = await validateBlogImage(buffer, filename);
   await mkdir(directory, { recursive: true });
   const temporary = resolve(directory, `.${name}.${randomUUID()}.tmp`);
   try {

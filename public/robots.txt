@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /blog/editor
+Disallow: /blog/login
+Disallow: /blog/preview
+Disallow: /blog/logout
+Disallow: /api/blog/
 
 Sitemap: https://www.jdkrasnick.com/sitemap.xml

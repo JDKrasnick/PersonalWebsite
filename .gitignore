@@ -28,6 +28,8 @@ pnpm-debug.log*
 
 # Local blog content (posts, drafts, comments)
 .local/
+.context/
+.playwright-mcp/
 
 # Local design-tool cache
 .impeccable/hook.cache.json
