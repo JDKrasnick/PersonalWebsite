@@ -103,7 +103,7 @@ export default function AboutEffect({ variant, imageOption = 'neural-loom', show
         ? image.alt
         : variant === 'crystalized-ball' ? 'An interactive glass sphere with an electric rim and drifting light'
           : 'A beam of blue light landing on the profile details and flowing over its corners'}>
-        {visible && !hidden && !failed && <ArtBoundary onError={() => setFailed(true)}>
+        {!failed && ((visible && !hidden) || (variant === 'laser-flow' && flowStarted)) && <ArtBoundary onError={() => setFailed(true)}>
           <Suspense fallback={<div className="about-art-loading" aria-hidden="true" />}>
             {variant === 'crystalized-ball' && <CrystalizedBall preset="frost" color="#91abff" size={0.82}
               speed={0.45} particleCount={650} dustSpeed={0.2} crackle={0.3} flares={0.3} sparks={0.25}
@@ -112,10 +112,10 @@ export default function AboutEffect({ variant, imageOption = 'neural-loom', show
               pattern="bayer" pixelSize={2} levels={2} inkColor="#080a15" paperColor="#9daedc"
               contrast={1.15} revealRadius={100} softness={0.65} linger={1.2} rimColor="#91a9ff"
               rim={0.15} wander={false} clickBurst={!paused} paused={paused} />}
-            {variant === 'laser-flow' && flowStarted && <LaserFlow surfaceRef={surface} paused={paused}
+            {variant === 'laser-flow' && flowStarted && <LaserFlow surfaceRef={surface} paused={paused || !visible || hidden}
               surfacePosition={0.86} liquidity={0.9} beamWidth={0.85} intensity={1.2}
               flare={0.95} spread={0.95} spill={0.65} fog={0.1} dust={0.6} dots={0.6}
-              mouseInteraction={!paused} dpr={1.25} maxFps={30} />}
+              mouseInteraction={!paused && visible && !hidden} dpr={1} maxFps={30} />}
           </Suspense>
         </ArtBoundary>}
         {failed && <p className="about-art-error" role="status">This effect could not start in this browser.</p>}

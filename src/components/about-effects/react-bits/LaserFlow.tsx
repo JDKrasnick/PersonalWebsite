@@ -691,8 +691,12 @@ export const LaserFlow = ({
       reveal.image = image;
     };
 
+    let cachedSurface: Surface | null = null;
+    let surfaceLevel = settingsRef.current.surfaceLevel;
     const measure = (s: Settings, width: number, height: number): Surface => {
       const element = s.surfaceRef?.current ?? null;
+      if (cachedSurface && element === state.observed && surfaceLevel === s.surfaceLevel) return cachedSurface;
+      surfaceLevel = s.surfaceLevel;
       if (element !== state.observed) {
         if (state.observed) resizeObserver.unobserve(state.observed);
         if (element) resizeObserver.observe(element);
@@ -707,7 +711,7 @@ export const LaserFlow = ({
             parseFloat(computed.borderTopLeftRadius) || 0,
             parseFloat(computed.borderTopRightRadius) || 0
           );
-          return {
+          return cachedSurface = {
             left: rect.left - box.left,
             top: rect.top - box.top,
             right: rect.right - box.left,
@@ -717,7 +721,7 @@ export const LaserFlow = ({
           };
         }
       }
-      return {
+      return cachedSurface = {
         left: -width * 2,
         top: s.surfaceLevel * height,
         right: width * 3,
@@ -728,6 +732,8 @@ export const LaserFlow = ({
     };
 
     const resize = () => {
+      // Both elements scroll together; their relative geometry only needs measuring on resize.
+      cachedSurface = null;
       const width = Math.max(1, container.clientWidth);
       const height = Math.max(1, container.clientHeight);
       const s = settingsRef.current;
@@ -886,6 +892,7 @@ export const LaserFlow = ({
     };
 
     const onPointerMove = (event: PointerEvent) => {
+      if (!visible || document.hidden || settingsRef.current.paused || !settingsRef.current.mouseInteraction) return;
       const rect = container.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
@@ -922,7 +929,8 @@ export const LaserFlow = ({
     wake();
 
     wakeRef.current = () => {
-      if (!raf) render();
+      cachedSurface = null;
+      if (!raf && visible && !document.hidden) render();
       wake();
     };
 

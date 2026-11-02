@@ -37,7 +37,7 @@ function Scene({ variant, paused, mobile, onError }: {
     case 'ghost-fibers':
       return <GhostFibers glowColor="#7c91ff" lineColor="#a9beff" secondaryColor="#b5a4e6"
         speed={0.14} threads={mobile ? 40 : 64} layers={2} grain={0} glow={0.25} brightness={0.9}
-        intro={false} paused={paused} mouseInteraction={!paused} mouseStrength={0.25} pulseOnClick={false} dpr={1} maxFps={30} />;
+        intro={false} paused={paused} mouseInteraction={!paused} mouseStrength={0.25} pulseOnClick={false} dpr={0.75} maxFps={30} />;
     case 'pixel-blast':
       return <PixelBlast color="#829cff" accentColor="#bba7ed" pixelSize={mobile ? 3 : 3.5}
         patternScale={2.5} patternDensity={0.65} speed={paused ? 0 : 0.14} drift={paused ? 0 : 0.06}
@@ -57,6 +57,7 @@ export default function BackgroundPreview({ variant, showControls = true }: {
 }) {
   const track = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [motionOverride, setMotionOverride] = useState<boolean | null>(null);
@@ -105,7 +106,11 @@ export default function BackgroundPreview({ variant, showControls = true }: {
     narrow.addEventListener('change', syncMedia);
     document.addEventListener('visibilitychange', syncHidden);
     const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting && entry.intersectionRect.height > 0),
+      ([entry]) => {
+        const active = entry.isIntersecting && entry.intersectionRect.height > 0;
+        setVisible(active);
+        if (active) setInitialized(true);
+      },
       { threshold: [0, 0.001] },
     );
     if (track.current) observer.observe(track.current);
@@ -136,9 +141,9 @@ export default function BackgroundPreview({ variant, showControls = true }: {
     <div ref={track} className={`background-track background-track--${variant}`} aria-hidden="true">
       <div className="background-sticky">
         <div className="background-effect" data-background={variant} data-paused={paused} data-covered-by-hero={coveredByHero}>
-          {visible && !hidden && !error && <EffectBoundary onError={() => setError(true)}>
+          {!error && ((visible && !hidden) || (variant === 'ghost-fibers' && initialized)) && <EffectBoundary onError={() => setError(true)}>
             <Suspense fallback={null}>
-              <Scene variant={variant} paused={paused || coveredByHero} mobile={mobile} onError={() => setError(true)} />
+              <Scene variant={variant} paused={paused || coveredByHero || !visible || hidden} mobile={mobile} onError={() => setError(true)} />
             </Suspense>
           </EffectBoundary>}
         </div>
