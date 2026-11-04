@@ -13,7 +13,7 @@ const cookie = editorCookie(new Request(origin), session).split(';')[0];
 const draft = { title: 'Private test marker', slug: 'private-test', excerpt: 'Private description', content: 'Unpublished body', tags: 'Engineering', image: '', imageAlt: '' };
 const request = (action, { method = 'GET', body, auth = true, site = origin, headers = {} } = {}) => new Request(`${origin}/api/blog/${action}`, { method, headers: { ...(auth ? { Cookie: cookie } : {}), ...(method === 'POST' ? { Origin: site, 'Content-Type': 'application/json' } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
 
-function memoryBlob() {
+function memoryBlob({ compressed = false } = {}) {
   const rows = new Map(); let revision = 0;
   class BlobPreconditionFailedError extends Error {}
   return {
@@ -21,7 +21,8 @@ function memoryBlob() {
     async get(path, options) {
       assert.equal(options.access, 'private'); assert.equal(options.useCache, false);
       const value = rows.get(path);
-      return value ? { statusCode: 200, stream: new Response(value.data).body, blob: { etag: value.etag, contentType: value.contentType } } : null;
+      const etag = compressed && options.headers?.['Accept-Encoding'] !== 'identity' ? `W/"${value?.etag}"` : value?.etag;
+      return value ? { statusCode: 200, stream: new Response(value.data).body, blob: { etag, contentType: value.contentType } } : null;
     },
     async put(path, value, options) {
       assert.equal(options.access, 'private');
@@ -101,6 +102,21 @@ test('private saves survive a new store instance, reject stale tabs, and never p
   await assert.rejects(store.remove(post.id, 1), { status: 409 });
   for (const action of ['publish', 'unpublish']) assert.equal((await handler(request(action, { method: 'POST', body: { id: post.id, revision: 2 } }), action)).status, 404);
   await store.remove(post.id, 2); assert.deepEqual(await store.list(), []);
+});
+
+test('compressible records keep strong ETags for saves, deletes, and login counters', async () => {
+  const blob = memoryBlob({ compressed: true });
+  const store = privateBlogStore({ ...config, blob });
+  let post = await store.save(validatePrivateDraft({ ...draft, content: 'Compressible article text.\n'.repeat(100) }));
+  post = await store.save({ ...post, title: 'Updated compressible post' });
+  assert.equal(post.revision, 2);
+  const results = await Promise.allSettled(['Tab A', 'Tab B'].map(title => store.save({ ...post, title })));
+  assert.equal(results.filter(result => result.status === 'fulfilled').length, 1);
+  assert.equal(results.find(result => result.status === 'rejected').reason.status, 409);
+  await store.remove(post.id, 3);
+  const now = Date.now();
+  for (let attempt = 0; attempt < 8; attempt++) await store.consumeLogin('client', now);
+  await assert.rejects(store.consumeLogin('client', now), { status: 429 });
 });
 
 test('cross-site writes, invalid versions, traversal, and oversized bodies are rejected', async () => {
