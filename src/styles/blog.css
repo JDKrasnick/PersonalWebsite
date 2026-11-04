@@ -107,6 +107,7 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
 .article-header h1 { font-size: clamp(36px, 4vw, 52px); font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 28px; overflow-wrap: anywhere; text-wrap: balance; }
 .article-description { color: var(--body-ink); font-size: 22px; line-height: 1.6; max-width: 780px; margin: 0 0 26px; text-wrap: pretty; }
 .prose { color: var(--body-ink); font-size: 19px; font-weight: 400; line-height: 1.8; overflow-wrap: anywhere; }
+.prose p, .prose h1, .prose h2, .prose h3, .prose h4 { white-space: break-spaces; }
 .prose > :first-child { margin-top: 0; }
 .prose p, .prose ul, .prose ol, .prose pre, .prose blockquote, .prose table { margin: 0 0 24px; }
 .prose h1, .prose h2, .prose h3, .prose h4 { color: var(--ink); margin: 42px 0 17px; font-weight: 600; scroll-margin-top: 24px; }
