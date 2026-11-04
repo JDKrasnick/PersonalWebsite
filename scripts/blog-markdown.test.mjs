@@ -12,6 +12,7 @@ for (const [name, source] of [
   ['existing example article, including its table and Python code', exampleContent],
   ['links, emphasis, images and nested lists', '# A technical note\n\n**Bold**, *italic*, and [a link](https://example.com).\n\n![A diagram](https://example.com/diagram.png)\n\n- First item\n  - A nested item\n- Last item\n\n> A quoted observation.'],
   ['code whitespace and fenced language', '## Code\n\n```python\ndef run():\n    x = "a | b"\n    return x\n```\n\nInline `x = 1` stays code.'],
+  ['expanded formatting and numbered lists', '### A smaller heading\n\n~~Removed~~ and `inline code`.\n\n> A quoted paragraph.\n\n1. First\n2. Second\n\n---\n\n#### Details\n\nMore text.'],
 ]) {
   test(`visual editor preserves ${name} through Markdown serialization`, () => {
     const parsed = markdown.parse(source);

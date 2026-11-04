@@ -2,6 +2,12 @@
 
 Posts are Markdown files in `content/blog/`. The localhost editor stores private drafts separately; **Prepare for GitHub** writes the reviewed Markdown file. Commit and push the post and any assets together to publish.
 
+The formatting toolbar supports heading levels 2–4, emphasis, strikethrough, inline/fenced code, quotes, bullet/numbered lists, dividers, tables, and undo/redo. In Write, clear formatting removes styling from a selection; Indent/Outdent and Tab/Shift+Tab adjust list nesting. Table controls appear when the cursor is inside a table, including row/column deletion. Find/replace searches literal article text in Write or Markdown, with match case and single/all replacement. These features round-trip through Markdown.
+
+Preview saves first and opens inside the editor window. Click Preview again, choose Edit post, or press Esc to return to the editing position. Cmd/Ctrl+Shift+P toggles Preview; Cmd/Ctrl+S saves; Cmd/Ctrl+Shift+M changes editing mode; Cmd/Ctrl+Shift+F opens find/replace. The expandable Keyboard shortcuts guide lists formatting keys and Markdown input shortcuts. A failed save leaves browser recovery text intact.
+
+**Assistant** opens a ChatGPT subscription-backed writing panel through local Codex. Post text is attached only when selected; Use selection puts a selected passage in the message. Images default to editable, reproducible scripts (usually Python/Pillow saving a PNG), with Copy code on code blocks. Create image script starts a request without sending it or overwriting existing composer text. Run the script locally and drop its image into the post. The external ChatGPT image-generation option remains available. The assistant does not execute scripts, edit, or publish your article automatically, and all assistant routes stay local. See README for connection setup and recovery.
+
 ## Add pictures
 
 Open **Add picture** to drop or choose a cover image. Drop or paste a picture into the article to insert it at the cursor; **Insert picture** opens a file picker for the body. Both Write and Markdown modes support pictures. Add a cover description in the picture settings; inline alternative text can be edited in Markdown (`![Description](path)`). Existing image URLs still work.

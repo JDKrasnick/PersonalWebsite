@@ -6,6 +6,7 @@ import { BLOG_ICONS, defaultPostIcon } from '../src/lib/blog-icons.js';
 import { postImage } from '../src/lib/blog-images.js';
 import { demoFence, exampleDemo } from '../src/lib/blog-demos.js';
 import { MAX_IMAGE_BYTES, saveBlogImage } from './blog-upload.mjs';
+import { blogAssistantMiddleware } from './blog-assistant-api.mjs';
 
 export const exampleContent = `A technical experiment is most useful when someone else can follow the reasoning, reproduce the setup, and understand where the result stops applying.
 
@@ -118,6 +119,9 @@ export function blogDevPlugin(options = {}) {
     name: 'local-blog',
     apply: /** @type {const} */ ('serve'),
     configureServer(server) {
+      const assistant = blogAssistantMiddleware(options.assistant ?? {});
+      server.middlewares.use('/api/blog/assistant', assistant.middleware);
+      server.httpServer?.once('close', assistant.close);
       // Serve new uploads immediately; Vite's public-file watcher can lag behind the POST.
       server.middlewares.use('/blog-images/uploads', async (req, res, next) => {
         const path = new URL(req.url, 'http://localhost').pathname;

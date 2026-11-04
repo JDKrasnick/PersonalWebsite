@@ -118,6 +118,24 @@ typography:
     fontFamily: "JetBrains Mono, monospace"
     fontSize: "16px"
     lineHeight: 1.8
+  blog-assistant-heading:
+    fontSize: "19px"
+    fontWeight: 600
+    lineHeight: 1.4
+  blog-assistant-body:
+    fontSize: "15px"
+    lineHeight: 1.7
+  blog-assistant-support:
+    fontSize: "13px"
+    lineHeight: 1.6
+  blog-assistant-message-heading:
+    fontSize: "17px"
+    lineHeight: 1.5
+  blog-assistant-input:
+    fontSize: "15px"
+    lineHeight: 1.6
+  blog-assistant-input-mobile:
+    fontSize: "16px"
   blog-utility-micro:
     fontSize: "10px"
   blog-badge:
@@ -156,6 +174,12 @@ components:
     textColor: "{colors.text-primary}"
     rounded: "{rounded.blog-control}"
     padding: "9px 16px"
+  blog-assistant-pane:
+    backgroundColor: "{colors.blog-panel}"
+    textColor: "{colors.blog-body-ink}"
+    typography: "{typography.blog-assistant-body}"
+    padding: "24px"
+    width: "360px"
 ---
 
 # Design System: JD Krasnick
@@ -193,7 +217,7 @@ Portfolio headings inherit semibold typography. The blog index retains its compa
 
 At the blog's mobile breakpoint, the index heading is 26px and archive links are 20px with 1.45 line height. Article titles and subtitles use their mobile frontmatter roles; body prose remains 18px with 1.8 line height. Dates are 14px desktop and 13px mobile. Code is 14px/13px, tables 16px/15px, and comment body text 16px. Markdown source is 16px. Code remains monospaced and preserves whitespace with horizontal overflow where needed.
 
-The smaller frontmatter roles describe ancillary UI, not a second reading scale: 10px is limited to the code-copy utility and mobile footer; 11px to badges and compact mobile actions; 12px to labels, captions, and status text; 13px to controls; and 14px to dates, navigation, and fields. These observed roles are not permission to shrink article text. Legacy avatar-only sizing is excluded because avatars are not part of the current article header.
+The smaller frontmatter roles describe ancillary UI, not a second reading scale: 10px is limited to the code-copy utility and mobile footer; 11px to badges and compact mobile actions; 12px to labels, captions, and status text; 13px to controls; and 14px to dates, navigation, and fields. The assistant has separate heading, reply, supporting-text, and prompt-input roles; these do not alter article typography. These observed roles are not permission to shrink article text. Legacy avatar-only sizing is excluded because avatars are not part of the current article header.
 
 ## Layout
 
@@ -201,7 +225,9 @@ The portfolio container is capped at 1100px with 2rem side padding, reduced to 1
 
 The blog header and index are capped at 1600px with 48px desktop gutters. The index has a plain Blog heading without a subtitle, then chronological date/title rows capped at 1160px. Optional pictures lead on the left with date and title to their right; rows without pictures remain compact. A magnifying-glass button opens search and topics in a nonmodal right sidebar (280px). At 850px and below, that panel moves above the results, aligned right with a maximum width of 340px. At 650px gutters are 24px. Reader and visual editor share a 1160px document container, including their gutters.
 
-The editor is a single editable article, with the same title, subtitle, and prose scales as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving, preview, and GitHub preparation. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. There is no sidebar or split preview window.
+The localhost editor is a single editable article, with the same title, subtitle, and prose scales as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving status, Save draft, Preview, Assistant, and GitHub preparation. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. Preview saves first, then replaces the editable article with the sanitized article and running demos in the same window. The stable Preview toggle and Edit post control return to the document; Escape also exits preview. The optional assistant sits beside the document on desktop; there is no split preview window. On phones, the four editor action buttons form a two-column grid and saving status remains visible across both columns.
+
+The open assistant uses a 360px desktop column beside the flexible document, docked below the sticky action bar, with 24px padding and 16px gaps. Its conversation and panel can scroll without confining the main article. At 1100px and below it becomes a fixed, full-height modal panel, up to 420px wide and capped at the viewport width. Background document, action bar, header, and footer are inert; Tab stays inside the panel, Escape closes it, and focus returns to Assistant. Closing restores normal page interaction.
 
 Article headers have no border or bottom padding. The desktop title-to-subtitle margin is 28px, subtitle bottom margin is 26px, and reader header-to-picture margin is 52px; mobile uses 24px, 24px, and 36px. The editor matches the title gap and leaves 52px after the description before the picture on desktop, 36px on mobile. Article headers and local typography previews omit the author byline; the reader keeps its date and example labeling, and the editor keeps its state badge. The site's name remains in navigation and footer.
 
@@ -230,6 +256,20 @@ Browsers without `::-webkit-scrollbar` selector support use standard `scrollbar-
 ### Inputs / Fields
 
 Comment inputs use a dark panel, a fine blue-gray stroke, gentle corners, and visible labels. Search has an outlined field. The editor title and description are borderless auto-expanding text areas; rich article content uses the reader's typography. Metadata is collapsed under Post settings. Add picture discloses a cover dropzone and file picker, an optional URL and alternative-text field, with live preview, load-error feedback, and removal. Insert picture opens a body file picker; both Write and Markdown accept file drops and clipboard pictures at the drop position or current selection. Upload progress and errors appear in a status message; successful uploads remind the author to commit the image with the post. Removing a picture retains its file for shared references. Native Tab navigation and visible keyboard focus remain available; formatting comes from the toolbar or keyboard shortcuts.
+
+### Editor Formatting and Preview
+
+The wrapping toolbar offers Paragraph and headings 2–4, bold, italic, strikethrough, inline code, links, quotes, bullet and numbered lists, fenced code, dividers, tables, and undo/redo. Formatting buttons have 36px targets, quiet default ink, a tonal hover, and a periwinkle active state expressed by `aria-pressed`. The style selector is outlined with gentle corners. Table row/column insertion and deletion, plus table removal, appear only inside a table in Write; undo history resets when a draft loads. Clear formatting and list indent/outdent are Write controls. Markdown remains directly editable, with applicable toolbar insertions; rich-editor undo/redo and table editing controls are unavailable in source mode.
+
+Save draft and Cmd/Ctrl+S show saving feedback. Failed or timed-out saves retain browser recovery text and leave the current document in place. Preview waits for the saved revision before showing the title, subtitle, cover, sanitized body, and interactive demos. The top Preview label stays stable and exposes its state through `aria-pressed`; Cmd/Ctrl+Shift+P toggles it and Escape or Edit post returns to editing. Preview focuses Edit post; returning preserves the prior field, selection, and page scroll position. Authoring and Preview remain localhost-only.
+
+Find / replace is an inline, labeled section beneath the toolbar in Write and Markdown. It searches literal text, with optional Match case, a live match count, Previous/Next, Replace, and Replace all. Write searches across adjacent marked text without crossing document blocks or media; replacement preserves the rest of the document. The two outlined fields share a row with a 16px gap; actions wrap below. At 600px and below fields stack and use 16px entry text. The shortcut guide is a quiet native disclosure with two-column entries, stacking at the same breakpoint. Cmd/Ctrl+/ toggles the guide, Cmd/Ctrl+Shift+M changes editing mode, and Cmd/Ctrl+Shift+F opens find/replace; applicable formatting shortcuts work in Markdown too.
+
+### ChatGPT Assistant
+
+The helper uses the existing dark panel, a fine left border, and no shadow. Its heading is semibold; replies use brighter body ink and user messages use supporting ink. Conversation labels and image-handoff help remain compact. The prompt has a dark page-colored backing, fine border, gentle corners (6px), and visible focus. Connection, progress, and error messages stay inside the panel; errors use the existing restrained pink treatment.
+
+The panel exposes Send, Stop, New chat, Reconnect, per-reply Copy, Copy code on fenced blocks, and Use selection. Replies render sanitized text and code with embedded media disabled, preventing automatic media fetches from chat content; article images retain their existing behavior. Attach post text is unchecked by default; selected passages can be copied into the prompt. Conversation history and active job IDs survive browser reloads; reconnect can retrieve a running response while the server retains its job. The helper provides suggestions without editing the article. Image requests prefer reproducible Python/Pillow scripts that save a PNG. Create image script seeds an empty composer and focuses it without sending or overwriting existing text. The helper returns fenced code for the author to copy and run; it does not execute scripts or claim to have produced a file. The optional Open ChatGPT for an image handoff remains available for subscription image generation, followed by dropping the result into the post.
 
 ### Navigation
 

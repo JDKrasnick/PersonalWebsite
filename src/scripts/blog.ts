@@ -19,7 +19,9 @@ const slugify = (value: string) => value.toLowerCase().normalize('NFKD').replace
 async function api<T>(path: string, body?: unknown): Promise<T> {
   if (!import.meta.env.DEV && (path !== 'posts' || body !== undefined)) throw new Error('The writing workspace is only available on your computer.');
   const url = import.meta.env.DEV ? `/api/blog/${path}` : '/blog/posts.json';
-  const response = await fetch(url, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  let response: Response;
+  try { response = await fetch(url, body === undefined ? { cache: 'no-store', signal: AbortSignal.timeout(15_000) } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15_000) }); }
+  catch { throw new Error(import.meta.env.DEV ? 'Could not reach the local editor. Your unsaved text is kept in this browser. Restart npm run dev and try Save draft again.' : 'Could not load the blog. Check your connection and try again.'); }
   if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The blog is available in the local development server. Run npm run dev to open your writing workspace.');
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
@@ -32,7 +34,13 @@ const markdown = new Marked({ gfm: true, breaks: false, renderer: { code({ text,
   const code = hljs.getLanguage(language) ? hljs.highlight(text, { language }).value : escape(text);
   return `<pre><code${language ? ` class="language-${escape(language)}"` : ''}>${code}</code></pre>`;
 } } });
-export function renderMarkdown(content: string) { return DOMPurify.sanitize(markdown.parse(content, { async: false }) as string, { USE_PROFILES: { html: true }, FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'iframe'], FORBID_ATTR: ['style', 'id', 'name'] }); }
+export function renderMarkdown(content: string, { media = true }: { media?: boolean } = {}) {
+  return DOMPurify.sanitize(markdown.parse(content, { async: false }) as string, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'iframe', ...(!media ? ['img', 'picture', 'source', 'audio', 'video', 'track', 'object', 'embed', 'link', 'meta', 'base'] : [])],
+    FORBID_ATTR: ['style', 'id', 'name', ...(!media ? ['src', 'srcset', 'poster', 'background', 'ping'] : [])],
+  });
+}
 function enhanceCode(root: HTMLElement) {
   root.querySelectorAll('pre').forEach(pre => {
     const button = document.createElement('button');
