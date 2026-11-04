@@ -1,0 +1,10 @@
+---
+import Post from './post.astro';
+import { readPublishedPosts } from '../../../scripts/blog-content.mjs';
+export const prerender = true;
+export async function getStaticPaths() {
+  return (await readPublishedPosts()).map(post => ({ params: { slug: post.slug }, props: { post } }));
+}
+const { post } = Astro.props;
+---
+<Post post={post} />

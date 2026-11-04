@@ -6,9 +6,10 @@ interface Props {
   noindex?: boolean;
 }
 
+const siteDescription = "JD Krasnick is an AI engineer and Cornell researcher building reliable agentic systems, evaluation harnesses, and reinforcement-learning tools.";
 const {
   title = "JD Krasnick | AI Engineer & Researcher",
-  description = "JD Krasnick is an AI engineer and Cornell researcher building reliable agentic systems, evaluation harnesses, and reinforcement-learning tools.",
+  description = siteDescription,
   image = "/og-image-v9.png",
   noindex = false,
 } = Astro.props;
@@ -25,7 +26,7 @@ const structuredData = {
       name: "JD Krasnick",
       url: siteUrl,
       jobTitle: "AI/ML Engineer",
-      description,
+      description: siteDescription,
       email: "mailto:jdkrasnick@gmail.com",
       sameAs: [
         "https://github.com/JDKrasnick",
@@ -47,7 +48,7 @@ const structuredData = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "JD Krasnick",
-      description,
+      description: siteDescription,
       publisher: { "@id": `${siteUrl}/#person` },
     },
   ],

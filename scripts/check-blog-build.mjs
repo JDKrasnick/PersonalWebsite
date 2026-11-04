@@ -8,12 +8,23 @@ for (const route of ['editor', 'login', 'preview', 'logout']) await assert.rejec
 await assert.rejects(access(resolve(output, '.local/blog.json')), 'Local drafts must never enter the public build.');
 const posts = JSON.parse(await readFile(resolve(output, 'blog/posts.json'), 'utf8'));
 assert.deepEqual(posts, await readPublishedPosts(), 'Only prepared Markdown files may enter the public feed.');
+assert.deepEqual(await readPublishedPosts(resolve('.vercel/output/functions/_render.func/content/blog')), posts, 'Legacy links need the prepared articles packaged with the server.');
 for (const post of posts) await validateDemoAssets(post.content, output);
-for (const page of ['blog/index.html', 'blog/post/index.html']) {
+for (const page of ['blog/index.html', ...posts.map(post => `blog/${post.slug}/index.html`)]) {
   const html = await readFile(resolve(output, page), 'utf8');
   assert.ok(!html.includes('href="/blog/editor'), 'Public pages must not link to authoring controls.');
   assert.ok(!html.includes('noindex, nofollow'), 'Published blog pages must be indexable.');
 }
+const index = await readFile(resolve(output, 'blog/index.html'), 'utf8');
+const sitemap = await readFile(resolve(output, 'sitemap.xml'), 'utf8');
+assert.ok(sitemap.includes('<loc>https://www.jdkrasnick.com/blog/</loc>'), 'Crawlers must discover the public blog.');
+for (const post of posts) {
+  const html = await readFile(resolve(output, `blog/${post.slug}/index.html`), 'utf8');
+  assert.ok(html.includes(`data-post-id="${post.id}"`) && html.includes('class="prose"'), 'Published article content must be in the initial HTML.');
+  assert.ok(index.includes(`/blog/${post.slug}`) && sitemap.includes(`/blog/${post.slug}/</loc>`), 'Every published article must be linked and in the sitemap.');
+  assert.ok(html.includes('BlogPosting') && html.includes('rel="canonical"'), 'Articles must include structured data and a canonical URL.');
+}
+for (const path of ['/blog/editor', '/blog/login', '/blog/preview', '/blog/logout', '/api/blog/']) assert.ok(!sitemap.includes(path), 'Private routes must stay out of the sitemap.');
 const assets = await readdir(resolve(output, '_astro'));
 for (const file of assets.filter(file => file.endsWith('.js'))) {
   const script = await readFile(resolve(output, '_astro', file), 'utf8');

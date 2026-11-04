@@ -12,7 +12,7 @@ const escape = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&am
 const date = (value: string, short = false) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(short ? {} : { year: 'numeric' }) });
 const words = (content: string) => content.trim().split(/\s+/).filter(Boolean).length;
 const readTime = (content: string) => `${Math.max(1, Math.ceil(words(content) / 220))} min read`;
-const urlFor = (post: { slug: string }) => `/blog/post?slug=${encodeURIComponent(post.slug)}`;
+const urlFor = (post: { slug: string }) => `/blog/${encodeURIComponent(post.slug)}/`;
 const arrow = (direction: 'left' | 'right' | 'up-right' = 'right') => `<svg class="arrow-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" transform="rotate(${direction === 'left' ? 180 : direction === 'up-right' ? -45 : 0} 12 12)" /></svg>`;
 const slugify = (value: string) => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
 
@@ -112,13 +112,13 @@ export async function initReader() {
       $('reader-notice').innerHTML = `Draft preview. This version has not been published. <a href="/blog/editor?id=${encodeURIComponent(draftId)}">Back to editor</a>`;
       $('reader-notice').hidden = false;
     } else {
-      const found = (await api<Post[]>('posts')).find(p => p.slug === params.get('slug'));
+      const found = (await api<Post[]>('posts')).find(p => p.slug === (params.get('slug') || $('article').dataset.postSlug));
       if (!found) throw new Error('This article is not published or the link has changed. Return to All writing to find a post.');
       post = found;
     }
     document.title = `${post.title || 'Untitled post'} | JD Krasnick`;
     if (post.example && !draftId) { $('reader-notice').innerHTML = import.meta.env.DEV ? 'This is an example article. Try editing it, or create a post of your own in the <a href="/blog/editor">editor</a>.' : 'This is an example article demonstrating the blog format.'; $('reader-notice').hidden = false; }
-    $('article').innerHTML = `<header class="article-header"><h1>${escape(post.title || 'Untitled post')}</h1>${post.excerpt ? `<p class="article-description">${escape(post.excerpt)}</p>` : ''}<div class="post-meta"><time datetime="${escape(post.publishedAt)}">${date(post.publishedAt)}</time>${exampleBadge(post)}</div></header>${post.image ? `<figure class="article-picture"><img src="${escape(post.image)}" alt="${escape(post.imageAlt || '')}" width="1200" height="675" fetchpriority="high" /></figure>` : ''}<div class="prose">${renderMarkdown(post.content)}</div><div class="article-end"><a href="/blog">${arrow('left')} All writing</a>${import.meta.env.DEV ? `<a href="/blog/editor?id=${encodeURIComponent(post.id)}">${draftId ? 'Continue editing' : 'Edit post'} ${arrow('up-right')}</a>` : ''}</div>`;
+    if (draftId || $('article').dataset.postId !== post.id) $('article').innerHTML = `<header class="article-header"><h1>${escape(post.title || 'Untitled post')}</h1>${post.excerpt ? `<p class="article-description">${escape(post.excerpt)}</p>` : ''}<div class="post-meta"><time datetime="${escape(post.publishedAt)}">${date(post.publishedAt)}</time>${exampleBadge(post)}</div></header>${post.image ? `<figure class="article-picture"><img src="${escape(post.image)}" alt="${escape(post.imageAlt || '')}" width="1200" height="675" fetchpriority="high" /></figure>` : ''}<div class="prose">${renderMarkdown(post.content)}</div><div class="article-end"><a href="/blog">${arrow('left')} All writing</a>${import.meta.env.DEV ? `<a href="/blog/editor?id=${encodeURIComponent(post.id)}">${draftId ? 'Continue editing' : 'Edit post'} ${arrow('up-right')}</a>` : ''}</div>`;
     $('article').querySelector<HTMLImageElement>('.article-picture img')?.addEventListener('error', event => { (event.target as HTMLImageElement).closest('figure')?.remove(); });
     mountDemos($('article'));
     enhanceCode($('article'));
@@ -159,7 +159,7 @@ export async function initReader() {
       } catch (error) { showError('comment-error', error); $('retry-comments').hidden = false; }
       finally { button.disabled = false; button.innerHTML = `Post comment ${arrow()}`; }
     });
-  } catch (error) { $('article').innerHTML = ''; showError('reader-notice', error); }
+  } catch (error) { if (!$('article').dataset.postId) $('article').innerHTML = ''; showError('reader-notice', error); }
 }
 
 export { $, escape, date, words, readTime, urlFor, arrow, slugify, api, showError, toast, type Draft };

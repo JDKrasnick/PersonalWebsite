@@ -2,6 +2,12 @@
 
 Posts are Markdown files in `content/blog/`. The localhost editor stores private drafts separately; **Prepare for GitHub** writes the reviewed Markdown file. Commit and push the post and any assets together to publish.
 
+## Public article output
+
+Only prepared Markdown posts enter public article output. Build generates `/blog/<slug>/` with the complete sanitized article, article metadata and BlogPosting structured data. The blog index includes readable HTML and direct article links, so reading works without JavaScript; search, comments and demos enhance the page. Old query-based article URLs redirect permanently to the static path.
+
+The generated sitemap lists only the homepage, blog index and prepared posts. Robots allows public reading and excludes private authoring routes. Owner-session checks still protect hosted editor, drafts, previews and APIs; login and private authoring responses retain private headers, and saving a private draft does not add it to public pages or the sitemap.
+
 ## Editor controls
 
 The hosted and localhost editors share the formatting toolbar, Write/Markdown modes, and literal Find / replace with Match case, Previous/Next, Replace and Replace all. Formatting includes Paragraph/H2–H4, emphasis, strike, inline/fenced code, links, quotes, bullet/numbered lists, dividers and tables. In Write, clear formatting, list indent/outdent and table row/column insertion/deletion are available; undo history resets for each loaded draft.

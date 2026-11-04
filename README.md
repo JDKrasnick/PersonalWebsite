@@ -40,6 +40,10 @@ A clearly labeled example article is provided on first use. It can be edited, un
 
 The hosted editor, preview, draft and image APIs require the existing owner session and use private, non-cacheable responses. Local authoring uses loopback-only file APIs. Only prepared `content/blog/*.md` files enter the public feed, and GitHub repository write access controls publishing. The production build checks both the static publication boundary and the compiled owner-authentication handlers.
 
+### Public pages and crawlers
+
+All crawlers may read the public homepage, blog index, and published articles. Each prepared post builds a `/blog/<slug>` page with readable article HTML, a canonical URL, description, and BlogPosting structured data; JavaScript adds search, comments, code-copy controls, and demos. `/sitemap.xml` includes the homepage, blog index, and prepared posts only. Old query-based article links redirect to their normal article URL. Private drafts are never published or included in the sitemap. The editor, login, private preview, logout, and draft/image APIs retain authentication, private cache headers, and crawler exclusions.
+
 ### Anonymous comments
 
 Comments stay directly on each article, independent of GitHub publishing. Local development uses file storage automatically. The Vercel deployment includes a separate `/api/comments` function; hosted storage must be configured before public comments work:
