@@ -21,6 +21,7 @@ const validId = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,120}$/.test(id
 const record = (data, content, filename) => {
   if (!validId(data.id) || typeof data.title !== 'string' || !data.title.trim() || typeof data.slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug) || typeof data.excerpt !== 'string' || !Array.isArray(data.tags) || data.tags.some(t => typeof t !== 'string') || !Number.isFinite(Date.parse(data.publishedAt)) || !content.trim()) throw new Error(`Invalid published blog post: ${filename}`);
   const icon = data.icon ?? defaultPostIcon(data.tags);
+  if (['index', 'editor', 'login', 'logout', 'preview', 'post', 'type-preview', 'posts'].includes(data.slug)) throw new Error(`Reserved blog URL slug: ${data.slug}. Choose another URL before publishing.`);
   if (!BLOG_ICONS.some(option => option.value === icon)) throw new Error(`Invalid post icon: ${filename}`);
   return { id: data.id, title: data.title, slug: data.slug, excerpt: data.excerpt, tags: data.tags, icon, ...postImage(data.image, data.imageAlt), publishedAt: new Date(data.publishedAt).toISOString(), content: content.trim(), ...(data.example ? { example: true } : {}) };
 };

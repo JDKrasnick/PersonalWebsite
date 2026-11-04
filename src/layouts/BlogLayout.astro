@@ -2,10 +2,10 @@
 import Layout from './Layout.astro';
 import BlogArrow from '../components/BlogArrow.astro';
 import '../styles/blog.css';
-interface Props { title?: string; editor?: boolean; privatePage?: boolean; }
-const { title = 'Blog', editor = false, privatePage = false } = Astro.props;
+interface Props { title?: string; description?: string; image?: string; editor?: boolean; privatePage?: boolean; }
+const { title = 'Blog', description = 'Technical notes on AI, software, and the experiments behind them.', image, editor = false, privatePage = false } = Astro.props;
 ---
-<Layout title={`${title} | JD Krasnick`} description="Technical notes on AI, software, and the experiments behind them." noindex={editor || privatePage || import.meta.env.DEV}>
+<Layout title={`${title} | JD Krasnick`} description={description} image={image} noindex={editor || privatePage || import.meta.env.DEV}>
   <div class:list={['blog-shell', { 'editor-shell': editor }]}>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="blog-header">
