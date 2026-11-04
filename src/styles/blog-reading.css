@@ -1,0 +1,48 @@
+/* One reading measure for the title, pictures, prose, and editing surface. */
+.blog-shell .reader-wrap,
+.blog-shell .article-editor {
+  max-width: 856px;
+}
+
+.blog-shell .prose {
+  font-size: 20px;
+  line-height: 1.75;
+}
+
+.blog-shell .prose p,
+.blog-shell .prose ul,
+.blog-shell .prose ol,
+.blog-shell .prose pre,
+.blog-shell .prose blockquote,
+.blog-shell .prose table {
+  margin-bottom: 27px;
+}
+
+.blog-shell .prose h2 {
+  font-size: 28px;
+  line-height: 1.35;
+  margin: 56px 0 20px;
+}
+
+.blog-shell .prose h3 {
+  font-size: 23px;
+  line-height: 1.4;
+  margin: 44px 0 18px;
+}
+
+.blog-shell .prose h4 {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.blog-shell .prose > :first-child { margin-top: 0; }
+.blog-shell .post-document li > p,
+.blog-shell .post-document td p,
+.blog-shell .post-document th p,
+.blog-shell .prose blockquote p:last-child { margin-bottom: 0; }
+
+@media (max-width: 650px) {
+  .blog-shell .prose { font-size: 18px; line-height: 1.85; }
+  .blog-shell .prose h2 { font-size: 25px; margin: 44px 0 18px; }
+  .blog-shell .prose h3 { font-size: 22px; margin: 36px 0 16px; }
+}

@@ -2,6 +2,7 @@
 import Layout from './Layout.astro';
 import BlogArrow from '../components/BlogArrow.astro';
 import '../styles/blog.css';
+import '../styles/blog-reading.css';
 interface Props { title?: string; description?: string; image?: string; editor?: boolean; privatePage?: boolean; }
 const { title = 'Blog', description = 'Technical notes on AI, software, and the experiments behind them.', image, editor = false, privatePage = false } = Astro.props;
 ---
