@@ -6,6 +6,7 @@ import type { Editor } from '@tiptap/core';
 import { EditorState } from '@tiptap/pm/state';
 import { postImage } from '../lib/blog-images';
 import { demoFence, exampleDemo } from '../lib/blog-demos';
+import { draftValues, mergeDraftEdits, sameDraftValues } from '../lib/blog-draft-merge';
 
 export async function initEditor() {
   const hosted = document.querySelector<HTMLElement>('[data-blog-editor]')?.dataset.hosted === 'true';
@@ -23,12 +24,27 @@ export async function initEditor() {
   let previewing = false;
   let editingPosition: { element: HTMLElement | null; scrollY: number } | undefined;
   let uploading = false;
+  let conflictCopy: { mine: Record<string, string>; latest: Draft } | undefined;
+  const conflictKey = () => `jd-blog-conflict:${current?.id ?? 'new'}`;
   type PictureTarget = { cover: true } | { cover: false; source: boolean; start: number; end: number };
   let pictureTarget: PictureTarget = { cover: true };
   const backupKey = () => `jd-blog-recovery:${current?.id ?? 'new'}`;
   const values = () => ({ title: fields.title.value, excerpt: fields.excerpt.value, slug: fields.slug.value, tags: fields.tags.value, image: fields.image.value, imageAlt: fields.imageAlt.value, content: fields.content.value });
   const status = (value: string) => { $('save-state').textContent = value; };
-  const error = (value: unknown) => { showError('editor-error', value); status('Could not save'); };
+  const error = (value: unknown) => { showError('editor-error', value); status('Save failed — see details'); };
+  const applyValues = (copy: Record<string, string>) => {
+    for (const key of Object.keys(fields) as (keyof typeof fields)[]) fields[key].value = copy[key] || '';
+    richEditor?.commands.setContent(fields.content.value, { contentType: 'markdown', emitUpdate: false });
+    refreshPreview();
+  };
+  const reviewConflict = (mine: Record<string, string>, latest: Draft) => {
+    conflictCopy = { mine, latest };
+    // Archive separately: subsequent typing must not erase the competing copy.
+    try { localStorage.setItem(conflictKey(), JSON.stringify(mine)); } catch { /* Both copies remain in this tab. */ }
+    $('editor-error').hidden = true; $('editor-conflict').hidden = false;
+    status('Review draft versions');
+    setBusy(busy);
+  };
   const refreshPreview = () => {
     $('demo-editor-hint').hidden = !/\`\`\`demo\b/.test(fields.content.value);
     $('word-count').textContent = `${words(fields.content.value).toLocaleString()} words · ${readTime(fields.content.value)}`;
@@ -44,13 +60,14 @@ export async function initEditor() {
     for (const field of [fields.title, fields.excerpt, ...(sourceMode ? [fields.content] : [])]) { field.style.height = 'auto'; field.style.height = `${field.scrollHeight}px`; }
   };
   const updateToolbar = () => {
+    const locked = busy || Boolean(conflictCopy);
     const names: Record<string, string> = { bold: 'bold', italic: 'italic', strike: 'strike', 'inline-code': 'code', quote: 'blockquote', code: 'codeBlock', list: 'bulletList', 'ordered-list': 'orderedList', link: 'link' };
     document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => {
       const format = button.dataset.format!;
       if (names[format]) button.setAttribute('aria-pressed', String(!sourceMode && Boolean(richEditor?.isActive(names[format]))));
-      if (format === 'undo' || format === 'redo') button.disabled = busy || sourceMode || !(format === 'undo' ? richEditor?.can().undo() : richEditor?.can().redo());
-      if (format === 'clear') button.disabled = busy || sourceMode;
-      if (format === 'indent' || format === 'outdent') button.disabled = busy || sourceMode || !(format === 'indent' ? richEditor?.can().sinkListItem('listItem') : richEditor?.can().liftListItem('listItem'));
+      if (format === 'undo' || format === 'redo') button.disabled = locked || sourceMode || !(format === 'undo' ? richEditor?.can().undo() : richEditor?.can().redo());
+      if (format === 'clear') button.disabled = locked || sourceMode;
+      if (format === 'indent' || format === 'outdent') button.disabled = locked || sourceMode || !(format === 'indent' ? richEditor?.can().sinkListItem('listItem') : richEditor?.can().liftListItem('listItem'));
     });
     $<HTMLSelectElement>('text-style').value = !sourceMode && richEditor?.isActive('heading') ? String(richEditor.getAttributes('heading').level) : 'paragraph';
     $('table-actions').hidden = sourceMode || !richEditor?.isActive('table');
@@ -74,15 +91,19 @@ export async function initEditor() {
     fields.image.value = draft?.image || ''; fields.imageAlt.value = draft?.imageAlt || '';
     history.replaceState(null, '', draft ? `/blog/editor?id=${encodeURIComponent(draft.id)}` : '/blog/editor');
     $('editor-error').hidden = true;
+    conflictCopy = undefined; $('editor-conflict').hidden = true;
     $('picture-upload-state').hidden = true;
     status(draft ? 'All changes saved' : 'Ready to write');
     try {
       const recovery = localStorage.getItem(backupKey());
       if (recovery) {
         const recovered = JSON.parse(recovery);
-        if (recovered.revision !== draft?.revision && draft) { error(new Error('A recovery copy exists from an older version. Your latest saved draft is shown. The recovery copy is still in this browser.')); }
+        if (draft && sameDraftValues(recovered, draft)) localStorage.removeItem(backupKey());
+        else if (recovered.revision !== draft?.revision && draft) { reviewConflict(draftValues(recovered), draft); }
         else { for (const key of Object.keys(fields) as (keyof typeof fields)[]) if (typeof recovered[key] === 'string') fields[key].value = recovered[key]; version++; status('Unsaved text recovered'); }
       }
+      const archived = localStorage.getItem(conflictKey());
+      if (archived && draft && !conflictCopy) reviewConflict(draftValues(JSON.parse(archived)), draft);
     } catch { /* Disk saving still works if browser storage is unavailable. */ }
     richEditor?.commands.setContent(fields.content.value, { contentType: 'markdown', emitUpdate: false });
     // A freshly loaded draft must not inherit another post's undo stack.
@@ -92,12 +113,29 @@ export async function initEditor() {
   const save = async (): Promise<Draft | undefined> => {
     clearTimeout(timer);
     const task = saveQueue.then(async () => {
-      if (version === savedVersion && current) return current;
+      if (conflictCopy) throw Object.assign(new Error('Choose which draft version to use.'), { review: true });
+      if (version === savedVersion && current) { $('editor-error').hidden = true; status('All changes saved'); return current; }
       if (!current && !Object.values(values()).some(Boolean)) return undefined;
-      const savingVersion = version;
+      let savingVersion = version;
       const previousKey = backupKey();
       status('Saving…');
-      const post = await api<Draft>('save', { ...values(), id: current?.id, revision: current?.revision });
+      let post: Draft;
+      try { post = await api<Draft>('save', { ...values(), id: current?.id, revision: current?.revision }); }
+      catch (failure) {
+        if ((failure as { status?: number }).status !== 409 || !current) throw failure;
+        const latest = (await api<Draft[]>('drafts')).find(draft => draft.id === current!.id);
+        if (!latest) throw new Error('This draft was deleted in another tab. Your text is still in this browser.');
+        // Include any keystrokes typed while the failed request was in flight.
+        const merged = mergeDraftEdits(current, values(), latest);
+        if (merged.conflicts.length) {
+          applyValues(merged.values);
+          reviewConflict(merged.values, latest);
+          throw Object.assign(new Error('Choose which draft version to use.'), { review: true });
+        }
+        current = latest; applyValues(merged.values); savingVersion = ++version;
+        try { localStorage.setItem(backupKey(), JSON.stringify({ ...merged.values, revision: latest.revision })); } catch { /* The tab still contains the merged text. */ }
+        post = sameDraftValues(merged.values, latest) ? latest : await api<Draft>('save', { ...merged.values, id: latest.id, revision: latest.revision });
+      }
       current = post;
       const index = drafts.findIndex(draft => draft.id === post.id);
       if (index < 0) drafts.unshift(post); else drafts[index] = post;
@@ -113,26 +151,48 @@ export async function initEditor() {
       return post;
     });
     saveQueue = task.catch(() => {});
-    try { const result = await task; return version !== savedVersion && result ? await save() : result; } catch (value) { error(value); throw value; }
+    try { const result = await task; return version !== savedVersion && result ? await save() : result; } catch (value) { if (!(value as { review?: boolean }).review) error(value); throw value; }
   };
   const changed = () => {
     version++; status('Unsaved changes');
     try { localStorage.setItem(backupKey(), JSON.stringify({ ...values(), revision: current?.revision })); } catch { /* Autosave remains available. */ }
+    if (conflictCopy) { reviewConflict(values(), conflictCopy.latest); refreshPreview(); findPanel.refresh(); return; }
     refreshPreview(); clearTimeout(timer); timer = setTimeout(() => { void save().catch(() => {}); }, 1000);
     findPanel.refresh();
   };
+  $('conflict-download').addEventListener('click', () => {
+    if (!conflictCopy) return;
+    const copy = conflictCopy.mine;
+    const href = URL.createObjectURL(new Blob([`# ${copy.title}\n\n${copy.excerpt}\n\n${copy.content}\n\n<!-- Draft metadata: ${JSON.stringify({ slug: copy.slug, tags: copy.tags, image: copy.image, imageAlt: copy.imageAlt }).replace(/--/g, '\\u002d\\u002d')} -->`], { type: 'text/markdown' }));
+    const link = document.createElement('a'); link.href = href; link.download = `${copy.slug || 'draft'}-browser-copy.md`; link.click(); setTimeout(() => URL.revokeObjectURL(href), 1000);
+  });
+  for (const choice of ['mine', 'saved']) $('conflict-' + choice).addEventListener('click', async () => {
+    if (!conflictCopy || busy) return;
+    const pending = conflictCopy; setBusy(true);
+    try {
+      const latest = (await api<Draft[]>('drafts')).find(draft => draft.id === current?.id);
+      if (!latest) throw new Error('This draft was deleted in another tab. Download your browser copy before continuing.');
+      const copy = mergeDraftEdits(pending.latest, pending.mine, latest).values;
+      localStorage.removeItem(conflictKey()); localStorage.removeItem(backupKey());
+      drafts[drafts.findIndex(draft => draft.id === latest.id)] = latest;
+      load(latest);
+      if (choice === 'mine') { applyValues(copy); version++; status('Unsaved changes — click Save draft'); localStorage.setItem(backupKey(), JSON.stringify({ ...copy, revision: latest.revision })); }
+    } catch (value) { error(value); } finally { setBusy(false); }
+  });
   const findPanel = initEditorFind({ editor: () => richEditor, source: () => sourceMode, field: fields.content, changed, busy: () => busy });
   const setBusy = (value: boolean) => {
     busy = value;
+    const locked = value || Boolean(conflictCopy);
     ['save-draft', 'open-preview', 'publish-post', 'unpublish-post', 'new-post', 'delete-post', 'post-selector'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
-    Object.values(fields).forEach(field => { if (field instanceof HTMLSelectElement) field.disabled = value; else field.readOnly = value; });
-    richEditor?.setEditable(!value, false);
-    $<HTMLButtonElement>('remove-picture').disabled = value;
-    $<HTMLButtonElement>('insert-demo').disabled = value;
-    ['choose-cover', 'insert-picture', 'picture-file'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
-    document.querySelectorAll<HTMLButtonElement>('[data-editor-mode]').forEach(button => { button.disabled = value; });
-    document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = value; });
-    $<HTMLSelectElement>('text-style').disabled = value;
+    Object.values(fields).forEach(field => { if (field instanceof HTMLSelectElement) field.disabled = locked; else field.readOnly = locked; });
+    richEditor?.setEditable(!locked, false);
+    $<HTMLButtonElement>('remove-picture').disabled = locked;
+    $<HTMLButtonElement>('insert-demo').disabled = locked;
+    ['choose-cover', 'insert-picture', 'picture-file'].forEach(id => { $<HTMLButtonElement>(id).disabled = locked; });
+    document.querySelectorAll<HTMLButtonElement>('[data-editor-mode]').forEach(button => { button.disabled = locked; });
+    document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = locked; });
+    $<HTMLSelectElement>('text-style').disabled = locked;
+    ['conflict-mine', 'conflict-saved', 'conflict-download'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
     if (!value) $<HTMLButtonElement>('delete-post').disabled = !current;
     updateToolbar();
   };
@@ -246,7 +306,8 @@ export async function initEditor() {
     try { await save(); load(drafts.find(draft => draft.id === selectedId)); } catch { /* Keep the current draft if saving fails. */ } finally { setBusy(false); }
   });
   $('new-post').addEventListener('click', async () => { if (busy) return; setBusy(true); try { await save(); load(); fields.title.focus(); } catch { /* Save failure leaves the current draft intact. */ } finally { setBusy(false); } });
-  $('save-draft').addEventListener('click', async () => { setBusy(true); try { await save(); toast('Draft saved.'); } catch { /* Error is visible above the editor. */ } finally { setBusy(false); } });
+  const focusSaveIssue = () => { const notice = $(conflictCopy ? 'editor-conflict' : 'editor-error'); notice.scrollIntoView({ block: 'center' }); notice.focus({ preventScroll: true }); };
+  $('save-draft').addEventListener('click', async () => { setBusy(true); try { await save(); toast('Draft saved.'); } catch { focusSaveIssue(); } finally { setBusy(false); } });
   function closePreview(restore = false) {
     previewing = false;
     document.querySelector<HTMLElement>('.article-editor')!.hidden = false;
@@ -387,7 +448,8 @@ export async function initEditor() {
     if (event.key === 'Escape' && previewing) { event.preventDefault(); closePreview(true); return; }
     if (event.key === 'Escape' && $<HTMLDetailsElement>('editor-shortcuts').open) { $<HTMLDetailsElement>('editor-shortcuts').open = false; return; }
     if (!mod || busy) return;
-    if (key === 's' && !event.shiftKey && !event.altKey) { event.preventDefault(); void save().then(() => toast('Draft saved.')).catch(() => {}); return; }
+    if (key === 's' && !event.shiftKey && !event.altKey) { event.preventDefault(); void save().then(() => toast('Draft saved.')).catch(focusSaveIssue); return; }
+    if (conflictCopy) return;
     if (key === 'p' && event.shiftKey && !event.altKey) { event.preventDefault(); $('open-preview').click(); return; }
     if (previewing) return;
     if (key === 'm' && event.shiftKey && !event.altKey) { event.preventDefault(); document.querySelector<HTMLButtonElement>(`[data-editor-mode="${sourceMode ? 'document' : 'markdown'}"]`)!.click(); (sourceMode ? fields.content : richEditor?.view.dom)?.focus(); return; }
