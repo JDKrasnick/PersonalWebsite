@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, request as httpRequest } from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blogDevPlugin } from './blog-dev.mjs';
@@ -25,6 +25,74 @@ async function start(directory) {
   };
   return { request, base, close: () => new Promise(resolve => server.close(resolve)) };
 }
+
+test('local version history survives restarts, preserves restores, and explicitly archives/deletes', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'jd-blog-history-'));
+  let app = await start(directory);
+  t.after(async () => { await app.close(); await rm(directory, { recursive: true, force: true }); });
+  const input = { title: 'History', slug: 'history', excerpt: 'First description', tags: 'AI', content: 'First draft 日本語' };
+  let post = (await app.request('save', input)).data;
+  const id = post.id;
+  post = (await app.request('save', { ...input, id, revision: post.revision })).data;
+  assert.equal((await app.request(`history?id=${id}`)).data.length, 1, 'unchanged saves do not duplicate versions');
+  const stale = post.revision;
+  post = (await app.request('save', { ...input, id, revision: post.revision, title: 'New title', content: 'Second draft' })).data;
+  assert.equal((await app.request('save', { ...input, id, revision: stale })).status, 409);
+  let history = (await app.request(`history?id=${id}`)).data;
+  assert.equal(history.length, 2, 'rejected save adds no history');
+  assert.equal(history[0].content, input.content);
+  await app.close(); app = await start(directory);
+  assert.deepEqual((await app.request(`history?id=${id}`)).data, history);
+  const rejectedRestore = await app.request('restore-history', { id, revision: stale, versionId: history[0].id });
+  assert.equal(rejectedRestore.status, 409, 'stale restores cannot silently merge another tab text');
+  assert.equal((await app.request(`history?id=${id}`)).data.length, 2);
+  post = (await app.request('restore-history', { id, versionId: history[0].id, revision: post.revision })).data;
+  history = (await app.request(`history?id=${id}`)).data;
+  assert.deepEqual(history.map(entry => entry.content), [input.content, 'Second draft', input.content]);
+  assert.equal(post.title, input.title);
+  assert.ok(history.every(entry => entry.savedAt && entry.id));
+  assert.ok(!(await app.request('drafts')).data.some(draft => 'histories' in draft));
+  assert.ok(!(await app.request('posts')).data.some(draft => draft.id === id));
+  post = (await app.request('publish', { id, revision: post.revision })).data;
+  assert.ok((await app.request(`history?id=${id}`)).data.every(entry => !entry.archivedAt), 'preparing is not publishing');
+  assert.equal((await app.request('archive-history', { id, revision: stale })).status, 409);
+  history = (await app.request('archive-history', { id, revision: post.revision })).data;
+  assert.equal(history.length, 3); assert.ok(history.every(entry => entry.archivedAt));
+  post = (await app.request('save', { ...input, id, revision: post.revision, content: 'Post-publication update' })).data;
+  history = (await app.request('delete-archived-history', { id, revision: post.revision })).data;
+  assert.equal(history.length, 1); assert.equal(history[0].content, post.content); assert.ok(!history[0].archivedAt);
+  assert.equal((await app.request('drafts')).data.find(draft => draft.id === id).content, post.content);
+  await app.request('delete', { id, revision: post.revision });
+  assert.equal((await app.request(`history?id=${id}`)).status, 404);
+  assert.equal(JSON.parse(await readFile(join(directory, 'blog.json'), 'utf8')).histories[id], undefined);
+});
+
+test('legacy history IDs persist; restores are exact, atomic, scoped and reject URL collisions', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'jd-history-legacy-'));
+  const legacy = { id: 'legacy', title: 'Legacy article', slug: 'legacy-url', excerpt: 'Original metadata', content: 'Original 日本語 🧪', tags: ['Research'], icon: 'code', image: '/images/legacy.png', imageAlt: 'Original image', revision: 7, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-02T00:00:00.000Z' };
+  await writeFile(join(directory, 'blog.json'), JSON.stringify({ posts: [legacy], comments: [] }));
+  const app = await start(directory);
+  t.after(async () => { await app.close(); await rm(directory, { recursive: true, force: true }); });
+  const histories = await Promise.all(Array.from({ length: 6 }, () => app.request('history?id=legacy')));
+  const original = histories[0].data[0];
+  assert.ok(histories.every(result => result.data[0].id === original.id), 'concurrent first reads give the same durable ID');
+  assert.equal(JSON.parse(await readFile(join(directory, 'blog.json'), 'utf8')).histories.legacy[0].id, original.id);
+  let post = (await app.request('save', { ...legacy, tags: 'AI', title: 'Changed', slug: 'changed-url', content: 'Changed', icon: 'terminal', image: '', imageAlt: '' })).data;
+  assert.ok(post.id);
+  const other = (await app.request('save', { title: 'Other', slug: legacy.slug, content: 'Unrelated', excerpt: '', tags: '' })).data;
+  assert.equal((await app.request('restore-history', { id: post.id, revision: post.revision, versionId: original.id })).status, 409);
+  assert.equal((await app.request('restore-history', { id: other.id, revision: other.revision, versionId: original.id })).status, 404, 'cannot restore a version belonging to another draft');
+  await app.request('delete', { id: other.id, revision: other.revision });
+  const attempts = await Promise.all(Array.from({ length: 4 }, () => app.request('restore-history', { id: post.id, revision: post.revision, versionId: original.id })));
+  assert.equal(attempts.filter(result => result.status === 200).length, 1);
+  assert.equal(attempts.filter(result => result.status === 409).length, 3);
+  post = attempts.find(result => result.status === 200).data;
+  for (const key of ['title', 'slug', 'excerpt', 'content', 'tags', 'icon', 'image', 'imageAlt']) assert.deepEqual(post[key], legacy[key], `restores ${key}`);
+  const archived = (await app.request('archive-history', { id: post.id, revision: post.revision })).data;
+  await app.request('delete-archived-history', { id: post.id, revision: post.revision });
+  assert.equal((await app.request('restore-history', { id: post.id, revision: post.revision, versionId: archived[0].id })).status, 404);
+  assert.deepEqual((await app.request('drafts')).data.find(draft => draft.id === post.id), post, 'deleting all archived history keeps the current draft exact');
+});
 
 test('local blog: durable lifecycle, draft isolation, conflicts, validation and request boundaries', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'jd-blog-test-'));

@@ -76,6 +76,9 @@ const text = (value, max, label, required = false) => {
   return value.trim();
 };
 const slugify = value => value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+const versionFields = ['title', 'slug', 'excerpt', 'content', 'tags', 'icon', 'image', 'imageAlt'];
+const snapshot = post => ({ ...Object.fromEntries(versionFields.map(key => [key, post[key]])), id: randomUUID(), revision: post.revision, savedAt: post.updatedAt });
+const sameVersion = (a, b) => versionFields.every(key => JSON.stringify(a[key]) === JSON.stringify(b[key]));
 
 export function blogDevPlugin(options = {}) {
   const filename = resolve(options.directory ?? '.local', 'blog.json');
@@ -156,6 +159,22 @@ export function blogDevPlugin(options = {}) {
           if (req.headers.origin && req.headers.origin !== `http://${host}`) throw fail(403, 'Cross-origin requests are not allowed.');
           const url = new URL(req.url, `http://${host}`);
           if (req.method === 'GET') {
+            if (url.pathname === '/history') {
+              const task = queue.then(async () => {
+                const data = await load();
+                const post = data.posts.find(p => p.id === url.searchParams.get('id'));
+                if (!post) throw fail(404, 'Draft not found.');
+                // Give pre-history drafts a durable ID before a restore can select it.
+                data.histories ??= {};
+                if (!data.histories[post.id]) {
+                  data.histories[post.id] = [snapshot(post)];
+                  await save(data);
+                }
+                return data.histories[post.id];
+              });
+              queue = task.catch(() => {});
+              return respond(200, await task);
+            }
             await queue;
             const data = await load();
             if (url.pathname === '/posts') return respond(200, data.posts.filter(p => p.published).map(p => ({ id: p.id, example: p.example, ...p.published, comments: data.comments.filter(c => c.postId === p.id).length })));
@@ -208,9 +227,34 @@ export function blogDevPlugin(options = {}) {
               try { picture = postImage(body.image ?? existing?.image, body.imageAlt ?? existing?.imageAlt); } catch (error) { throw fail(400, error.message); }
               const now = new Date().toISOString();
               const post = { ...existing, id: existing?.id ?? randomUUID(), title, slug, excerpt: text(body.excerpt, 400, 'Description'), content: text(body.content, 500_000, 'Content'), tags: [...new Set(tags)], icon, ...picture, createdAt: existing?.createdAt ?? now, updatedAt: now, revision: (existing?.revision ?? 0) + 1 };
+              data.histories ??= {};
+              const history = data.histories[post.id] ??= existing ? [snapshot(existing)] : [];
+              if (!history.length || !sameVersion(history.at(-1), post)) history.push(snapshot(post));
               if (existing) data.posts[data.posts.indexOf(existing)] = post;
               else data.posts.push(post);
               result = post;
+            } else if (url.pathname === '/restore-history') {
+              const post = data.posts.find(p => p.id === body.id);
+              if (!post) throw fail(404, 'Draft not found.');
+              if (body.revision !== post.revision) throw fail(409, 'This draft changed in another tab. Reload the editor and reopen history before restoring.');
+              const entry = data.histories?.[post.id]?.find(version => version.id === body.versionId);
+              if (!entry) throw fail(404, 'This saved version no longer exists. Reopen history.');
+              if (data.posts.some(p => p.id !== post.id && (p.slug === entry.slug || p.published?.slug === entry.slug))) throw fail(409, 'This version uses a URL now taken by another post. Change the other post URL before restoring.');
+              if (!sameVersion(data.histories[post.id].at(-1), post)) data.histories[post.id].push(snapshot(post));
+              Object.assign(post, Object.fromEntries(versionFields.map(key => [key, entry[key]])), { revision: post.revision + 1, updatedAt: new Date().toISOString() });
+              data.histories[post.id].push(snapshot(post));
+              result = post;
+            } else if (['/archive-history', '/delete-archived-history'].includes(url.pathname)) {
+              const post = data.posts.find(p => p.id === body.id);
+              if (!post) throw fail(404, 'Draft not found.');
+              if (body.revision !== post.revision) throw fail(409, 'This draft changed in another tab. Reload before managing history.');
+              data.histories ??= {};
+              const history = data.histories[post.id] ??= [snapshot(post)];
+              if (url.pathname === '/archive-history') {
+                const now = new Date().toISOString();
+                for (const entry of history) entry.archivedAt ??= now;
+              } else data.histories[post.id] = history.filter(entry => !entry.archivedAt);
+              result = data.histories[post.id];
             } else if (['/publish', '/unpublish', '/delete'].includes(url.pathname)) {
               const post = data.posts.find(p => p.id === body.id);
               if (!post) throw fail(404, 'Post not found.');
@@ -218,6 +262,7 @@ export function blogDevPlugin(options = {}) {
               if (url.pathname === '/delete') {
                 await removePublishedPost(post.id, publishedPath);
                 data.posts = data.posts.filter(p => p.id !== post.id);
+                if (data.histories) delete data.histories[post.id];
                 data.comments = data.comments.filter(c => c.postId !== post.id);
                 result = { deleted: true };
               } else {
