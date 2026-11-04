@@ -2,6 +2,7 @@ import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js/lib/common';
 import { mountDemos } from './blog-demos';
+import { preserveArticleSpacing } from '../lib/blog-markdown-spacing';
 
 type Published = { title: string; slug: string; excerpt: string; content: string; tags: string[]; publishedAt: string; icon?: string; image?: string; imageAlt?: string };
 type Post = Published & { id: string; example?: boolean; comments?: number };
@@ -40,7 +41,8 @@ const markdown = new Marked({ gfm: true, breaks: false, renderer: { code({ text,
   return `<pre><code${language ? ` class="language-${escape(language)}"` : ''}>${code}</code></pre>`;
 } } });
 export function renderMarkdown(content: string, { media = true }: { media?: boolean } = {}) {
-  return DOMPurify.sanitize(markdown.parse(content, { async: false }) as string, {
+  const html = media ? markdown.parser(preserveArticleSpacing(markdown.lexer(content))) : markdown.parse(content, { async: false });
+  return DOMPurify.sanitize(html as string, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'iframe', ...(!media ? ['img', 'picture', 'source', 'audio', 'video', 'track', 'object', 'embed', 'link', 'meta', 'base'] : [])],
     FORBID_ATTR: ['style', 'id', 'name', ...(!media ? ['src', 'srcset', 'poster', 'background', 'ping'] : [])],
