@@ -10,6 +10,21 @@ const { hosted = false } = Astro.props;
     <div class="editor-actions"><span id="save-state" role="status">Ready to write</span><button id="save-draft" class="button button-quiet" title="Save draft · Cmd/Ctrl+S" aria-keyshortcuts="Meta+S Control+S">Save draft</button><button id="open-preview" class="button button-quiet" aria-pressed="false" aria-controls="editor-preview" title="Toggle preview · Cmd/Ctrl+Shift+P" aria-keyshortcuts="Meta+Shift+P Control+Shift+P">Preview</button><button id="assistant-toggle" type="button" class="button button-quiet" aria-expanded="false" aria-controls="blog-assistant">Assistant</button><button id="publish-post" class="button button-primary" hidden={hosted}>Prepare for GitHub</button></div>
   </div>
   <div id="editor-error" class="notice error editor-error" role="alert" tabindex="-1" hidden></div>
+  <div class="version-history-control" hidden={hosted}><button id="open-history" type="button" class="text-button" aria-expanded="false" aria-controls="version-history">Version history</button></div>
+  <section id="version-history" class="version-history" aria-labelledby="history-heading" hidden>
+    <div class="history-heading"><div><h2 id="history-heading">Version history</h2><p id="history-comparison">Select a version to review.</p></div><button id="close-history" type="button" class="button button-quiet">Back to editor</button></div>
+    <div class="history-layout">
+      <div class="history-document"><div class="history-document-bar"><span id="history-selected-date"></span><div class="history-legend"><span class="history-added">Added</span><span class="history-removed">Removed</span></div></div><article id="history-preview" aria-label="Selected version document"></article></div>
+      <aside class="history-sidebar" aria-label="Saved versions">
+        <div class="history-sidebar-heading"><h3>Saved versions</h3><label class="history-toggle"><input id="history-show-changes" type="checkbox" checked /> Show changes</label></div>
+        <p id="history-status" role="status"></p>
+        <div id="history-selection" class="history-version-list" role="listbox" aria-label="Saved versions"></div>
+        <button id="restore-history" class="button button-primary" type="button">Restore this version</button>
+        <p class="history-restore-note">Restoring keeps your current draft as another version. Saved on this computer.</p>
+        <details class="history-management"><summary>Manage history</summary><p>After publishing, archive your versions. Archived versions stay available until you delete them.</p><button id="archive-history" class="text-button" type="button">Archive history</button><button id="delete-archived-history" class="text-button danger" type="button">Delete archived versions…</button></details>
+      </aside>
+    </div>
+  </section>
   <section id="editor-conflict" class="notice editor-error" aria-label="Review draft versions" tabindex="-1" hidden>
     <p id="editor-conflict-message">Another tab saved edits to this draft. Both versions are kept here. Choose which version to continue editing.</p>
     <div class="find-actions"><button id="conflict-mine" class="button button-quiet" type="button">Use my text</button><button id="conflict-saved" class="button button-quiet" type="button">Use saved text</button><button id="conflict-download" class="text-button" type="button">Download my copy</button></div>

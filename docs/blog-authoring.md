@@ -69,3 +69,13 @@ Keep scripts in the HTML demo file. Raw scripts and iframes in article Markdown 
 - Build with `npm run build`; this validates that prepared posts' demo files exist in the exported site. Use localhost to check actual controls, narrow screens, keyboard access, and reduced motion.
 
 The starter demo has a learning-rate slider, Step, Play/Pause, and Reset. It starts paused, stops when offscreen or the tab is hidden, and uses manual steps when reduced motion is requested.
+
+## Local version history
+
+In the localhost editor, choose **Version history** to browse timestamped versions and preview their text and metadata. Each changed autosave or manual save records a full snapshot in the gitignored `.local/blog.json`, alongside the draft. Identical saves do not add duplicates. Existing drafts begin their history with their current text; versions from before this feature cannot be recovered.
+
+History opens a full document on the left and a version list on the right. Select a version to see additions and strikethrough removals relative to the preceding saved version; **Show changes** toggles a clean reading view. On narrow screens, the version controls sit above the document. Use the arrow keys to move through versions, and Escape or **Back to editor** to return to writing.
+
+**Restore this version** saves any pending edits first, then restores the selected text and metadata in one revision-checked operation. The text it replaces remains in history. If another tab saved meanwhile, restoration stops and asks you to reload and reopen history. A version whose URL is now used by another post is also blocked until the URL collision is resolved.
+
+Preparing a GitHub file does not mean a post is live, so it does not clear or archive history. After publishing, use **Archive history** to mark the saved versions as archived. They remain viewable and restorable. New edits create active versions again. **Delete archived versions…** asks for confirmation and permanently removes only archived snapshots, keeping the current draft and active versions. Deleting a post also deletes its history. History is local to this checkout and is not uploaded or available in the hosted editor.

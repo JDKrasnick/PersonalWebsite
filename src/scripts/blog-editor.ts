@@ -7,6 +7,7 @@ import { EditorState } from '@tiptap/pm/state';
 import { postImage } from '../lib/blog-images';
 import { demoFence, exampleDemo } from '../lib/blog-demos';
 import { draftValues, mergeDraftEdits, sameDraftValues } from '../lib/blog-draft-merge';
+import { initVersionHistory } from './blog-version-history';
 
 export async function initEditor() {
   const hosted = document.querySelector<HTMLElement>('[data-blog-editor]')?.dataset.hosted === 'true';
@@ -85,6 +86,8 @@ export async function initEditor() {
     $<HTMLButtonElement>('delete-post').disabled = !current;
   };
   const load = (draft?: Draft) => {
+    $('version-history').hidden = true;
+    $('open-history').setAttribute('aria-expanded', 'false');
     closePreview();
     clearTimeout(timer); current = draft; version = 0; savedVersion = 0; slugEdited = Boolean(draft);
     fields.title.value = draft?.title || ''; fields.excerpt.value = draft?.excerpt || ''; fields.slug.value = draft?.slug || ''; fields.tags.value = draft?.tags.join(', ') || ''; fields.content.value = draft?.content || '';
@@ -160,6 +163,14 @@ export async function initEditor() {
     refreshPreview(); clearTimeout(timer); timer = setTimeout(() => { void save().catch(() => {}); }, 1000);
     findPanel.refresh();
   };
+  if (!hosted) initVersionHistory({
+    opening: () => closePreview(),
+    save, locked: () => busy || Boolean(conflictCopy), setBusy: value => setBusy(value),
+    restored: post => {
+      drafts[drafts.findIndex(draft => draft.id === post.id)] = post;
+      load(post);
+    },
+  });
   $('conflict-download').addEventListener('click', () => {
     if (!conflictCopy) return;
     const copy = conflictCopy.mine;
@@ -442,6 +453,10 @@ export async function initEditor() {
   });
   window.addEventListener('beforeunload', event => { if (uploading || version !== savedVersion) event.preventDefault(); });
   window.addEventListener('keydown', event => {
+    if (!$('version-history').hidden) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') event.preventDefault();
+      return;
+    }
     // The assistant has its own composer and modal keyboard behavior.
     if ((event.target as HTMLElement).closest('#blog-assistant')) return;
     const mod = event.metaKey || event.ctrlKey, key = event.key.toLowerCase();
