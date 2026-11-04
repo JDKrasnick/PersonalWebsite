@@ -1,10 +1,11 @@
 ---
 import Post from './post.astro';
 import { readPublishedPosts } from '../../../scripts/blog-content.mjs';
+import { renderPublishedMarkdown } from '../../../scripts/blog-presentation.mjs';
 export const prerender = true;
 export async function getStaticPaths() {
-  return (await readPublishedPosts()).map(post => ({ params: { slug: post.slug }, props: { post } }));
+  return (await readPublishedPosts()).map(post => ({ params: { slug: post.slug }, props: { post, contentHtml: renderPublishedMarkdown(post.content) } }));
 }
-const { post } = Astro.props;
+const { post, contentHtml } = Astro.props;
 ---
-<Post post={post} />
+<Post post={post} contentHtml={contentHtml} />

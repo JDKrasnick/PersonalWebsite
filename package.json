@@ -5,7 +5,7 @@
   "engines": { "node": "24.x" },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/check-blog-build.mjs && node scripts/check-blog-server.mjs",
+    "build": "astro build && node scripts/check-blog-build.mjs && node --no-experimental-require-module scripts/check-blog-server.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "test": "node --test scripts/*.test.mjs",

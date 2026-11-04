@@ -2,10 +2,9 @@
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import BlogArrow from '../../components/BlogArrow.astro';
 import { readPublishedPosts } from '../../../scripts/blog-content.mjs';
-import { renderPublishedMarkdown } from '../../../scripts/blog-presentation.mjs';
 export const prerender = false;
-interface Props { draftPreview?: boolean; post?: Awaited<ReturnType<typeof readPublishedPosts>>[number]; }
-const { draftPreview = false, post } = Astro.props;
+interface Props { draftPreview?: boolean; post?: Awaited<ReturnType<typeof readPublishedPosts>>[number]; contentHtml?: string; }
+const { draftPreview = false, post, contentHtml = '' } = Astro.props;
 if (!post && !draftPreview && !import.meta.env.DEV) {
   const slug = Astro.url.searchParams.get('slug');
   const published = slug && (await readPublishedPosts()).find(item => item.slug === slug);
@@ -21,7 +20,7 @@ const structuredData = post ? JSON.stringify({ '@context': 'https://schema.org',
     <article id="article" data-post-id={post?.id} data-post-slug={post?.slug}>{post ? <>
       <header class="article-header"><h1>{post.title}</h1>{post.excerpt && <p class="article-description">{post.excerpt}</p>}<div class="post-meta"><time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>{post.example && <span class="example-badge">Example article</span>}</div></header>
       {post.image && <figure class="article-picture"><img src={post.image} alt={post.imageAlt || ''} width="1200" height="675" fetchpriority="high" /></figure>}
-      <div class="prose" set:html={renderPublishedMarkdown(post.content)} />
+      <div class="prose" set:html={contentHtml} />
       <div class="article-end"><a href="/blog"><BlogArrow direction="left" /> All writing</a></div>
     </> : <p class="loading-line">Loading article…</p>}</article>
     <section id="discussion" class="discussion" aria-labelledby="discussion-title" hidden>
