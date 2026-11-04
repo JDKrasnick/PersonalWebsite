@@ -13,7 +13,10 @@ export function privateBlogStore({ token, prefix = 'blog-private/v1', blob = def
     return `${prefix}/drafts/${id}.json`;
   };
   const read = async path => {
-    const result = await blob.get(path, { ...options, useCache: false });
+    // Compression weakens the response ETag (W/...), which cannot satisfy
+    // If-Match. Read the original representation so conditional writes retain
+    // their strong version guard, including for larger drafts/login records.
+    const result = await blob.get(path, { ...options, useCache: false, headers: { 'Accept-Encoding': 'identity' } });
     if (!result) return null;
     if (result.statusCode !== 200 || !result.stream) throw new Error('Private storage could not be read.');
     return { value: await new Response(result.stream).json(), etag: result.blob.etag };
