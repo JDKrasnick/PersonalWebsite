@@ -154,7 +154,7 @@ html:has(.blog-shell)::-webkit-scrollbar-thumb:active, .blog-shell::-webkit-scro
 .post-picker select { max-width: 270px; min-width: 140px; padding: 10px 32px 10px 12px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 7px; font-size: 13px; text-overflow: ellipsis; }
 .editor-actions #save-state { color: var(--quiet); font-size: 12px; margin-right: 8px; }
 .editor-bar .button { font-size: 12px; }
-.editor-error { max-width: 1064px; margin: 24px auto 0; }
+.editor-error { width: calc(100% - 48px); max-width: 1064px; margin: 24px auto 0; scroll-margin-top: calc(var(--blog-editor-bar-height, 100px) + 24px); }
 .editor-preview { scroll-margin-top: calc(var(--blog-editor-bar-height, 100px) + 24px); min-height: 65vh; }
 #open-preview[aria-pressed=true] { color: #becaff; background: #1d2847; border-color: var(--accent); }
 .editor-preview-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 40px; color: var(--subtle); font-size: 14px; }

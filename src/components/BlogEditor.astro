@@ -9,7 +9,11 @@ const { hosted = false } = Astro.props;
     <div class="post-picker"><label class="sr-only" for="post-selector">Choose a post</label><select id="post-selector" aria-label="Choose a post"><option>Loading posts…</option></select><button id="new-post" class="button button-quiet">New post</button></div>
     <div class="editor-actions"><span id="save-state" role="status">Ready to write</span><button id="save-draft" class="button button-quiet" title="Save draft · Cmd/Ctrl+S" aria-keyshortcuts="Meta+S Control+S">Save draft</button><button id="open-preview" class="button button-quiet" aria-pressed="false" aria-controls="editor-preview" title="Toggle preview · Cmd/Ctrl+Shift+P" aria-keyshortcuts="Meta+Shift+P Control+Shift+P">Preview</button><button id="assistant-toggle" type="button" class="button button-quiet" aria-expanded="false" aria-controls="blog-assistant">Assistant</button><button id="publish-post" class="button button-primary" hidden={hosted}>Prepare for GitHub</button></div>
   </div>
-  <div id="editor-error" class="notice error editor-error" role="alert" hidden></div>
+  <div id="editor-error" class="notice error editor-error" role="alert" tabindex="-1" hidden></div>
+  <section id="editor-conflict" class="notice editor-error" aria-label="Review draft versions" tabindex="-1" hidden>
+    <p id="editor-conflict-message">Another tab saved edits to this draft. Both versions are kept here. Choose which version to continue editing.</p>
+    <div class="find-actions"><button id="conflict-mine" class="button button-quiet" type="button">Use my text</button><button id="conflict-saved" class="button button-quiet" type="button">Use saved text</button><button id="conflict-download" class="text-button" type="button">Download my copy</button></div>
+  </section>
   {hosted && <a id="editor-sign-in" class="text-button" href="/blog/login" hidden>Sign in again</a>}
   <div id="editor-workspace" class="editor-workspace">
   <div class="editor-document">
