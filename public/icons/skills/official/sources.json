@@ -1,0 +1,195 @@
+{
+  "retrieved": "2026-11-01",
+  "display": "Standard published icon geometry, one purple tint, fixed 20px slots. JAX/Airflow retain tonal face shading. NVIDIA has a CSS -1px optical vertical adjustment.",
+  "assets": [
+    {
+      "name": "python",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/python.svg",
+      "source_file": "public/icons/skills/official/source/python.svg",
+      "source_sha256": "ad9468e1c4903f73ae7eebfbe980f0f727a10db695be3d914e7d8bd25356a862",
+      "display_file": "public/icons/skills/official/native/python.svg",
+      "display_sha256": "ad9468e1c4903f73ae7eebfbe980f0f727a10db695be3d914e7d8bd25356a862",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "typescript",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/typescript.svg",
+      "source_file": "public/icons/skills/official/source/typescript.svg",
+      "source_sha256": "7f023e8d1e767370306ec9437d2de5d5af97491d6208dd7799a3808a7c10a36a",
+      "display_file": "public/icons/skills/official/native/typescript.svg",
+      "display_sha256": "7f023e8d1e767370306ec9437d2de5d5af97491d6208dd7799a3808a7c10a36a",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "cpp",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cplusplus.svg",
+      "source_file": "public/icons/skills/official/source/cpp.svg",
+      "source_sha256": "adf33f5026f3f70d54f1068cb5d1a790c37b2105cbe728edd170251759d13f18",
+      "display_file": "public/icons/skills/official/native/cpp.svg",
+      "display_sha256": "adf33f5026f3f70d54f1068cb5d1a790c37b2105cbe728edd170251759d13f18",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "mongodb",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mongodb.svg",
+      "source_file": "public/icons/skills/official/source/mongodb.svg",
+      "source_sha256": "6698757ee85997e8167b2eacaff8395d6987954185488f2e90b88ef387fec6c7",
+      "display_file": "public/icons/skills/official/native/mongodb.svg",
+      "display_sha256": "6698757ee85997e8167b2eacaff8395d6987954185488f2e90b88ef387fec6c7",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "cloudflare",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cloudflare.svg",
+      "source_file": "public/icons/skills/official/source/cloudflare.svg",
+      "source_sha256": "408096d99907fd99e0863cb5d73f77a72537c6a85fd8d5e2704178a83a891f08",
+      "display_file": "public/icons/skills/official/native/cloudflare.svg",
+      "display_sha256": "408096d99907fd99e0863cb5d73f77a72537c6a85fd8d5e2704178a83a891f08",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "aws",
+      "source_url": "https://raw.githubusercontent.com/devicons/devicon/master/icons/amazonwebservices/amazonwebservices-plain.svg",
+      "source_file": "public/icons/skills/official/source/aws.svg",
+      "source_sha256": "8a86a10b7061f4b39fbd14627e18a2e0663a8b86e147e22df91c827a0c003cc0",
+      "display_file": "public/icons/skills/official/native/aws.svg",
+      "display_sha256": "8a86a10b7061f4b39fbd14627e18a2e0663a8b86e147e22df91c827a0c003cc0",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "docker",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/docker.svg",
+      "source_file": "public/icons/skills/official/source/docker.svg",
+      "source_sha256": "65571291c261ef869c31540a38f3ca0f0ee3bb73f179c172211c8860f19a6359",
+      "display_file": "public/icons/skills/official/native/docker.svg",
+      "display_sha256": "65571291c261ef869c31540a38f3ca0f0ee3bb73f179c172211c8860f19a6359",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "snowflake",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/snowflake.svg",
+      "source_file": "public/icons/skills/official/source/snowflake.svg",
+      "source_sha256": "75690c4c666a406278286284f89896e8ef55dd0bfbc791acb910ce40e4a46aa9",
+      "display_file": "public/icons/skills/official/native/snowflake.svg",
+      "display_sha256": "75690c4c666a406278286284f89896e8ef55dd0bfbc791acb910ce40e4a46aa9",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "java",
+      "source_url": "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-plain.svg",
+      "source_file": "public/icons/skills/official/source/java.svg",
+      "source_sha256": "7b05ebcc538e747d077ed3c3a2491122923d3ec755cccacb670be9372e4bbbc5",
+      "display_file": "public/icons/skills/official/native/java.svg",
+      "display_sha256": "7b05ebcc538e747d077ed3c3a2491122923d3ec755cccacb670be9372e4bbbc5",
+      "normalization": "Published Java cup silhouette, with its original paths and view box. Purple CSS tint only."
+    },
+    {
+      "name": "redis",
+      "source_url": "https://raw.githubusercontent.com/devicons/devicon/master/icons/redis/redis-plain.svg",
+      "source_file": "public/icons/skills/official/source/redis.svg",
+      "source_sha256": "f7e4163363c6019d1ed6a52537454566c69993082bf671004c5fbfe2360a787b",
+      "display_file": "public/icons/skills/official/native/redis.svg",
+      "display_sha256": "f7e4163363c6019d1ed6a52537454566c69993082bf671004c5fbfe2360a787b",
+      "normalization": "Published classic Redis stack. Native filled paths and view box retained; purple CSS tint only."
+    },
+    {
+      "name": "airflow",
+      "source_url": "https://raw.githubusercontent.com/devicons/devicon/master/icons/apacheairflow/apacheairflow-original.svg",
+      "source_file": "public/icons/skills/official/source/airflow.svg",
+      "source_sha256": "0c83b226d54e77eda3336a4a7138a8ba61d82b5a8fee2bc026c135a239ec1814",
+      "display_file": "public/icons/skills/official/native/airflow.svg",
+      "display_sha256": "bccafa052f140157c1ecfa4690c7ba1c52e234220f0dc4d166974b0b3f76ed72",
+      "normalization": "Native filled pinwheel paths and view box retained. Original blade brightness is represented as alpha through the shared purple tint; no geometry changes."
+    },
+    {
+      "name": "pytorch",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/pytorch.svg",
+      "source_file": "public/icons/skills/official/source/pytorch.svg",
+      "source_sha256": "4dd3f3d3e4102f3bee391fcb3d8ac960a14c48e6655d43b23f7b386d5da36d01",
+      "display_file": "public/icons/skills/official/native/pytorch.svg",
+      "display_sha256": "4dd3f3d3e4102f3bee391fcb3d8ac960a14c48e6655d43b23f7b386d5da36d01",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "jax",
+      "source_url": "https://raw.githubusercontent.com/jax-ml/jax/main/images/jax_logo.svg",
+      "source_file": "public/icons/skills/official/source/jax.svg",
+      "source_sha256": "e54db5895ff7d50cef211ce9bee882eb9b081dd2278facacceabb33a51b41620",
+      "display_file": "public/icons/skills/official/native/jax.svg",
+      "display_sha256": "6265412f807ee1cf129b020beaddcda464778cf8054bffab9f1f5c96901cccc9",
+      "normalization": "Official complete JAX face geometry retained without unions, outlines or simplification. Face brightness is mapped to white alpha (0.48\u20131.0), preserving its 3D shading through the shared purple CSS tint."
+    },
+    {
+      "name": "scikit-learn",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/scikitlearn.svg",
+      "source_file": "public/icons/skills/official/source/scikit-learn.svg",
+      "source_sha256": "ebaf97475ff5e6af3d6a4799a164a3a385e902e442d012cc19c47237cecb2be8",
+      "display_file": "public/icons/skills/official/native/scikit-learn.svg",
+      "display_sha256": "ebaf97475ff5e6af3d6a4799a164a3a385e902e442d012cc19c47237cecb2be8",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "fastapi",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/fastapi.svg",
+      "source_file": "public/icons/skills/official/source/fastapi.svg",
+      "source_sha256": "af0bdd5fd3f16a49e341089049418af7b02a04eefdc088b2e26c4524fa8b75d1",
+      "display_file": "public/icons/skills/official/native/fastapi.svg",
+      "display_sha256": "af0bdd5fd3f16a49e341089049418af7b02a04eefdc088b2e26c4524fa8b75d1",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "fastify",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/fastify.svg",
+      "source_file": "public/icons/skills/official/source/fastify.svg",
+      "source_sha256": "6b057b30d8fc29fe8036e4ccee6e0fb786b7ead3b7df170724086d7ae7e4a133",
+      "display_file": "public/icons/skills/official/native/fastify.svg",
+      "display_sha256": "6b057b30d8fc29fe8036e4ccee6e0fb786b7ead3b7df170724086d7ae7e4a133",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "postgresql",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/postgresql.svg",
+      "source_file": "public/icons/skills/official/source/postgresql.svg",
+      "source_sha256": "c8ccadbd88c9312c2ad3734c4861b31d3485ce179ee91d64793143f83cfa745c",
+      "display_file": "public/icons/skills/official/native/postgresql.svg",
+      "display_sha256": "c8ccadbd88c9312c2ad3734c4861b31d3485ce179ee91d64793143f83cfa745c",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "cuda",
+      "source_url": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nvidia.svg",
+      "source_file": "public/icons/skills/official/source/cuda.svg",
+      "source_sha256": "b0e4cfc12712c840d4d630c9a717200fbd09aeeadbd3faeac13bda2e2ed050b0",
+      "display_file": "public/icons/skills/official/native/cuda.svg",
+      "display_sha256": "b0e4cfc12712c840d4d630c9a717200fbd09aeeadbd3faeac13bda2e2ed050b0",
+      "normalization": "Standard published filled icon. Native paths and view box unchanged; the portfolio applies only its purple CSS tint."
+    },
+    {
+      "name": "sql",
+      "source_url": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/database.svg",
+      "source_file": "public/icons/skills/official/source/sql.svg",
+      "source_sha256": "471eb14bc8d144896a82dfc4aa9daf350f769f0896f4bef33e50aabdbb51130d",
+      "display_file": "public/icons/skills/official/native/sql.svg",
+      "display_sha256": "471eb14bc8d144896a82dfc4aa9daf350f769f0896f4bef33e50aabdbb51130d",
+      "normalization": "Unmodified published Lucide concept icon, using the shared purple tint."
+    },
+    {
+      "name": "agents-evals",
+      "source_url": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/bot.svg",
+      "source_file": "public/icons/skills/official/source/agents-evals.svg",
+      "source_sha256": "e46fe72fc5b33d7a17b0112df85da9ded851860312e8353f4fe23d87a4ce77f5",
+      "display_file": "public/icons/skills/official/native/agents-evals.svg",
+      "display_sha256": "e46fe72fc5b33d7a17b0112df85da9ded851860312e8353f4fe23d87a4ce77f5",
+      "normalization": "Unmodified published Lucide concept icon, using the shared purple tint."
+    },
+    {
+      "name": "rl",
+      "source_url": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/repeat-2.svg",
+      "source_file": "public/icons/skills/official/source/rl.svg",
+      "source_sha256": "788912bbfdeab0401a36e29cde95ef594b59957a13d3e08a392d10f59c49e7da",
+      "display_file": "public/icons/skills/official/native/rl.svg",
+      "display_sha256": "788912bbfdeab0401a36e29cde95ef594b59957a13d3e08a392d10f59c49e7da",
+      "normalization": "Unmodified published Lucide concept icon, using the shared purple tint."
+    }
+  ]
+}

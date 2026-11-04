@@ -1,0 +1,8 @@
+---
+import Post from './post.astro';
+import { editorAuthorized, editorConfig, privateHeaders, privateRedirect } from '../../../scripts/blog-auth.mjs';
+export const prerender = false;
+for (const [key, value] of Object.entries(privateHeaders)) Astro.response.headers.set(key, value);
+if (!editorAuthorized(Astro.request, editorConfig())) return privateRedirect(`/blog/login?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`);
+---
+<Post draftPreview />

@@ -34,11 +34,11 @@ The **Preview** button toggles the saved article view on and off; returning rest
 
 The bridge uses the documented Codex app-server protocol and the locally installed CLI (verified with 0.164.0). Set `BLOG_CODEX_BIN` if Codex is not on the dev server's PATH; `BLOG_ASSISTANT_MODEL` optionally overrides the default `gpt-6.1-sol`. Restart the dev server after changing these. Source references: [app-server](https://learn.chatgpt.com/docs/app-server), [ChatGPT authentication](https://learn.chatgpt.com/docs/auth).
 
-Save and preview need `npm run dev` in this checkout. They are not available on the published static website. Failed saves preserve recovery text in the browser; restart the local server and retry Save draft. A stopped ChatGPT connection does not stop draft editing or saving.
+Save and Preview work in the password-protected hosted editor as well as localhost. Hosted drafts and pictures use private Blob storage; saving never publishes them. Failed saves preserve recovery text in the browser. The local subscription chat does not run on the hosted server: the hosted sidebar copies a writing or image-script request and opens ChatGPT in a separate window, with post context included only when explicitly checked. Localhost retains the embedded subscription chat.
 
 A clearly labeled example article is provided on first use. It can be edited, unpublished, or deleted from the editor.
 
-The author editor is injected only for `astro dev`, outside the public pages directory. The editor and draft API reject non-loopback clients and external origins. Neither route, authoring controls, nor editor JavaScript ships in the production build. Only prepared `content/blog/*.md` files enter `/blog/posts.json`. The public site cannot create or modify articles; GitHub repository write access controls publishing. Draft previews are local only.
+The hosted editor, preview, draft and image APIs require the existing owner session and use private, non-cacheable responses. Local authoring uses loopback-only file APIs. Only prepared `content/blog/*.md` files enter the public feed, and GitHub repository write access controls publishing. The production build checks both the static publication boundary and the compiled owner-authentication handlers.
 
 ### Anonymous comments
 

@@ -1,0 +1,12 @@
+---
+import Home from '../../index.astro';
+import { ditherArt } from '../../../lib/dither-art';
+
+export function getStaticPaths() {
+  return ditherArt.map(({ slug }) => ({ params: { image: slug }, props: { ditherImage: slug } }));
+}
+
+const { ditherImage } = Astro.props;
+---
+
+<Home aboutEffect="dither-veil" ditherImage={ditherImage} />

@@ -2,7 +2,8 @@ import { $, renderMarkdown, showError, toast } from './blog';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 export function initBlogAssistant(context: () => string, selection: () => string) {
-  const storageKey = 'jd-blog-assistant-chat';
+  const hosted = document.querySelector<HTMLElement>('[data-blog-editor]')?.dataset.hosted === 'true';
+  const storageKey = hosted ? 'jd-blog-chatgpt-handoff' : 'jd-blog-assistant-chat';
   let messages: Message[] = [];
   let jobId: string | undefined;
   let connected = false, working = false;
@@ -16,7 +17,7 @@ export function initBlogAssistant(context: () => string, selection: () => string
   const persist = () => { try { localStorage.setItem(storageKey, JSON.stringify({ messages, jobId })); } catch { /* Chat still works when browser storage is full. */ } };
   const render = () => {
     const log = $('assistant-messages'); log.replaceChildren();
-    if (!messages.length) { const p = document.createElement('p'); p.className = 'assistant-empty'; p.textContent = 'What would you like to work on?'; log.append(p); }
+    if (!messages.length) { const p = document.createElement('p'); p.className = 'assistant-empty'; p.textContent = hosted ? 'Write your request below, then open ChatGPT. Ask for an editable image script that saves a PNG, and drop the result into your post.' : 'What would you like to work on?'; log.append(p); }
     for (const message of messages) {
       const article = document.createElement('div'); article.className = `assistant-message ${message.role}`;
       const label = document.createElement('p'); label.className = 'assistant-message-author'; label.textContent = message.role === 'user' ? 'You' : 'ChatGPT';
@@ -48,6 +49,15 @@ export function initBlogAssistant(context: () => string, selection: () => string
     const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || 'Could not connect to ChatGPT.'), { status: response.status }); return data;
   }
   const reconnect = async () => {
+    if (hosted) {
+      connected = true;
+      $('assistant-connection').textContent = 'Opens in your ChatGPT window';
+      $('assistant-reconnect').hidden = true;
+      $('assistant-new-chat').hidden = true;
+      $('assistant-send').textContent = 'Copy & open ChatGPT';
+      document.querySelector<HTMLElement>('.assistant-help')!.textContent = 'Use your ChatGPT subscription for writing and editable image scripts. Your request opens in a separate window.';
+      setWorking(false); return;
+    }
     $('assistant-connection').textContent = 'Checking connection…';
     $<HTMLButtonElement>('assistant-reconnect').disabled = true;
     try {
@@ -126,6 +136,7 @@ export function initBlogAssistant(context: () => string, selection: () => string
   $('assistant-use-selection').addEventListener('click', () => { const text = selection(); if (!text.trim()) { toast('Select a passage in your post first.'); return; } prompt.value = `${prompt.value}${prompt.value ? '\n\n' : ''}Passage:\n${text}`.slice(0, 12_000); prompt.focus(); });
   $('assistant-form').addEventListener('submit', async event => {
     event.preventDefault(); if (working || !connected || !prompt.value.trim()) return;
+    if (hosted) { openChatGPT($<HTMLInputElement>('assistant-attach-post').checked ? `${prompt.value.trim()}\n\nArticle context:\n${context()}` : prompt.value.trim()); return; }
     const outgoing: Message = { role: 'user', content: prompt.value.trim() };
     $('assistant-error').hidden = true; setWorking(true);
     try {
@@ -153,17 +164,18 @@ export function initBlogAssistant(context: () => string, selection: () => string
       else {
         const target = source ?? Array.from(document.querySelectorAll<HTMLElement>('.assistant-message.assistant .assistant-message-body')).at(-1);
         if (target) { const range = document.createRange(); range.selectNodeContents(target); const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range); target.scrollIntoView({ block: 'nearest' }); }
+        else { const fallback = $<HTMLTextAreaElement>('assistant-manual-copy'); fallback.value = text; fallback.hidden = false; fallback.focus(); fallback.select(); }
       }
       toast('Clipboard unavailable. Press Cmd/Ctrl+C to copy the selected text.');
     }
   }
-  $('assistant-image-chat').addEventListener('click', () => {
-    const text = prompt.value.trim() || messages.filter(message => message.role === 'assistant').at(-1)?.content || '';
+  function openChatGPT(text: string) {
     const tab = window.open('https://chatgpt.com/', 'jd-blog-image-chat', 'popup,width=720,height=900');
     if (tab) tab.opener = null;
     if (text) void copyText(text);
     else toast('Describe the image in your ChatGPT window, then drop it into your post.');
     if (!tab) { $('assistant-error').hidden = false; $('assistant-error').textContent = 'Allow popups for this site to open the image chat, or open chatgpt.com in another window.'; }
-  });
+  }
+  $('assistant-image-chat').addEventListener('click', () => openChatGPT(prompt.value.trim() || messages.filter(message => message.role === 'assistant').at(-1)?.content || ''));
   render(); setWorking(false);
 }

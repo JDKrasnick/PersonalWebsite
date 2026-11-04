@@ -1,13 +1,16 @@
 ---
 import BlogLayout from '../layouts/BlogLayout.astro';
-import BlogArrow from '../components/BlogArrow.astro';
+import BlogArrow from './BlogArrow.astro';
+interface Props { hosted?: boolean; }
+const { hosted = false } = Astro.props;
 ---
 <BlogLayout title="Editor" editor>
-  <div class="editor-bar">
+  <div class="editor-bar" data-blog-editor data-hosted={hosted ? 'true' : 'false'}>
     <div class="post-picker"><label class="sr-only" for="post-selector">Choose a post</label><select id="post-selector" aria-label="Choose a post"><option>Loading posts…</option></select><button id="new-post" class="button button-quiet">New post</button></div>
-    <div class="editor-actions"><span id="save-state" role="status">Ready to write</span><button id="save-draft" class="button button-quiet" title="Save draft · Cmd/Ctrl+S" aria-keyshortcuts="Meta+S Control+S">Save draft</button><button id="open-preview" class="button button-quiet" aria-pressed="false" aria-controls="editor-preview" title="Toggle preview · Cmd/Ctrl+Shift+P" aria-keyshortcuts="Meta+Shift+P Control+Shift+P">Preview</button><button id="assistant-toggle" type="button" class="button button-quiet" aria-expanded="false" aria-controls="blog-assistant">Assistant</button><button id="publish-post" class="button button-primary">Prepare for GitHub</button></div>
+    <div class="editor-actions"><span id="save-state" role="status">Ready to write</span><button id="save-draft" class="button button-quiet" title="Save draft · Cmd/Ctrl+S" aria-keyshortcuts="Meta+S Control+S">Save draft</button><button id="open-preview" class="button button-quiet" aria-pressed="false" aria-controls="editor-preview" title="Toggle preview · Cmd/Ctrl+Shift+P" aria-keyshortcuts="Meta+Shift+P Control+Shift+P">Preview</button><button id="assistant-toggle" type="button" class="button button-quiet" aria-expanded="false" aria-controls="blog-assistant">Assistant</button><button id="publish-post" class="button button-primary" hidden={hosted}>Prepare for GitHub</button></div>
   </div>
   <div id="editor-error" class="notice error editor-error" role="alert" hidden></div>
+  {hosted && <a id="editor-sign-in" class="text-button" href="/blog/login" hidden>Sign in again</a>}
   <div id="editor-workspace" class="editor-workspace">
   <div class="editor-document">
   <article class="article-editor" aria-label="Editable blog post">
@@ -16,7 +19,7 @@ import BlogArrow from '../components/BlogArrow.astro';
       <label class="sr-only" for="post-title">Post title</label><textarea id="post-title" class="article-edit-title" rows="1" placeholder="Untitled post" maxlength="180"></textarea>
       <label class="sr-only" for="post-excerpt">Description</label><textarea id="post-excerpt" class="article-edit-description" rows="1" placeholder="Add a short description…" maxlength="400"></textarea>
       <div id="editor-picture" class="article-picture" hidden><div id="editor-picture-preview"></div><p id="editor-picture-error" class="picture-error" hidden>Picture could not load. Check the image URL below.</p></div>
-      <details id="picture-settings" class="picture-settings"><summary>Add picture</summary><div class="picture-fields"><button id="choose-cover" type="button" class="picture-dropzone" aria-describedby="picture-help">Drop a picture here or <span>choose a file</span></button><p id="picture-help">PNG, JPG, WebP, GIF, or AVIF · Up to 10 MB. Saved with your site’s files.</p><div><label for="post-image">Or paste a picture URL</label><input id="post-image" maxlength="2000" placeholder="https://… or /blog-images/your-picture.jpg" /></div><div><label for="post-image-alt">Describe the picture</label><input id="post-image-alt" maxlength="240" placeholder="A short description for screen readers" /></div><button id="remove-picture" type="button" class="text-button" hidden>Remove picture</button></div></details>
+      <details id="picture-settings" class="picture-settings"><summary>Add picture</summary><div class="picture-fields"><button id="choose-cover" type="button" class="picture-dropzone" aria-describedby="picture-help">Drop a picture here or <span>choose a file</span></button><p id="picture-help">PNG, JPG, WebP, GIF, or AVIF · {hosted ? 'Up to 4 MB. Stored privately with your drafts.' : 'Up to 10 MB. Saved with your site’s files.'}</p><div><label for="post-image">Or paste a picture URL</label><input id="post-image" maxlength="2000" placeholder="https://… or /blog-images/your-picture.jpg" /></div><div><label for="post-image-alt">Describe the picture</label><input id="post-image-alt" maxlength="240" placeholder="A short description for screen readers" /></div><button id="remove-picture" type="button" class="text-button" hidden>Remove picture</button></div></details>
       <input id="picture-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden />
       <p id="picture-upload-state" class="picture-upload-state" role="status" hidden></p>
       <details class="post-settings"><summary>Post settings</summary><div class="post-fields"><div><label for="post-slug">URL slug</label><input id="post-slug" maxlength="100" placeholder="your-post-title" autocomplete="off" /></div><div><label for="post-tags">Tags</label><input id="post-tags" maxlength="200" placeholder="AI, Engineering" /></div></div></details>
@@ -46,7 +49,7 @@ import BlogArrow from '../components/BlogArrow.astro';
     <div id="markdown-source" hidden><label class="sr-only" for="post-content">Markdown source</label><textarea id="post-content" class="markdown-source" rows="10" placeholder="Write your article…" spellcheck="false"></textarea></div>
     <p id="demo-editor-hint" class="demo-editor-hint" hidden>Demo blocks reference HTML files in public/blog-demos. Edit the JSON here; Preview runs the demo.</p>
     <div class="writing-footer"><span id="word-count">0 words</span><span>Drop or paste pictures into your article. Drafts save automatically.</span></div>
-    <div class="post-management"><span id="published-note">Only you can see this draft.</span><div><button id="unpublish-post" class="text-button" hidden>Remove GitHub file</button><button id="delete-post" class="text-button danger">Delete post</button></div></div>
+    <div class="post-management"><span id="published-note">Only you can see this draft.</span><div><button id="unpublish-post" class="text-button" hidden>Remove GitHub file</button><button id="delete-post" class="text-button danger">{hosted ? 'Delete draft' : 'Delete post'}</button></div></div>
   </article>
   <section id="editor-preview" class="editor-preview reader-wrap" aria-label="Draft preview" hidden>
     <div class="editor-preview-heading"><p>Preview · Esc to return to editing</p><button id="close-editor-preview" type="button" class="button button-quiet">Edit post</button></div>
@@ -64,6 +67,7 @@ import BlogArrow from '../components/BlogArrow.astro';
       <label class="sr-only" for="assistant-prompt">Message ChatGPT</label><textarea id="assistant-prompt" rows="4" maxlength="12000" placeholder="Ask about your post or describe an image…"></textarea>
       <label class="assistant-context"><input id="assistant-attach-post" type="checkbox" /> Attach post text</label>
       <div class="assistant-send-actions"><button id="assistant-send" type="submit" class="button button-primary">Send</button><button id="assistant-stop" type="button" class="button button-quiet" hidden>Stop</button><button id="assistant-use-selection" type="button" class="text-button">Use selection</button></div>
+      <textarea id="assistant-manual-copy" rows="3" readonly aria-label="Text to copy manually" hidden></textarea>
     </form>
     <div class="assistant-image-actions"><button id="assistant-image-script" type="button" class="button button-quiet">Create image script</button><button id="assistant-image-chat" type="button" class="text-button">Open ChatGPT for an image <BlogArrow direction="up-right" /></button><p>Prefer a script that saves a PNG, then drop it into the post. ChatGPT image generation is also available.</p></div>
   </aside>

@@ -1,0 +1,30 @@
+{
+  "generator": "scripts/generate-about-art.py",
+  "method": "Deterministic NumPy geometry and Pillow rendering; no input images or AI generation.",
+  "size": [
+    1200,
+    900
+  ],
+  "numpy": "1.26.4",
+  "pillow": "11.3.0",
+  "images": [
+    {
+      "file": "neural-loom.webp",
+      "seed": 81,
+      "bytes": 149070,
+      "sha256": "f6f05ae9f3cf7097884a05391473ee826e9545ec219df124780bcaa808f9959c"
+    },
+    {
+      "file": "attention-constellation.webp",
+      "seed": 144,
+      "bytes": 142208,
+      "sha256": "dab473dcdf36b9134cfca0e57d4acb288de52bdc89a6fcc21d62a6df2129a9ad"
+    },
+    {
+      "file": "latent-terrain.webp",
+      "seed": 233,
+      "bytes": 130182,
+      "sha256": "41d7e881fc611f86fb8ac7c4d72b3af79d77dabcd77a690d8d30bdd30bb9dca0"
+    }
+  ]
+}

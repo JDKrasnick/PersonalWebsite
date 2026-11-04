@@ -1,4 +1,5 @@
 ---
+import ContributionSkyline from './ContributionSkyline.astro';
 interface Project {
   title: string;
   description: string;
@@ -154,11 +155,13 @@ const otherProjects = projects.filter(p => !p.featured);
       ))}
     </div>
   </div>
+  <div class="container"><ContributionSkyline /></div>
 </section>
 
 <style>
   .projects {
     border-top: 1px solid var(--border-color);
+    padding-bottom: 2.5rem;
   }
 
   .projects-grid {
