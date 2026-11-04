@@ -179,7 +179,7 @@ export async function initEditor() {
       if (choice === 'mine') { applyValues(copy); version++; status('Unsaved changes — click Save draft'); localStorage.setItem(backupKey(), JSON.stringify({ ...copy, revision: latest.revision })); }
     } catch (value) { error(value); } finally { setBusy(false); }
   });
-  const findPanel = initEditorFind({ editor: () => richEditor, source: () => sourceMode, field: fields.content, changed, busy: () => busy });
+  const findPanel = initEditorFind({ editor: () => richEditor, source: () => sourceMode, field: fields.content, changed, busy: () => busy || Boolean(conflictCopy) });
   const setBusy = (value: boolean) => {
     busy = value;
     const locked = value || Boolean(conflictCopy);
@@ -209,7 +209,7 @@ export async function initEditor() {
     return { cover: false, source: sourceMode, start: sourceMode ? fields.content.selectionStart : (position ?? richEditor?.state.selection.from ?? 0), end: sourceMode ? fields.content.selectionEnd : (position ?? richEditor?.state.selection.to ?? 0) };
   };
   const uploadPicture = async (files: File[], target: PictureTarget) => {
-    if (busy || !files.length) return;
+    if (busy || conflictCopy || !files.length) return;
     const state = $('picture-upload-state');
     state.hidden = false;
     if (files.length !== 1) { state.textContent = 'Choose one picture at a time.'; toast(state.textContent); return; }
