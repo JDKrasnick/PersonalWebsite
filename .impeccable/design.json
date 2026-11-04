@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T20:18:25.284239+00:00",
+  "generatedAt": "2026-11-04T16:29:11.862462Z",
   "title": "Design System: JD Krasnick",
   "extensions": {
     "colorMeta": {
@@ -285,6 +285,30 @@
       "blog-subtitle-mobile": {
         "displayName": "Mobile article subtitle",
         "purpose": "Reader excerpt and editable description at 20px regular with line height 1.6. Reader subtitle bottom margin is 24px and header-to-picture gap is 36px; editor description leaves 36px before the picture. Body prose retains its separate 18px mobile role."
+      },
+      "blog-assistant-heading": {
+        "displayName": "Assistant heading",
+        "purpose": "ChatGPT helper heading using the shared Inter family; distinct from article titles."
+      },
+      "blog-assistant-body": {
+        "displayName": "Assistant conversation",
+        "purpose": "Local replies and helper empty state; bright body ink for replies, supporting ink for user messages. Article prose is unchanged."
+      },
+      "blog-assistant-support": {
+        "displayName": "Assistant supporting text",
+        "purpose": "Connection, help, progress, error and optional context labels for local chat or hosted handoff."
+      },
+      "blog-assistant-message-heading": {
+        "displayName": "Assistant reply heading",
+        "purpose": "Compact headings inside local Markdown replies, separate from article sections."
+      },
+      "blog-assistant-input": {
+        "displayName": "Assistant prompt",
+        "purpose": "Multiline request composer on desktop with a page-colored backing and visible focus."
+      },
+      "blog-assistant-input-mobile": {
+        "displayName": "Mobile assistant prompt",
+        "purpose": "Native-sized request entry at the 1100px modal breakpoint."
       }
     },
     "shadows": [],
@@ -320,6 +344,14 @@
       {
         "name": "archive-panel-inline",
         "value": "850px"
+      },
+      {
+        "name": "editor-assistant-modal",
+        "value": "1100px"
+      },
+      {
+        "name": "editor-find-compact",
+        "value": "600px"
       }
     ]
   },
@@ -395,6 +427,28 @@
       "description": "Global native scrolling: 10px WebKit/Blink tracks, 40px minimum thumb, hover/active colors, standard thin fallback and forced-colors overrides.",
       "html": "<div class=\"ds-scrollport\" tabindex=\"0\" aria-label=\"Scrollable content\"><pre class=\"ds-scroll-content\">Native scrolling\nBlue-gray thumb\nHover to lighten\nDrag for active color\nSystem colors in forced-colors mode\nKeyboard scrolling remains native\nHorizontal content extends across this scroll area.</pre></div>",
       "css": ".ds-scrollport{width:280px;height:100px;overflow:auto;background:var(--scrollbar-track,#080a15);color:var(--text-primary,#f1f2fa)}.ds-scroll-content{min-width:420px;margin:0;font:14px/1.8 var(--font-mono,\"JetBrains Mono\",monospace)}.ds-scrollport:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:5px}.ds-scrollport::-webkit-scrollbar{width:10px;height:10px}.ds-scrollport::-webkit-scrollbar-track,.ds-scrollport::-webkit-scrollbar-corner{background:var(--scrollbar-track,#080a15)}.ds-scrollport::-webkit-scrollbar-thumb{min-height:40px;min-width:40px;border:2px solid var(--scrollbar-track,#080a15);border-radius:8px;background:var(--scrollbar-thumb,#65729c);background-clip:padding-box}.ds-scrollport::-webkit-scrollbar-thumb:hover{background-color:var(--scrollbar-thumb-hover,#91a4e8)}.ds-scrollport::-webkit-scrollbar-thumb:active{background-color:var(--scrollbar-thumb-active,#b8c6ff)}@supports not selector(::-webkit-scrollbar){.ds-scrollport{scrollbar-width:thin;scrollbar-color:var(--scrollbar-thumb,#65729c) var(--scrollbar-track,#080a15)}}@media(forced-colors:active){.ds-scrollport{scrollbar-color:auto}.ds-scrollport::-webkit-scrollbar-thumb{background-color:CanvasText;border-color:Canvas}.ds-scrollport::-webkit-scrollbar-track,.ds-scrollport::-webkit-scrollbar-corner{background:Canvas}}"
+    },
+    {
+      "name": "Editor Formatting Toolbar",
+      "kind": "custom",
+      "description": "Shared by protected hosted and localhost editors: wrapping Paragraph/H2-H4 selector, 36px formatting controls, Write clear/list/table actions and per-draft undo history. Source shortcuts, inline shortcut disclosure and literal find/replace remain available. Stable Preview uses aria-pressed and Cmd/Ctrl+Shift+P; Escape/Edit post restores field, selection and scroll after saved same-window preview. Hosted GitHub preparation is hidden.",
+      "html": "<div class=\"ds-format\" role=\"toolbar\" aria-label=\"Text formatting\"><label for=\"ds-style\">Style</label><select id=\"ds-style\"><option>Paragraph</option><option>Heading 2</option><option>Heading 3</option><option>Heading 4</option></select><button type=\"button\" aria-label=\"Bold\" aria-pressed=\"true\"><strong>B</strong></button><button type=\"button\" aria-label=\"Italic\" aria-pressed=\"false\"><em>I</em></button><button type=\"button\" class=\"ds-format-text\">Find / replace</button></div>",
+      "css": ".ds-format{display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:8px 0;border-bottom:1px solid var(--line,#262c44);color:var(--subtle,#b4bdcf);font:13px var(--font-body,Inter,sans-serif)}.ds-format select{min-height:36px;padding:6px 10px;border:1px solid var(--line,#262c44);border-radius:5px;background:var(--panel,#0d1121);color:var(--ink,#f1f2fa);font:inherit}.ds-format button{display:inline-flex;align-items:center;justify-content:center;width:36px;min-height:36px;border:0;border-radius:5px;color:var(--subtle,#b4bdcf);background:transparent;font:14px var(--font-body,Inter,sans-serif)}.ds-format button:hover{color:var(--ink,#f1f2fa);background:#18213a}.ds-format button[aria-pressed=true]{color:#becaff;background:#1d2847}.ds-format .ds-format-text{width:auto;font-size:13px}.ds-format button:focus-visible,.ds-format select:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:3px}"
+    },
+    {
+      "name": "ChatGPT Editor Helper",
+      "kind": "custom",
+      "refersTo": "blog-assistant-pane",
+      "description": "360px desktop helper, 24px padding and 16px gaps; <=1100px uses a fixed full-height modal up to 420px wide with inert background, trapped Tab, Escape close and focus return. Localhost provides subscription chat through local Codex, reply/code copy and job recovery; embedded reply media is disabled. Hosted instead copies explicit requests/context and opens ChatGPT separately, without local-chat requests or server credentials. Attach post starts unchecked. Create image script seeds an empty composer without sending; Python/Pillow PNG scripts are copied/run by the author, with external ChatGPT image generation optional.",
+      "html": "<aside class=\"ds-assistant\" aria-label=\"ChatGPT writing assistant\"><h2>ChatGPT</h2><p class=\"ds-assistant-support\">Work on your writing or create an image script.</p><label class=\"ds-assistant-support\" for=\"ds-prompt\">Message ChatGPT</label><textarea id=\"ds-prompt\" rows=\"3\" placeholder=\"Ask about your post or describe an image…\"></textarea><label class=\"ds-assistant-support\"><input type=\"checkbox\" /> Attach post text</label><button type=\"button\">Create image script</button><p class=\"ds-assistant-support\">Prefer a script that saves a PNG, then drop it into the post.</p></aside>",
+      "css": ".ds-assistant{display:flex;flex-direction:column;gap:16px;width:360px;max-width:100%;box-sizing:border-box;padding:24px;border-left:1px solid var(--line,#262c44);background:var(--panel,#0d1121);color:var(--body-ink,#e2e6ee);font:15px/1.7 var(--font-body,Inter,sans-serif)}.ds-assistant h2{margin:0;color:var(--ink,#f1f2fa);font-size:19px;line-height:1.4;font-weight:600}.ds-assistant-support{margin:0;color:var(--subtle,#b4bdcf);font-size:13px;line-height:1.6}.ds-assistant textarea{display:block;width:100%;box-sizing:border-box;min-height:100px;max-height:250px;padding:12px;border:1px solid var(--line,#262c44);border-radius:6px;background:var(--bg-primary,#080a15);color:var(--ink,#f1f2fa);font:15px/1.6 var(--font-body,Inter,sans-serif);resize:vertical}.ds-assistant input{accent-color:var(--accent,#7c91ff)}.ds-assistant button{min-height:36px;padding:9px 16px;border:1px solid var(--line,#262c44);border-radius:7px;background:transparent;color:var(--ink,#f1f2fa);font:500 13px/1.4 var(--font-body,Inter,sans-serif)}.ds-assistant button:hover{background:#171d35;border-color:#404b77}.ds-assistant textarea:focus-visible,.ds-assistant button:focus-visible,.ds-assistant input:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:3px}@media(max-width:1100px){.ds-assistant textarea{font-size:16px}}"
+    },
+    {
+      "name": "Editor Find and Replace",
+      "kind": "custom",
+      "description": "Inline literal search shared by hosted and local Write/Markdown, with Match case, live count, Previous/Next, Replace and Replace all. Write searches adjacent marked text without crossing block/media boundaries. Fields and shortcut entries stack at 600px, with 16px field text.",
+      "html": "<section class=\"ds-find\" aria-label=\"Find and replace in article\"><div class=\"ds-find-fields\"><label>Find<input type=\"text\" autocomplete=\"off\" /></label><label>Replace with<input type=\"text\" autocomplete=\"off\" /></label></div><div class=\"ds-find-actions\"><label><input type=\"checkbox\" /> Match case</label><span role=\"status\">Search article text</span><button type=\"button\">Previous</button><button type=\"button\">Next</button><button type=\"button\">Replace</button><button type=\"button\">Replace all</button></div></section>",
+      "css": ".ds-find{padding:0 0 24px;margin-bottom:28px;border-bottom:1px solid var(--line,#262c44);font-family:var(--font-body,Inter,sans-serif)}.ds-find-fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}.ds-find-fields label{display:grid;gap:8px;color:var(--subtle,#b4bdcf);font-size:13px}.ds-find-fields input{min-width:0;width:100%;box-sizing:border-box;padding:10px 12px;color:var(--ink,#f1f2fa);border:1px solid var(--line,#262c44);border-radius:5px;background:var(--panel,#0d1121);font:inherit}.ds-find-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:14px;color:var(--subtle,#b4bdcf);font-size:12px}.ds-find-actions button{padding:4px 0;border:0;background:transparent;color:var(--subtle,#b4bdcf);font:inherit}.ds-find-actions button:hover{color:var(--ink,#f1f2fa)}.ds-find input{accent-color:var(--accent,#7c91ff)}.ds-find input:focus-visible,.ds-find button:focus-visible{outline:2px solid var(--accent,#7c91ff);outline-offset:3px}@media(max-width:600px){.ds-find-fields{grid-template-columns:1fr}.ds-find-fields input{font-size:16px}}"
     }
   ],
   "narrative": {

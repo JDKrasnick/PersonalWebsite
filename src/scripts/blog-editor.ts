@@ -1,5 +1,9 @@
-import { $, escape, words, readTime, urlFor, arrow, slugify, api, showError, toast, type Draft } from './blog';
+import { $, escape, words, readTime, urlFor, arrow, slugify, api, showError, toast, renderMarkdown, type Draft } from './blog';
+import { mountDemos } from './blog-demos';
+import { initBlogAssistant } from './blog-assistant';
+import { initEditorFind } from './blog-editor-find';
 import type { Editor } from '@tiptap/core';
+import { EditorState } from '@tiptap/pm/state';
 import { postImage } from '../lib/blog-images';
 import { demoFence, exampleDemo } from '../lib/blog-demos';
 
@@ -16,6 +20,8 @@ export async function initEditor() {
   let version = 0, savedVersion = 0, slugEdited = false, timer: ReturnType<typeof setTimeout>;
   let saveQueue: Promise<unknown> = Promise.resolve();
   let busy = false;
+  let previewing = false;
+  let editingPosition: { element: HTMLElement | null; scrollY: number } | undefined;
   let uploading = false;
   type PictureTarget = { cover: true } | { cover: false; source: boolean; start: number; end: number };
   let pictureTarget: PictureTarget = { cover: true };
@@ -38,8 +44,17 @@ export async function initEditor() {
     for (const field of [fields.title, fields.excerpt, ...(sourceMode ? [fields.content] : [])]) { field.style.height = 'auto'; field.style.height = `${field.scrollHeight}px`; }
   };
   const updateToolbar = () => {
-    const names: Record<string, string> = { heading: 'heading', bold: 'bold', italic: 'italic', code: 'codeBlock', list: 'bulletList', link: 'link' };
-    document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => button.setAttribute('aria-pressed', String(!sourceMode && Boolean(richEditor?.isActive(names[button.dataset.format!])))));
+    const names: Record<string, string> = { bold: 'bold', italic: 'italic', strike: 'strike', 'inline-code': 'code', quote: 'blockquote', code: 'codeBlock', list: 'bulletList', 'ordered-list': 'orderedList', link: 'link' };
+    document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => {
+      const format = button.dataset.format!;
+      if (names[format]) button.setAttribute('aria-pressed', String(!sourceMode && Boolean(richEditor?.isActive(names[format]))));
+      if (format === 'undo' || format === 'redo') button.disabled = busy || sourceMode || !(format === 'undo' ? richEditor?.can().undo() : richEditor?.can().redo());
+      if (format === 'clear') button.disabled = busy || sourceMode;
+      if (format === 'indent' || format === 'outdent') button.disabled = busy || sourceMode || !(format === 'indent' ? richEditor?.can().sinkListItem('listItem') : richEditor?.can().liftListItem('listItem'));
+    });
+    $<HTMLSelectElement>('text-style').value = !sourceMode && richEditor?.isActive('heading') ? String(richEditor.getAttributes('heading').level) : 'paragraph';
+    $('table-actions').hidden = sourceMode || !richEditor?.isActive('table');
+    findPanel.refresh();
   };
   const renderRail = () => {
     $('post-selector').innerHTML = `<option value="" disabled${!current ? ' selected' : ''}>New draft</option>${drafts.map(draft => `<option value="${escape(draft.id)}"${draft.id === current?.id ? ' selected' : ''}>${escape(draft.title || 'Untitled post')}</option>`).join('')}`;
@@ -53,6 +68,7 @@ export async function initEditor() {
     $<HTMLButtonElement>('delete-post').disabled = !current;
   };
   const load = (draft?: Draft) => {
+    closePreview();
     clearTimeout(timer); current = draft; version = 0; savedVersion = 0; slugEdited = Boolean(draft);
     fields.title.value = draft?.title || ''; fields.excerpt.value = draft?.excerpt || ''; fields.slug.value = draft?.slug || ''; fields.tags.value = draft?.tags.join(', ') || ''; fields.content.value = draft?.content || '';
     fields.image.value = draft?.image || ''; fields.imageAlt.value = draft?.imageAlt || '';
@@ -69,6 +85,8 @@ export async function initEditor() {
       }
     } catch { /* Disk saving still works if browser storage is unavailable. */ }
     richEditor?.commands.setContent(fields.content.value, { contentType: 'markdown', emitUpdate: false });
+    // A freshly loaded draft must not inherit another post's undo stack.
+    if (richEditor) richEditor.view.updateState(EditorState.create({ schema: richEditor.schema, doc: richEditor.state.doc, plugins: richEditor.state.plugins }));
     refreshPreview(); renderRail(); updateToolbar();
   };
   const save = async (): Promise<Draft | undefined> => {
@@ -101,7 +119,9 @@ export async function initEditor() {
     version++; status('Unsaved changes');
     try { localStorage.setItem(backupKey(), JSON.stringify({ ...values(), revision: current?.revision })); } catch { /* Autosave remains available. */ }
     refreshPreview(); clearTimeout(timer); timer = setTimeout(() => { void save().catch(() => {}); }, 1000);
+    findPanel.refresh();
   };
+  const findPanel = initEditorFind({ editor: () => richEditor, source: () => sourceMode, field: fields.content, changed, busy: () => busy });
   const setBusy = (value: boolean) => {
     busy = value;
     ['save-draft', 'open-preview', 'publish-post', 'unpublish-post', 'new-post', 'delete-post', 'post-selector'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
@@ -112,7 +132,9 @@ export async function initEditor() {
     ['choose-cover', 'insert-picture', 'picture-file'].forEach(id => { $<HTMLButtonElement>(id).disabled = value; });
     document.querySelectorAll<HTMLButtonElement>('[data-editor-mode]').forEach(button => { button.disabled = value; });
     document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => { button.disabled = value; });
+    $<HTMLSelectElement>('text-style').disabled = value;
     if (!value) $<HTMLButtonElement>('delete-post').disabled = !current;
+    updateToolbar();
   };
   Object.entries(fields).forEach(([key, field]) => field.addEventListener('input', () => {
     if (key === 'slug') slugEdited = true;
@@ -225,12 +247,43 @@ export async function initEditor() {
   });
   $('new-post').addEventListener('click', async () => { if (busy) return; setBusy(true); try { await save(); load(); fields.title.focus(); } catch { /* Save failure leaves the current draft intact. */ } finally { setBusy(false); } });
   $('save-draft').addEventListener('click', async () => { setBusy(true); try { await save(); toast('Draft saved.'); } catch { /* Error is visible above the editor. */ } finally { setBusy(false); } });
+  function closePreview(restore = false) {
+    previewing = false;
+    document.querySelector<HTMLElement>('.article-editor')!.hidden = false;
+    $('editor-preview').hidden = true;
+    $('editor-preview-article').replaceChildren();
+    $('open-preview').setAttribute('aria-pressed', 'false');
+    if (restore && editingPosition) {
+      editingPosition.element?.focus({ preventScroll: true });
+      window.scrollTo({ top: editingPosition.scrollY, behavior: 'instant' });
+    }
+    editingPosition = undefined;
+  }
+  $('close-editor-preview').addEventListener('click', () => closePreview(true));
+  // Keep the active field/selection before a mouse click moves focus to the toggle.
+  $('open-preview').addEventListener('pointerdown', () => {
+    if (!previewing) editingPosition = { element: document.activeElement as HTMLElement, scrollY: window.scrollY };
+  });
   $('open-preview').addEventListener('click', async () => {
-    const tab = window.open('about:blank', '_blank');
-    if (tab) tab.opener = null;
+    if (busy) return;
+    if (previewing) { closePreview(true); return; }
+    editingPosition ??= { element: document.activeElement as HTMLElement, scrollY: window.scrollY };
     setBusy(true);
-    try { const post = await save(); if (!post) throw new Error('Write something before opening a preview.'); const href = `${hosted ? '/blog/preview' : '/blog/post'}?draft=${encodeURIComponent(post.id)}`; if (tab) tab.location.href = href; else { toast('Your browser blocked the preview tab. Allow pop-ups for this site, or use the Preview view below.'); } }
-    catch (value) { tab?.close(); error(value); }
+    try {
+      const post = await save();
+      if (!post) throw new Error('Write something before opening a preview.');
+      const picture = postImage(post.image, post.imageAlt);
+      const root = $('editor-preview-article');
+      root.innerHTML = `<header class="article-header"><h1>${escape(post.title || 'Untitled post')}</h1>${post.excerpt ? `<p class="article-description">${escape(post.excerpt)}</p>` : ''}</header>${picture.image ? `<figure class="article-picture"><img src="${escape(picture.image)}" alt="${escape(picture.imageAlt)}" /></figure>` : ''}<div class="prose">${renderMarkdown(post.content)}</div>`;
+      mountDemos(root);
+      previewing = true;
+      document.querySelector<HTMLElement>('.article-editor')!.hidden = true;
+      $('editor-preview').hidden = false;
+      $('open-preview').setAttribute('aria-pressed', 'true');
+      $('editor-preview').scrollIntoView({ block: 'start', behavior: 'instant' });
+      $('close-editor-preview').focus({ preventScroll: true });
+    }
+    catch (value) { editingPosition = undefined; error(value); }
     finally { setBusy(false); }
   });
   $('publish-post').addEventListener('click', async () => {
@@ -267,14 +320,31 @@ export async function initEditor() {
     refreshPreview(); updateToolbar();
   }));
   document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button => button.addEventListener('click', () => {
+    if (busy) return;
     if (!sourceMode && richEditor) {
       const chain = richEditor.chain().focus();
       switch (button.dataset.format) {
         case 'heading': chain.toggleHeading({ level: 2 }).run(); break;
         case 'bold': chain.toggleBold().run(); break;
         case 'italic': chain.toggleItalic().run(); break;
+        case 'strike': chain.toggleStrike().run(); break;
+        case 'inline-code': chain.toggleCode().run(); break;
+        case 'quote': chain.toggleBlockquote().run(); break;
         case 'code': chain.toggleCodeBlock().run(); break;
         case 'list': chain.toggleBulletList().run(); break;
+        case 'ordered-list': chain.toggleOrderedList().run(); break;
+        case 'divider': chain.setHorizontalRule().run(); break;
+        case 'table': chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break;
+        case 'row': chain.addRowAfter().run(); break;
+        case 'column': chain.addColumnAfter().run(); break;
+        case 'remove-row': chain.deleteRow().run(); break;
+        case 'remove-column': chain.deleteColumn().run(); break;
+        case 'remove-table': chain.deleteTable().run(); break;
+        case 'clear': chain.unsetAllMarks().clearNodes().run(); break;
+        case 'indent': chain.sinkListItem('listItem').run(); break;
+        case 'outdent': chain.liftListItem('listItem').run(); break;
+        case 'undo': chain.undo().run(); break;
+        case 'redo': chain.redo().run(); break;
         case 'link': {
           const previous = richEditor.getAttributes('link').href || '';
           const url = prompt('Link URL', previous || 'https://');
@@ -289,12 +359,53 @@ export async function initEditor() {
     }
     const start = fields.content.selectionStart, end = fields.content.selectionEnd;
     const selection = fields.content.value.slice(start, end);
-    const format: Record<string, string> = { heading: `\n## ${selection || 'Heading'}\n`, bold: `**${selection || 'bold text'}**`, italic: `*${selection || 'italic text'}*`, link: `[${selection || 'link text'}](https://example.com)`, code: `\n\`\`\`python\n${selection || '# Your code here'}\n\`\`\`\n`, list: `\n- ${selection || 'List item'}\n` };
-    fields.content.setRangeText(format[button.dataset.format!], start, end, 'select'); fields.content.focus(); changed();
+    const format: Record<string, string> = { bold: `**${selection || 'bold text'}**`, italic: `*${selection || 'italic text'}*`, strike: `~~${selection || 'text'}~~`, 'inline-code': `\`${selection || 'code'}\``, quote: `\n${(selection || 'Quote').split('\n').map(line => `> ${line}`).join('\n')}\n`, link: `[${selection || 'link text'}](https://example.com)`, code: `\n\`\`\`python\n${selection || '# Your code here'}\n\`\`\`\n`, list: `\n${(selection || 'List item').split('\n').map(line => `- ${line}`).join('\n')}\n`, 'ordered-list': `\n${(selection || 'List item').split('\n').map((line, i) => `${i + 1}. ${line}`).join('\n')}\n`, divider: '\n\n---\n\n', table: '\n\n| Heading | Heading |\n| --- | --- |\n| Cell | Cell |\n| Cell | Cell |\n\n' };
+    const text = format[button.dataset.format!];
+    if (text === undefined) return;
+    fields.content.setRangeText(text, start, end, 'select'); fields.content.focus(); changed();
   }));
+  $('text-style').addEventListener('change', () => {
+    if (busy) return;
+    const value = $<HTMLSelectElement>('text-style').value;
+    if (!sourceMode && richEditor) {
+      if (value === 'paragraph') richEditor.chain().focus().setParagraph().run();
+      else richEditor.chain().focus().setHeading({ level: Number(value) as 2 | 3 | 4 }).run();
+    } else {
+      const start = fields.content.value.lastIndexOf('\n', fields.content.selectionStart - 1) + 1;
+      const end = fields.content.value.indexOf('\n', fields.content.selectionEnd);
+      const text = fields.content.value.slice(start, end < 0 ? undefined : end).replace(/^#{1,6}\s+/, '');
+      fields.content.setRangeText(`${value === 'paragraph' ? '' : '#'.repeat(Number(value)) + ' '}${text}`, start, end < 0 ? fields.content.value.length : end, 'select');
+      fields.content.focus(); changed();
+    }
+    updateToolbar();
+  });
   window.addEventListener('beforeunload', event => { if (uploading || version !== savedVersion) event.preventDefault(); });
-  window.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 's') { event.preventDefault(); if (!busy) void save().then(() => toast('Draft saved.')).catch(() => {}); } });
+  window.addEventListener('keydown', event => {
+    // The assistant has its own composer and modal keyboard behavior.
+    if ((event.target as HTMLElement).closest('#blog-assistant')) return;
+    const mod = event.metaKey || event.ctrlKey, key = event.key.toLowerCase();
+    if (event.key === 'Escape' && previewing) { event.preventDefault(); closePreview(true); return; }
+    if (event.key === 'Escape' && $<HTMLDetailsElement>('editor-shortcuts').open) { $<HTMLDetailsElement>('editor-shortcuts').open = false; return; }
+    if (!mod || busy) return;
+    if (key === 's' && !event.shiftKey && !event.altKey) { event.preventDefault(); void save().then(() => toast('Draft saved.')).catch(() => {}); return; }
+    if (key === 'p' && event.shiftKey && !event.altKey) { event.preventDefault(); $('open-preview').click(); return; }
+    if (previewing) return;
+    if (key === 'm' && event.shiftKey && !event.altKey) { event.preventDefault(); document.querySelector<HTMLButtonElement>(`[data-editor-mode="${sourceMode ? 'document' : 'markdown'}"]`)!.click(); (sourceMode ? fields.content : richEditor?.view.dom)?.focus(); return; }
+    if (key === '/' && !event.shiftKey && !event.altKey) { event.preventDefault(); const help = $<HTMLDetailsElement>('editor-shortcuts'); help.open = !help.open; if (help.open) help.scrollIntoView({ block: 'nearest' }); return; }
+    if (key === 'f' && !event.altKey && (event.shiftKey || (event.target as HTMLElement).closest('#rich-editor, #markdown-source'))) { event.preventDefault(); findPanel.toggle(); $('editor-find').scrollIntoView({ block: 'nearest' }); return; }
+    const inBody = (event.target as HTMLElement).closest('#rich-editor, #markdown-source');
+    if (!inBody) return;
+    if (event.altKey && ['0', '2', '3', '4'].includes(event.code.replace('Digit', ''))) {
+      event.preventDefault(); $<HTMLSelectElement>('text-style').value = event.code === 'Digit0' ? 'paragraph' : event.code.replace('Digit', ''); $('text-style').dispatchEvent(new Event('change')); return;
+    }
+    let format = !event.altKey && !event.shiftKey ? ({ b: 'bold', i: 'italic', k: 'link', '\\': 'clear' } as Record<string, string>)[key] : event.shiftKey && !event.altKey && key === 's' ? 'strike' : undefined;
+    // Tiptap owns its native rich-text keys; source mode uses the same toolbar commands.
+    if (format && (sourceMode || !event.defaultPrevented)) { event.preventDefault(); document.querySelector<HTMLButtonElement>(`[data-format="${format}"]`)?.click(); }
+  });
   window.addEventListener('resize', refreshPreview);
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--blog-editor-bar-height', `${document.querySelector('.editor-bar')!.getBoundingClientRect().height}px`);
+  }).observe(document.querySelector('.editor-bar')!);
   setBusy(true);
   try {
     const { createPostEditor } = await import('./blog-rich-editor');
@@ -305,5 +416,9 @@ export async function initEditor() {
     try { hasNewRecovery = !requested && Boolean(localStorage.getItem('jd-blog-recovery:new')); } catch { /* Browser storage can be unavailable. */ }
     load(hasNewRecovery ? undefined : (drafts.find(draft => draft.id === requested) ?? drafts[0]));
     setBusy(false);
+    initBlogAssistant(() => `Title: ${fields.title.value}\nDescription: ${fields.excerpt.value}\n\n${fields.content.value}`, () => {
+      if (sourceMode) return fields.content.value.slice(fields.content.selectionStart, fields.content.selectionEnd);
+      return richEditor ? richEditor.state.doc.textBetween(richEditor.state.selection.from, richEditor.state.selection.to, '\n') : '';
+    });
   } catch (value) { showError('editor-error', value); setBusy(true); }
 }

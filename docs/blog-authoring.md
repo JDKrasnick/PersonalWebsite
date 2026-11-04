@@ -2,6 +2,12 @@
 
 Posts are Markdown files in `content/blog/`. The localhost editor stores private drafts separately; **Prepare for GitHub** writes the reviewed Markdown file. Commit and push the post and any assets together to publish.
 
+## Editor controls
+
+The hosted and localhost editors share the formatting toolbar, Write/Markdown modes, and literal Find / replace with Match case, Previous/Next, Replace and Replace all. Formatting includes Paragraph/H2–H4, emphasis, strike, inline/fenced code, links, quotes, bullet/numbered lists, dividers and tables. In Write, clear formatting, list indent/outdent and table row/column insertion/deletion are available; undo history resets for each loaded draft.
+
+Preview saves first and shows the sanitized article and running demos inside the same window. The top Preview button keeps its label and pressed state; use Cmd/Ctrl+Shift+P to toggle, or Escape / Edit post to return to the prior field, selection and scroll. Save uses Cmd/Ctrl+S. Cmd/Ctrl+/ toggles the inline shortcut guide, Cmd/Ctrl+Shift+M changes mode and Cmd/Ctrl+Shift+F opens find/replace. Failed saves retain browser recovery text; retry after reconnecting or signing in again. Saving never publishes.
+
 ## Edit private drafts on the website
 
 Open `https://www.jdkrasnick.com/blog/editor` and sign in with the owner password. The editor is absent from public navigation. Its page, previews, draft APIs, and uploaded pictures require a server-verified session and are excluded from public caches and indexing.
@@ -12,13 +18,21 @@ Hosted picture uploads accept the same image types as localhost, up to 4 MB per 
 
 Owner setup and recovery are documented in `docs/private-blog-editor.md`.
 
+## ChatGPT writing and image scripts
+
+On localhost, Assistant uses the installed Codex CLI with a ChatGPT subscription. API-key accounts are refused before inference. Sessions are read-only and ephemeral, with shell, external integrations, plugins and image tools disabled; credentials remain with Codex. Stop, New chat, Reconnect and browser-stored conversation/job IDs support recovery. Copy reply and Copy code copy suggestions without editing the article. Embedded media is disabled in chat replies to prevent automatic media fetches.
+
+In the protected hosted editor, Assistant uses **Copy & open ChatGPT**: it copies the request and opens a separate ChatGPT window, without local chat API requests or server-side ChatGPT credentials. Paste and submit the request there. **Attach post text** is unchecked by default; only select it when you want the article included. **Use selection** adds a chosen passage to the request. Clipboard fallback exposes selectable text when automatic copy is unavailable.
+
+Image work prefers an editable, reproducible Python/Pillow script that saves a PNG. **Create image script** fills only an empty composer and does not send the request or overwrite your text. Submit when ready, copy the returned code, run it yourself and drop the PNG into the article. The assistant cannot execute the script or produce a file itself. **Open ChatGPT for an image** remains an optional subscription image-generation route; the editor does not call the billed Images API.
+
 ## Add pictures
 
 Open **Add picture** to drop or choose a cover image. Drop or paste a picture into the article to insert it at the cursor; **Insert picture** opens a file picker for the body. Both Write and Markdown modes support pictures. Add a cover description in the picture settings; inline alternative text can be edited in Markdown (`![Description](path)`). Existing image URLs still work.
 
-Uploads accept PNG, JPG, WebP, GIF, and AVIF up to 10 MB and 40 megapixels (including animation frames). The local server validates the actual image data and saves the original file under `public/blog-images/uploads/`, with a safe filename and content hash. Markdown and cover metadata reference the resulting relative URL. Re-uploading the same named image reuses its path; different images never overwrite one another. SVG uploads are excluded; export them as PNG first.
+Localhost uploads accept PNG, JPG, WebP, GIF, and AVIF up to 10 MB and 40 megapixels (including animation frames). The local server validates the actual image data and saves the original file under `public/blog-images/uploads/`, with a safe filename and content hash. Markdown and cover metadata reference the resulting relative URL. Re-uploading the same named image reuses its path; different images never overwrite one another. SVG uploads are excluded; export them as PNG first.
 
-Commit the image files along with the prepared post. Uploaded files are public assets in any deployment that includes them, even if the draft is not prepared. Removing a picture or deleting a draft keeps its file, so other posts using it continue to work. Delete unused files manually when appropriate. The upload endpoint exists only in the localhost development server; there is no public upload API.
+Commit the image files along with the prepared post. Uploaded files are public assets in any deployment that includes them, even if the draft is not prepared. Removing a picture or deleting a draft keeps its file, so other posts using it continue to work. Delete unused files manually when appropriate. The local upload route runs in the development server; hosted uploads use the protected editor API and remain private. Neither workflow offers an unauthenticated upload API.
 
 ## Add an animation or interactive element
 

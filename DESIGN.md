@@ -118,6 +118,24 @@ typography:
     fontFamily: "JetBrains Mono, monospace"
     fontSize: "16px"
     lineHeight: 1.8
+  blog-assistant-heading:
+    fontSize: "19px"
+    fontWeight: 600
+    lineHeight: 1.4
+  blog-assistant-body:
+    fontSize: "15px"
+    lineHeight: 1.7
+  blog-assistant-support:
+    fontSize: "13px"
+    lineHeight: 1.6
+  blog-assistant-message-heading:
+    fontSize: "17px"
+    lineHeight: 1.5
+  blog-assistant-input:
+    fontSize: "15px"
+    lineHeight: 1.6
+  blog-assistant-input-mobile:
+    fontSize: "16px"
   blog-utility-micro:
     fontSize: "10px"
   blog-badge:
@@ -156,6 +174,12 @@ components:
     textColor: "{colors.text-primary}"
     rounded: "{rounded.blog-control}"
     padding: "9px 16px"
+  blog-assistant-pane:
+    backgroundColor: "{colors.blog-panel}"
+    textColor: "{colors.blog-body-ink}"
+    typography: "{typography.blog-assistant-body}"
+    padding: "24px"
+    width: "360px"
 ---
 
 # Design System: JD Krasnick
@@ -201,7 +225,9 @@ The portfolio container is capped at 1100px with 2rem side padding, reduced to 1
 
 The blog header and index are capped at 1600px with 48px desktop gutters. The index has a plain Blog heading without a subtitle, then chronological date/title rows capped at 1160px. Optional pictures lead on the left with date and title to their right; rows without pictures remain compact. A magnifying-glass button opens search and topics in a nonmodal right sidebar (280px). At 850px and below, that panel moves above the results, aligned right with a maximum width of 340px. At 650px gutters are 24px. Reader and visual editor share a 1160px document container, including their gutters.
 
-The editor is a single editable article, with the same title, subtitle, and prose scales as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving, preview, and GitHub preparation. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. There is no sidebar or split preview window.
+The protected hosted editor and localhost editor share a single editable article, with the same title, subtitle, and prose scales as the reader. It grows with the document and uses the page scrollbar. A compact sticky action bar holds the post selector, New post, saving status, Save draft, Preview and Assistant; GitHub preparation appears only locally. Post metadata is collapsed under Post settings. Write is a visual editor; Markdown is an optional source view. Preview saves first and replaces the editable article with the sanitized article and running demos in the same window. The optional assistant adds a helper column, without a split preview window. Phone actions use a two-column grid with saving status visible across both columns.
+
+The assistant uses a 360px desktop column docked below the sticky action bar, with 24px padding and 16px gaps. Its panel and conversation may scroll without confining the article. At 1100px and below it becomes a fixed full-height modal, up to 420px wide and capped at the viewport width. The background document, action bar, header and footer are inert; Tab remains inside, Escape closes it, and focus returns to Assistant. Find fields and shortcut entries use two columns, stacking at 600px.
 
 Article headers have no border or bottom padding. The desktop title-to-subtitle margin is 28px, subtitle bottom margin is 26px, and reader header-to-picture margin is 52px; mobile uses 24px, 24px, and 36px. The editor matches the title gap and leaves 52px after the description before the picture on desktop, 36px on mobile. Article headers and local typography previews omit the author byline; the reader keeps its date and example labeling, and the editor keeps its state badge. The site's name remains in navigation and footer.
 
@@ -229,11 +255,27 @@ Browsers without `::-webkit-scrollbar` selector support use standard `scrollbar-
 
 ### Inputs / Fields
 
-Comment inputs use a dark panel, a fine blue-gray stroke, gentle corners, and visible labels. Search has an outlined field. The editor title and description are borderless auto-expanding text areas; rich article content uses the reader's typography. Metadata is collapsed under Post settings. Add picture discloses a cover dropzone and file picker, an optional URL and alternative-text field, with live preview, load-error feedback, and removal. Insert picture opens a body file picker; both Write and Markdown accept file drops and clipboard pictures at the drop position or current selection. Upload progress and errors appear in a status message; successful uploads remind the author to commit the image with the post. Removing a picture retains its file for shared references. Native Tab navigation and visible keyboard focus remain available; formatting comes from the toolbar or keyboard shortcuts.
+Comment inputs use a dark panel, a fine blue-gray stroke, gentle corners, and visible labels. Search has an outlined field. The editor title and description are borderless auto-expanding text areas; rich article content uses the reader's typography. Metadata is collapsed under Post settings. Add picture discloses a cover dropzone and file picker, an optional URL and alternative-text field, with live preview, load-error feedback, and removal. Insert picture opens a body file picker; both Write and Markdown accept file drops and clipboard pictures at the drop position or current selection. Upload progress and errors appear in a status message; local uploads remind the author to commit the image with the post, while hosted uploads confirm private draft storage. Removing a picture retains its file for shared references. Native Tab navigation and visible keyboard focus remain available; formatting comes from the toolbar or keyboard shortcuts.
+
+### Editor Formatting and Preview
+
+The wrapping toolbar offers Paragraph/H2–H4, bold, italic, strike, inline/fenced code, links, quotes, bullet/numbered lists, dividers, tables and undo/redo. Formatting buttons use 36px targets, supporting ink, tonal hover and a periwinkle active state expressed with `aria-pressed`. Write adds clear formatting, list indent/outdent and contextual table row/column insertion/deletion and removal. Undo history resets per loaded draft. Markdown supports applicable source insertions and formatting shortcuts.
+
+The inline find section provides labeled Find and Replace with fields, Match case, live count, Previous/Next, Replace and Replace all. Matching is literal; Write can match adjacent marked text without crossing blocks or media. Replacements preserve the rest of the document. Fields use existing outlined panel controls; actions wrap below. At 600px and below fields stack and use 16px entry text. The quiet native shortcut disclosure stacks its two-column entries at the same breakpoint. Cmd/Ctrl+/ toggles the guide, Cmd/Ctrl+Shift+M changes mode and Cmd/Ctrl+Shift+F opens find/replace.
+
+Save draft and Cmd/Ctrl+S show saving feedback; failed or timed-out saves keep browser recovery text. The stable Preview label exposes its state through `aria-pressed`; Cmd/Ctrl+Shift+P toggles it. Preview waits for the saved revision, focuses Edit post and runs sanitized content and demos; Escape or Edit post returns to the prior field, selection and scroll position. Hosted access and private previews require the owner session; local GitHub preparation remains separate from saving.
+
+### ChatGPT Assistant
+
+The helper extends the existing dark panel, fine left border and flat depth treatment. Its separate typography roles describe the heading, reply text, supporting text and prompt; article scales are unchanged. The prompt uses the page background, fine border, gentle corners (6px) and visible focus. Connection, progress and error messages remain in the panel.
+
+Localhost chat provides Send, Stop, New chat, Reconnect, Copy reply, fenced-block Copy code and Use selection. Credentials stay with the local Codex CLI. Replies disable embedded media to prevent automatic media fetches; article images keep their existing behavior. Browser-stored history and job IDs support reconnection while the local server retains a job. Hosted Assistant instead exposes Copy & open ChatGPT, copying the request and opening a separate window; it sends no local-chat requests and stores no ChatGPT credentials on the server. Attach post text starts unchecked in both environments. Context is included only through explicit attachment or Use selection; clipboard failure exposes selectable text.
+
+Image requests prefer reproducible Python/Pillow scripts that save a PNG. Create image script seeds an empty composer without sending or overwriting text. The author submits, copies and runs the script, then drops the PNG into the article; the helper does not execute code. Open ChatGPT for an image remains an optional subscription image-generation handoff.
 
 ### Navigation
 
-Portfolio navigation remains fixed with monospaced lowercase desktop links and a separate mobile menu at 768px. Blog is the second link, immediately after About, in both. The hero is restored exactly from main, with View Projects and Get in Touch; the header provides blog access from the hero screen. The closed mobile menu is inert and its toggle exposes expansion state; Escape closes it. Blog navigation is compact, in flow, and marks the active destination with an accent underline. Its Editor action is local-only and absent from production. Preserve the keyboard-visible skip link.
+Portfolio navigation remains fixed with monospaced lowercase desktop links and a separate mobile menu at 768px. Blog is the second link, immediately after About, in both. The hero is restored exactly from main, with View Projects and Get in Touch; the header provides blog access from the hero screen. The closed mobile menu is inert and its toggle exposes expansion state; Escape closes it. Blog navigation is compact, in flow, and marks the active destination with an accent underline. Public navigation omits hosted authoring; the owner opens the protected editor route directly. The Editor navigation action remains local-only. Preserve the keyboard-visible skip link.
 
 ### Chips / Status
 

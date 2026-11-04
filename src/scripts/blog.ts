@@ -20,7 +20,9 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   const privateWorkspace = document.querySelector('[data-blog-editor], [data-draft-preview="true"]');
   if (!import.meta.env.DEV && path !== 'posts' && !privateWorkspace) throw new Error('Sign in to the private writing workspace first.');
   const url = !import.meta.env.DEV && path === 'posts' ? '/blog/posts.json' : `/api/blog/${path}`;
-  const response = await fetch(url, body === undefined ? { cache: 'no-store' } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  let response: Response;
+  try { response = await fetch(url, body === undefined ? { cache: 'no-store', signal: AbortSignal.timeout(15_000) } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(15_000) }); }
+  catch { throw new Error('Could not reach the editor. Your unsaved text is kept in this browser. Check your connection and try Save draft again.'); }
   if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('The writing workspace is temporarily unavailable. Please try again.');
   if (response.status === 401) {
     const signIn = document.getElementById('editor-sign-in') as HTMLAnchorElement | null;
@@ -37,7 +39,13 @@ const markdown = new Marked({ gfm: true, breaks: false, renderer: { code({ text,
   const code = hljs.getLanguage(language) ? hljs.highlight(text, { language }).value : escape(text);
   return `<pre><code${language ? ` class="language-${escape(language)}"` : ''}>${code}</code></pre>`;
 } } });
-export function renderMarkdown(content: string) { return DOMPurify.sanitize(markdown.parse(content, { async: false }) as string, { USE_PROFILES: { html: true }, FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'iframe'], FORBID_ATTR: ['style', 'id', 'name'] }); }
+export function renderMarkdown(content: string, { media = true }: { media?: boolean } = {}) {
+  return DOMPurify.sanitize(markdown.parse(content, { async: false }) as string, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'form', 'input', 'button', 'textarea', 'select', 'iframe', ...(!media ? ['img', 'picture', 'source', 'audio', 'video', 'track', 'object', 'embed', 'link', 'meta', 'base'] : [])],
+    FORBID_ATTR: ['style', 'id', 'name', ...(!media ? ['src', 'srcset', 'poster', 'background', 'ping'] : [])],
+  });
+}
 function enhanceCode(root: HTMLElement) {
   root.querySelectorAll('pre').forEach(pre => {
     const button = document.createElement('button');

@@ -36,6 +36,7 @@ assert.ok((await login.text()).includes('editor-password'));
 const editor = await send('/blog/editor', true); const html = await editor.text();
 assert.equal(editor.status, 200); assert.equal(editor.headers.get('cache-control'), 'private, no-store');
 assert.ok(html.includes('data-hosted="true"'));
+for (const id of ['open-preview', 'editor-preview', 'text-style', 'editor-shortcuts', 'editor-find', 'assistant-image-script']) assert.ok(html.includes(`id="${id}"`), `The owner editor must include ${id}.`);
 assert.match(html, /id="publish-post"[^>]*hidden/);
 assert.ok(!html.includes(config.passwordHash) && !html.includes(config.sessionSecret));
 const override = await send('/api/blog/drafts', false, { headers: { 'x-astro-path': '/blog/editor' } });
