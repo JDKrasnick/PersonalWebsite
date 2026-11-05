@@ -8,6 +8,15 @@
         "value": "inter",
         "createdAt": "2026-10-28T18:12:26.015Z",
         "reason": "Agent decision: Inter is the incumbent portfolio typeface in src/styles/global.css. The blog extends that existing identity; the independent design review explicitly accepted its Inter hierarchy. No typography redesign was requested."
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": [
+          "src/layouts/BlogLayout.astro"
+        ],
+        "createdAt": "2026-11-05T05:18:40.065Z",
+        "reason": "Retain Lato among the optional reading fonts the user requested after comparing localhost variants."
       }
     ]
   }

@@ -16,11 +16,35 @@ colors:
   blog-reading-link: "#b8c6ff"
   blog-subtle: "#b4bdcf"
   blog-quiet: "#a0abc2"
+  blog-porcelain: "#fcfcfd"
+  blog-porcelain-ink: "#17243d"
+  blog-porcelain-body: "#374257"
+  blog-porcelain-subtle: "#626e82"
+  blog-porcelain-line: "#dce2eb"
+  blog-porcelain-panel: "#f2f5fa"
+  blog-porcelain-accent: "#435fa6"
+  blog-porcelain-link: "#36599f"
+  blog-soft-navy: "#151c29"
+  blog-soft-navy-ink: "#e9edf5"
+  blog-soft-navy-body: "#cbd2df"
+  blog-soft-navy-subtle: "#a8b4c6"
+  blog-soft-navy-line: "#354156"
+  blog-soft-navy-panel: "#1c2638"
   scrollbar-track: "#080a15"
   scrollbar-thumb: "#65729c"
   scrollbar-thumb-hover: "#91a4e8"
   scrollbar-thumb-active: "#b8c6ff"
 typography:
+  blog-reading-default:
+    fontFamily: "Source Sans 3, Arial, sans-serif"
+    fontSize: "21px"
+    lineHeight: 1.75
+  blog-reading-lato:
+    fontFamily: "Lato, Arial, sans-serif"
+  blog-reading-plex:
+    fontFamily: "IBM Plex Sans, Arial, sans-serif"
+  blog-reading-literata:
+    fontFamily: "Literata, Georgia, serif"
   heading:
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif"
     fontWeight: 600
@@ -211,7 +235,9 @@ Midnight (`bg-primary`) is the shared base. The incumbent secondary and transluc
 
 ## Typography
 
-Inter is the shared heading and body family, including the visual article editor; JetBrains Mono carries the brand, code, and optional Markdown source view. Font stacks and reusable roles are normative in the frontmatter.
+Inter remains the portfolio and blog interface family. The approved blog Appearance control offers Source Sans 3 (default), Lato, IBM Plex Sans, Literata, and original Inter for reading and visual editing. Literata pairs with Source Sans 3 headings. JetBrains Mono carries the brand, code, and Markdown source view. Blog article prose uses 21px desktop/20px mobile at 1.75 line height, titles use 44px desktop/36px mobile, and descriptions use 19px desktop/18px mobile. These reading roles supersede the older article scales recorded below.
+
+The user selected Porcelain (#fcfcfd) with navy ink for light mode and Soft navy (#151c29) with muted light ink for dark mode. Both apply only to the blog, its editor, and private previews. Theme defaults to the system preference; explicit theme and reading-font selections persist locally without modifying article data. The shared desktop document width is 680px within 48px side padding. Reader headers and cover pictures use 38px bottom spacing. The portfolio's dark blue identity remains unchanged.
 
 Portfolio headings inherit semibold typography. The blog index retains its compact medium-weight heading. Article titles, archive titles, and prose subheadings use semibold weight (600). The approved Roomy & familiar article header uses a fluid Inter title and a distinct regular-weight subtitle in brighter body ink, with a maximum subtitle measure of 780px. Reader subtitles display the escaped post excerpt; the editor description shares this scale. Archive titles are 22px, rising to 24px in picture rows; their color and weight establish them as article entry points. Article subheadings descend through 32px, 25px, 20px, and 17px. Reader/editor body paragraphs retain brighter body ink at regular weight (400), 19px, with 1.8 line height.
 

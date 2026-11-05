@@ -3,10 +3,24 @@ import Layout from './Layout.astro';
 import BlogArrow from '../components/BlogArrow.astro';
 import '../styles/blog.css';
 import '../styles/blog-reading.css';
+import '../styles/blog-appearance.css';
 interface Props { title?: string; description?: string; image?: string; editor?: boolean; privatePage?: boolean; }
 const { title = 'Blog', description = 'Technical notes on AI, software, and the experiments behind them.', image, editor = false, privatePage = false } = Astro.props;
 ---
 <Layout title={`${title} | JD Krasnick`} description={description} image={image} noindex={editor || privatePage || import.meta.env.DEV}>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&amp;family=Lato:wght@400;700&amp;family=IBM+Plex+Sans:wght@400;600&amp;family=Literata:opsz,wght@7..72,400;7..72,600&amp;display=swap" />
+    <script is:inline>
+      (() => {
+        let settings = {};
+        try { settings = JSON.parse(localStorage.getItem('blog-appearance') || '{}') || {}; } catch {}
+        const theme = ['light', 'dark'].includes(settings.theme) ? settings.theme : 'system';
+        document.documentElement.dataset.blogTheme = theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme;
+        document.documentElement.dataset.blogThemePreference = theme;
+        document.documentElement.dataset.blogFont = ['source', 'lato', 'plex', 'literata', 'inter'].includes(settings.font) ? settings.font : 'source';
+      })();
+    </script>
+  </Fragment>
   <div class:list={['blog-shell', { 'editor-shell': editor }]}>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="blog-header">
@@ -15,6 +29,16 @@ const { title = 'Blog', description = 'Technical notes on AI, software, and the 
         <a href="/">Portfolio</a>
         <a href="/blog" aria-current={editor ? undefined : 'page'}>Blog</a>
       </nav>
+      <details class="blog-appearance">
+        <summary>Appearance</summary>
+        <div class="appearance-options">
+          <label for="blog-theme">Theme</label>
+          <select id="blog-theme"><option value="system">System</option><option value="light">Light · Porcelain</option><option value="dark">Dark · Soft navy</option></select>
+          <label for="blog-font">Reading font</label>
+          <select id="blog-font"><option value="source">Source Sans 3</option><option value="lato">Lato</option><option value="plex">IBM Plex Sans</option><option value="literata">Literata</option><option value="inter">Inter · Original</option></select>
+          <p>Saved on this browser. Your article text stays the same.</p>
+        </div>
+      </details>
       {import.meta.env.DEV && <a class:list={['button', 'button-quiet', 'editor-entry', { selected: editor }]} href="/blog/editor">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m16 3 5 5L9 20l-6 1 1-6Z"/><path d="m14 5 5 5"/></svg>
         <span>Editor</span>
@@ -26,3 +50,4 @@ const { title = 'Blog', description = 'Technical notes on AI, software, and the 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   </div>
 </Layout>
+<script>import { initBlogAppearance } from '../scripts/blog-appearance'; initBlogAppearance();</script>

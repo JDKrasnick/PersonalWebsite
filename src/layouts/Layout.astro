@@ -84,6 +84,7 @@ const structuredData = {
     <meta name="twitter:image" content={imageUrl} />
     <meta name="twitter:image:alt" content="JD Krasnick — AI Engineer &amp; Researcher" />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <slot name="head" />
   </head>
   <body>
     <slot />

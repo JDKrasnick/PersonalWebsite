@@ -1,0 +1,69 @@
+/* Blog-only reading palettes. Portfolio surfaces keep their existing identity. */
+html[data-blog-theme] { background: var(--blog-background); color-scheme: light; --blog-background: #fcfcfd; }
+html[data-blog-theme="dark"] { color-scheme: dark; --blog-background: #151c29; }
+html[data-blog-theme] .blog-shell {
+  --bg-primary: #fcfcfd; --ink: #17243d; --body-ink: #374257; --subtle: #626e82; --quiet: #626e82;
+  --line: #dce2eb; --panel: #f2f5fa; --accent: #435fa6; --reading-link: #36599f;
+  --text-primary: var(--ink); --text-secondary: var(--subtle); --text-muted: var(--quiet);
+  --reading-font: 'Source Sans 3', Arial, sans-serif; --reading-heading: var(--reading-font);
+  --selection-ink: #fcfcfd; --active-background: #e4ebf8; --active-ink: #2e4d8d;
+  --scrollbar-track: var(--bg-primary); --scrollbar-thumb: #8593ab; --scrollbar-thumb-hover: #637694; --scrollbar-thumb-active: #435fa6;
+}
+html[data-blog-theme="dark"] .blog-shell {
+  --bg-primary: #151c29; --ink: #e9edf5; --body-ink: #cbd2df; --subtle: #a8b4c6; --quiet: #a8b4c6;
+  --line: #354156; --panel: #1c2638; --accent: #a9bdff; --reading-link: #b0c4ff;
+  --selection-ink: #151c29; --active-background: #293854; --active-ink: #d1dcff;
+}
+html[data-blog-theme] { --scrollbar-track: var(--blog-background); --scrollbar-thumb: #8593ab; --scrollbar-thumb-hover: #637694; --scrollbar-thumb-active: #435fa6; }
+html[data-blog-font="lato"] .blog-shell { --reading-font: Lato, Arial, sans-serif; }
+html[data-blog-font="plex"] .blog-shell { --reading-font: 'IBM Plex Sans', Arial, sans-serif; }
+html[data-blog-font="literata"] .blog-shell { --reading-font: Literata, Georgia, serif; --reading-heading: 'Source Sans 3', Arial, sans-serif; }
+html[data-blog-font="inter"] .blog-shell { --reading-font: Inter, Arial, sans-serif; }
+.blog-shell .prose { font-family: var(--reading-font); font-size: 21px; line-height: 1.75; }
+.blog-shell :is(.article-header h1, .article-edit-title, .prose h1, .prose h2, .prose h3, .prose h4) { font-family: var(--reading-heading); }
+.blog-shell .article-header h1, .blog-shell .article-editor .article-edit-title { font-size: 44px !important; line-height: 1.17; letter-spacing: -.025em; }
+html[data-blog-font="lato"] .blog-shell :is(.article-header h1, .article-edit-title) { font-weight: 700; }
+.blog-shell .article-description, .blog-shell .article-editor .article-edit-description { font-family: var(--reading-font); color: var(--subtle); font-size: 19px !important; line-height: 1.65; }
+.blog-shell .reader-wrap, .blog-shell .article-editor { max-width: 776px; }
+.blog-shell .article-header { margin-bottom: 38px; }
+.blog-shell .article-picture { margin-bottom: 38px; }
+.blog-shell .article-picture img { max-height: none; }
+.blog-shell .prose h2 { font-size: 30px; line-height: 1.3; }
+.blog-shell .prose h3 { font-size: 25px; line-height: 1.35; }
+.blog-shell .prose img { max-width: 100%; height: auto; }
+.blog-shell::selection, .blog-shell ::selection { background: var(--accent); color: var(--selection-ink); }
+.blog-shell :is(.button-quiet:hover, .button-quiet.selected, .archive-search-toggle:hover, .archive-search-toggle[aria-expanded=true], .archive-search-toggle.has-filters, .tag-filters button[aria-pressed=true], .history-version:hover, .history-version[aria-selected=true], .format-actions button:hover, .document-modes button:hover, .format-actions button[aria-pressed=true], .document-modes button[aria-pressed=true]) { background: var(--active-background); color: var(--active-ink); border-color: var(--line); }
+.blog-shell .button-primary, .blog-shell .skip-link { color: var(--selection-ink); }
+.blog-shell .button-primary:hover { background: var(--reading-link); color: var(--selection-ink); }
+.blog-shell :is(.prose blockquote, .prose pre, .prose th, .prose code, .copy-code, .comment-form input, .comment-form textarea, .notice, .example-badge, .editor-bar) { background: var(--panel); color: var(--body-ink); border-color: var(--line); }
+.blog-shell .prose pre code { background: transparent; }
+.blog-shell .toast { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+.blog-shell .assistant-icon-button:hover, .blog-shell #open-preview[aria-pressed=true] { background: var(--active-background); color: var(--active-ink); }
+html[data-blog-theme="light"] .blog-shell :is(.inline-error, .assistant-error, .demo-error, .text-button.danger) { color: #a32c47; }
+html[data-blog-theme="light"] .blog-shell .notice.error { background: #fff0f2; color: #a32c47; border-color: #dbb1ba; }
+html[data-blog-theme="light"] .blog-shell :is(.hljs-keyword, .hljs-literal) { color: #6841a2; }
+html[data-blog-theme="light"] .blog-shell :is(.hljs-string, .hljs-attr) { color: #815316; }
+html[data-blog-theme="light"] .blog-shell :is(.hljs-title, .hljs-built_in) { color: #36599f; }
+html[data-blog-theme="light"] .blog-shell .hljs-comment { color: #626e82; }
+html[data-blog-theme="light"] .blog-shell .hljs-number { color: #a32c47; }
+.blog-shell ::placeholder { color: var(--subtle); }
+.blog-shell :is(.brand-slash, .picture-error) { color: var(--subtle); }
+.blog-shell .editor-entry { margin-left: 0; }
+.blog-appearance { position: relative; margin-left: auto; font-size: 13px; }
+.blog-appearance summary { cursor: pointer; padding: 10px 0; color: var(--ink); }
+.blog-appearance summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.appearance-options { position: absolute; z-index: 30; right: 0; top: calc(100% + 10px); width: 250px; max-width: calc(100vw - 48px); padding: 20px; background: var(--bg-primary); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 28px #080b151a; }
+.appearance-options label { display: block; color: var(--ink); margin-bottom: 7px; }
+.appearance-options select { width: 100%; min-height: 40px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin-bottom: 17px; font-size: 14px; }
+.appearance-options p { color: var(--subtle); font-size: 12px; line-height: 1.6; margin: 0; }
+@media (max-width: 650px) {
+  .blog-header { flex-wrap: wrap; height: auto; min-height: 76px; gap: 12px 20px; padding-block: 14px; }
+  .blog-appearance { font-size: 12px; }
+  .blog-shell .prose { font-size: 20px; line-height: 1.75; }
+  .blog-shell .article-header h1, .blog-shell .article-editor .article-edit-title { font-size: 36px !important; }
+  .blog-shell .article-description, .blog-shell .article-editor .article-edit-description { font-size: 18px !important; }
+  .blog-shell .prose h2 { font-size: 27px; }
+  .blog-shell .prose h3 { font-size: 23px; }
+  .blog-shell .editor-entry { margin-left: auto; }
+}
+@media (forced-colors: active) { .appearance-options { border-color: CanvasText; } }
