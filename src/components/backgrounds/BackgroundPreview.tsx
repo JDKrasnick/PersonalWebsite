@@ -36,7 +36,8 @@ function Scene({ variant, paused, mobile, onError }: {
         mouseInteraction={false} clickEffect="none" intro={false} dpr={dpr} paused={paused} />;
     case 'ghost-fibers':
       return <GhostFibers glowColor="#7c91ff" lineColor="#a9beff" secondaryColor="#b5a4e6"
-        speed={0.14} threads={mobile ? 40 : 64} layers={2} grain={0} glow={0.25} brightness={0.9}
+        speed={0.14} threads={80} layers={1} grain={0} glow={0.3} brightness={1.1}
+        spread={1.25} twist={0.75} waves={0.7} foldGlow={0.55} sparkle={0.15} particles={0}
         intro={false} paused={paused} mouseInteraction={!paused} mouseStrength={0.25} pulseOnClick={false} dpr={0.75} maxFps={30} />;
     case 'pixel-blast':
       return <PixelBlast color="#829cff" accentColor="#bba7ed" pixelSize={mobile ? 3 : 3.5}

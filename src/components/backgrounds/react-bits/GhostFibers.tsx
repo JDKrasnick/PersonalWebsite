@@ -261,7 +261,10 @@ void main() {
   float spacingFace = length(nextWorld - world) * focalPx;
   float trail = (length(p1.xy - p0.xy) + 2.0 * baseRadius) / (spacingFace + 2.0 * baseRadius);
   float crowd = sqrt(clamp(stack * trail, 0.002, 1.0));
-  float fold = pow(1.0 - facing, 6.0) * uFold;
+  // Soften the fold highlight only on the right, where overlapping strands
+  // otherwise gather into a pale streak. Keep the rest of the fibers intact.
+  float rightFoldGain = mix(1.0, 0.35, smoothstep(0.58, 0.9, px.x / uViewport.x));
+  float fold = pow(1.0 - facing, 6.0) * uFold * rightFoldGain;
   float endFade = smoothstep(0.5, 0.4, abs(s)) * smoothstep(1.6, 4.2, depth);
   float tipEnd = mix(0.6, 0.06 + 0.26 * hash11(fi * 9.137 + uPlace.w * 3.0), uTips);
   float tip = exp(-pow((s - tipEnd) / 0.0065, 2.0)) * uTips;

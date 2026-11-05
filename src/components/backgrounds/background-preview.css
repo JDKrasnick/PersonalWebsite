@@ -28,8 +28,8 @@
 .background-track--pattern-waves .background-effect { opacity: 0.14; }
 .background-track--gradient-ascii .background-effect { opacity: 0.16; }
 .background-track--ghost-fibers {
-  --ghost-open-opacity: 0.5;
-  --ghost-reading-opacity: 0.24;
+  --ghost-open-opacity: 0.65;
+  --ghost-reading-opacity: 0.65;
 }
 .background-track--ghost-fibers .background-effect { opacity: var(--ghost-reading-opacity); }
 .background-track--particles .background-effect { opacity: 0.72; }
@@ -114,8 +114,8 @@
   .background-track--pixel-blast .background-effect { opacity: 0.11; }
   .background-track--gradient-ascii .background-effect { opacity: 0.12; }
   .background-track--ghost-fibers {
-    --ghost-open-opacity: 0.4;
-    --ghost-reading-opacity: 0.22;
+    --ghost-open-opacity: 0.65;
+    --ghost-reading-opacity: 0.65;
   }
   .background-switcher-label, .background-source { display: none; }
   .background-switcher-row { gap: 4px; }
