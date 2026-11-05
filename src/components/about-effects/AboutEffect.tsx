@@ -114,8 +114,8 @@ export default function AboutEffect({ variant, imageOption = 'neural-loom', show
               rim={0.15} wander={false} clickBurst={!paused} paused={paused} />}
             {variant === 'laser-flow' && flowStarted && <LaserFlow surfaceRef={surface} paused={paused || !visible || hidden}
               surfacePosition={0.86} liquidity={0.9} beamWidth={0.85} intensity={1.2}
-              flare={0.95} spread={0.95} spill={0.65} fog={0.1} dust={0.6} dots={0.6}
-              mouseInteraction={!paused && visible && !hidden} dpr={1} maxFps={30} />}
+              flare={0.95} spread={0.95} spill={0.65} fog={0.1} dust={0.12} dots={0} streaks={0.65}
+              mouseInteraction={!paused && visible && !hidden} dpr={2} maxFps={30} />}
           </Suspense>
         </ArtBoundary>}
         {failed && <p className="about-art-error" role="status">This effect could not start in this browser.</p>}
