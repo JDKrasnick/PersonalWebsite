@@ -35,6 +35,13 @@
   line-height: 1.5;
 }
 
+/* Image captions use the same Markdown convention in Write and Preview. */
+.blog-shell .prose > img + p:has(> em:only-child),
+.blog-shell .prose > p:has(> img:only-child) + p:has(> em:only-child) {
+  font-size: 0.85em;
+  line-height: 1.6;
+}
+
 .blog-shell .prose > :first-child { margin-top: 0; }
 .blog-shell .post-document li > p,
 .blog-shell .post-document td p,
