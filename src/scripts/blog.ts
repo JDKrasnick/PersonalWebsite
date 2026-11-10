@@ -5,9 +5,8 @@ import { mountDemos } from './blog-demos';
 import { preserveArticleSpacing } from '../lib/blog-markdown-spacing';
 
 type Published = { title: string; slug: string; excerpt: string; content: string; tags: string[]; publishedAt: string; icon?: string; image?: string; imageAlt?: string };
-type Post = Published & { id: string; example?: boolean; comments?: number };
+type Post = Published & { id: string; example?: boolean };
 type Draft = Omit<Published, 'publishedAt'> & { id: string; revision: number; createdAt: string; updatedAt: string; published?: Published; prepared?: boolean; example?: boolean };
-type Comment = { id: string; name: string; content: string; createdAt: string };
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const escape = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
 const date = (value: string, short = false) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(short ? {} : { year: 'numeric' }) });
@@ -124,42 +123,6 @@ export async function initReader() {
     $('article').querySelector<HTMLImageElement>('.article-picture img')?.addEventListener('error', event => { (event.target as HTMLImageElement).closest('figure')?.remove(); });
     mountDemos($('article'));
     enhanceCode($('article'));
-    if (draftId) return;
-    $('discussion').hidden = false;
-    let token = '', cursor: string | null = null, comments: Comment[] = [];
-    const commentRequest = async <T>(options?: RequestInit, suffix = ''): Promise<T> => {
-      const response = await fetch(`/api/comments?postId=${encodeURIComponent(post.id)}${suffix}`, options);
-      if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Comments are temporarily unavailable. Please try again later.');
-      const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Could not load comments. Please try again.'); return data;
-    };
-    const loadComments = async (older = false) => {
-      const page = await commentRequest<{ comments: Comment[]; count: number; cursor: string | null; token: string }>(undefined, older && cursor ? `&cursor=${encodeURIComponent(cursor)}` : '');
-      token = page.token; cursor = page.cursor;
-      comments = older ? [...comments, ...page.comments.filter(c => !comments.some(existing => existing.id === c.id))] : page.comments;
-      $('comment-count').textContent = String(page.count);
-      $('comment-list').innerHTML = comments.length ? comments.map(c => `<div class="comment"><div><strong>${escape(c.name)}</strong><time datetime="${escape(c.createdAt)}">${date(c.createdAt)}</time>${import.meta.env.DEV ? `<button type="button" class="text-button comment-remove" data-id="${escape(c.id)}" aria-label="Remove comment by ${escape(c.name)}">Remove</button>` : ''}</div><p>${escape(c.content)}</p></div>`).join('') : '<p class="comment-empty">No comments yet. Start the conversation.</p>';
-      $('load-comments').hidden = !cursor;
-      $('comment-error').hidden = true;
-      $<HTMLButtonElement>('submit-comment').disabled = false;
-      if (import.meta.env.DEV) $('comment-list').querySelectorAll<HTMLButtonElement>('[data-id]').forEach(button => button.addEventListener('click', async () => {
-        if (!confirm('Remove this comment from the discussion?')) return;
-        try { await commentRequest({ method: 'DELETE' }, `&id=${encodeURIComponent(button.dataset.id!)}`); await loadComments(); } catch (error) { showError('comment-error', error); }
-      }));
-    };
-    const commentLoadError = (error: unknown) => { showError('comment-error', error); };
-    try { await loadComments(); } catch (error) { commentLoadError(error); }
-    $('load-comments').addEventListener('click', async () => { const button = $<HTMLButtonElement>('load-comments'); button.disabled = true; try { await loadComments(true); } catch (error) { commentLoadError(error); } finally { button.disabled = false; } });
-    $<HTMLFormElement>('comment-form').addEventListener('submit', async event => {
-      event.preventDefault();
-      const button = $<HTMLButtonElement>('submit-comment');
-      button.disabled = true; button.textContent = 'Posting…'; $('comment-error').hidden = true;
-      try {
-        await commentRequest({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: $<HTMLInputElement>('comment-name').value, content: $<HTMLTextAreaElement>('comment-content').value, website: $<HTMLInputElement>('comment-website').value, token }) });
-        $<HTMLTextAreaElement>('comment-content').value = '';
-        await loadComments(); toast('Comment posted.');
-      } catch (error) { showError('comment-error', error); }
-      finally { button.disabled = false; button.innerHTML = `Post comment ${arrow()}`; }
-    });
   } catch (error) { if (!$('article').dataset.postId) $('article').innerHTML = ''; showError('reader-notice', error); }
 }
 

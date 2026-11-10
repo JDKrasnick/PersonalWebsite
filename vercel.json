@@ -5,7 +5,6 @@
     { "src": "^/blog/post/?$", "dest": "/_render" },
     { "src": "^/blog/(editor|login|logout|preview)/?$", "dest": "/_render" },
     { "src": "^/api/blog(?:/.*)?$", "dest": "/_render" },
-    { "src": "^/api/comments/?$", "dest": "/_render" },
     { "src": "^/api/contributions/?$", "dest": "/_render" },
     { "src": "^/api/github-activity/?$", "dest": "/_render" },
     { "handle": "filesystem" },

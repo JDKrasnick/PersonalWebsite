@@ -90,7 +90,7 @@ export function blogDevPlugin(options = {}) {
     catch (error) {
       if (error.code !== 'ENOENT') throw error;
       const now = new Date().toISOString();
-      return { posts: [{ id: 'example', title: 'What makes a useful technical experiment?', slug: 'a-useful-technical-experiment', excerpt: 'A question worth asking, a comparison you can trust, and a trail someone else can follow.', tags: ['Engineering', 'Research'], content: exampleContent, createdAt: now, updatedAt: now, revision: 1, example: true, published: { title: 'What makes a useful technical experiment?', slug: 'a-useful-technical-experiment', excerpt: 'A question worth asking, a comparison you can trust, and a trail someone else can follow.', tags: ['Engineering', 'Research'], content: exampleContent, publishedAt: now } }], comments: [] };
+      return { posts: [{ id: 'example', title: 'What makes a useful technical experiment?', slug: 'a-useful-technical-experiment', excerpt: 'A question worth asking, a comparison you can trust, and a trail someone else can follow.', tags: ['Engineering', 'Research'], content: exampleContent, createdAt: now, updatedAt: now, revision: 1, example: true, published: { title: 'What makes a useful technical experiment?', slug: 'a-useful-technical-experiment', excerpt: 'A question worth asking, a comparison you can trust, and a trail someone else can follow.', tags: ['Engineering', 'Research'], content: exampleContent, publishedAt: now } }] };
     }
   };
   const load = async () => {
@@ -177,7 +177,7 @@ export function blogDevPlugin(options = {}) {
             }
             await queue;
             const data = await load();
-            if (url.pathname === '/posts') return respond(200, data.posts.filter(p => p.published).map(p => ({ id: p.id, example: p.example, ...p.published, comments: data.comments.filter(c => c.postId === p.id).length })));
+            if (url.pathname === '/posts') return respond(200, data.posts.filter(p => p.published).map(p => ({ id: p.id, example: p.example, ...p.published })));
             if (url.pathname === '/drafts') return respond(200, data.posts);
             throw fail(404, 'Not found.');
           }
@@ -263,7 +263,6 @@ export function blogDevPlugin(options = {}) {
                 await removePublishedPost(post.id, publishedPath);
                 data.posts = data.posts.filter(p => p.id !== post.id);
                 if (data.histories) delete data.histories[post.id];
-                data.comments = data.comments.filter(c => c.postId !== post.id);
                 result = { deleted: true };
               } else {
                 if (url.pathname === '/publish') {

@@ -31,11 +31,9 @@ for (const file of assets.filter(file => file.endsWith('.js'))) {
   for (const privateText of ['BLOG_EDITOR_PASSWORD_HASH', 'BLOG_EDITOR_SESSION_SECRET', 'BLOG_DRAFT_BLOB_TOKEN', 'scrypt$32768$']) assert.ok(!script.includes(privateText), `${privateText} must not ship in public JavaScript.`);
 }
 const generated = JSON.parse(await readFile('.vercel/output/config.json', 'utf8'));
-assert.ok(generated.routes.some(route => route.src?.includes('/api/comments') && route.dest === '_render'), 'The anonymous comments API must be deployed.');
 for (const path of ['/blog/editor', '/blog/login', '/blog/preview', '/blog/logout', '/api/blog/']) assert.ok(generated.routes.some(route => route.src?.includes(path) && route.dest === '_render'), `${path} must use authenticated server rendering.`);
+assert.ok(!generated.routes.some(route => route.src?.includes('/api/comments')), 'Comments API must not be deployed.');
 const custom = JSON.parse(await readFile('vercel.json', 'utf8'));
-const commentRoute = custom.routes.findIndex(route => route.src === '^/api/comments/?$');
-assert.ok(commentRoute >= 0 && commentRoute < custom.routes.findIndex(route => route.src === '/(.*)'), 'Comment API routing must precede the homepage fallback.');
 for (const path of ['/api/contributions', '/api/github-activity']) {
   assert.ok(generated.routes.some(route => route.src === `^${path}/?$` && route.dest === '_render'), `${path} must be in the server build.`);
   const index = custom.routes.findIndex(route => route.src === `^${path}/?$` && route.dest === '/_render');

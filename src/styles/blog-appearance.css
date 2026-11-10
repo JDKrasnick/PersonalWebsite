@@ -35,7 +35,7 @@ html[data-blog-font="lato"] .blog-shell :is(.article-header h1, .article-edit-ti
 .blog-shell :is(.button-quiet:hover, .button-quiet.selected, .archive-search-toggle:hover, .archive-search-toggle[aria-expanded=true], .archive-search-toggle.has-filters, .tag-filters button[aria-pressed=true], .history-version:hover, .history-version[aria-selected=true], .format-actions button:hover, .document-modes button:hover, .format-actions button[aria-pressed=true], .document-modes button[aria-pressed=true]) { background: var(--active-background); color: var(--active-ink); border-color: var(--line); }
 .blog-shell .button-primary, .blog-shell .skip-link { color: var(--selection-ink); }
 .blog-shell .button-primary:hover { background: var(--reading-link); color: var(--selection-ink); }
-.blog-shell :is(.prose blockquote, .prose pre, .prose th, .prose code, .copy-code, .comment-form input, .comment-form textarea, .notice, .example-badge, .editor-bar) { background: var(--panel); color: var(--body-ink); border-color: var(--line); }
+.blog-shell :is(.prose blockquote, .prose pre, .prose th, .prose code, .copy-code, .notice, .example-badge, .editor-bar) { background: var(--panel); color: var(--body-ink); border-color: var(--line); }
 .blog-shell .prose pre code { background: transparent; }
 .blog-shell .toast { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
 .blog-shell .assistant-icon-button:hover, .blog-shell #open-preview[aria-pressed=true] { background: var(--active-background); color: var(--active-ink); }
