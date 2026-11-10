@@ -56,6 +56,29 @@ html[data-blog-theme="light"] .blog-shell .hljs-number { color: #a32c47; }
 .appearance-options label { display: block; color: var(--ink); margin-bottom: 7px; }
 .appearance-options select { width: 100%; min-height: 40px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; margin-bottom: 17px; font-size: 14px; }
 .appearance-options p { color: var(--subtle); font-size: 12px; line-height: 1.6; margin: 0; }
+@supports (appearance: base-select) {
+  .appearance-options select,
+  .appearance-options select::picker(select) { appearance: base-select; }
+  .appearance-options select { align-items: center; gap: 12px; padding: 9px 12px; cursor: pointer; }
+  .appearance-options select:hover,
+  .appearance-options select:open { border-color: var(--accent); }
+  .appearance-options select::picker-icon { color: var(--subtle); }
+  .appearance-options select::picker(select) {
+    background: var(--bg-primary);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 5px;
+    margin-block: 6px;
+    box-shadow: 0 8px 24px #080b1526;
+    font: inherit;
+  }
+  .appearance-options option { min-height: 38px; padding: 8px 10px; gap: 10px; border-radius: 4px; cursor: pointer; }
+  .appearance-options option:hover,
+  .appearance-options option:focus-visible,
+  .appearance-options option:checked { background: var(--active-background); color: var(--active-ink); }
+  .appearance-options option::checkmark { color: var(--accent); }
+}
 @media (max-width: 650px) {
   .blog-header { flex-wrap: wrap; height: auto; min-height: 76px; gap: 12px 20px; padding-block: 14px; }
   .blog-appearance { font-size: 12px; }
