@@ -120,7 +120,7 @@ export async function initReader() {
     }
     document.title = `${post.title || 'Untitled post'} | JD Krasnick`;
     if (post.example && !draftId) { $('reader-notice').innerHTML = import.meta.env.DEV ? 'This is an example article. Try editing it, or create a post of your own in the <a href="/blog/editor">editor</a>.' : 'This is an example article demonstrating the blog format.'; $('reader-notice').hidden = false; }
-    if (draftId || $('article').dataset.postId !== post.id) $('article').innerHTML = `<header class="article-header"><h1>${escape(post.title || 'Untitled post')}</h1>${post.excerpt ? `<p class="article-description">${escape(post.excerpt)}</p>` : ''}<div class="post-meta"><time datetime="${escape(post.publishedAt)}">${date(post.publishedAt)}</time>${exampleBadge(post)}</div></header>${post.image ? `<figure class="article-picture"><img src="${escape(post.image)}" alt="${escape(post.imageAlt || '')}" width="1200" height="675" fetchpriority="high" /></figure>` : ''}<div class="prose">${renderMarkdown(post.content)}</div><div class="article-end"><a href="/blog">${arrow('left')} All writing</a>${import.meta.env.DEV ? `<a href="/blog/editor?id=${encodeURIComponent(post.id)}">${draftId ? 'Continue editing' : 'Edit post'} ${arrow('up-right')}</a>` : ''}</div>`;
+    if (draftId || $('article').dataset.postId !== post.id) $('article').innerHTML = `<header class="article-header"><h1>${escape(post.title || 'Untitled post')}</h1>${post.excerpt ? `<p class="article-description">${escape(post.excerpt)}</p>` : ''}<div class="post-meta"><time datetime="${escape(post.publishedAt)}">${date(post.publishedAt)}</time>${exampleBadge(post)}</div></header>${post.image ? `<figure class="article-picture"><img src="${escape(post.image)}" alt="${escape(post.imageAlt || '')}" width="1200" height="675" fetchpriority="high" /></figure>` : ''}<div class="prose">${renderMarkdown(post.content)}</div><div class="article-end">${import.meta.env.DEV ? `<a href="/blog/editor?id=${encodeURIComponent(post.id)}">${draftId ? 'Continue editing' : 'Edit post'} ${arrow('up-right')}</a>` : ''}</div>`;
     $('article').querySelector<HTMLImageElement>('.article-picture img')?.addEventListener('error', event => { (event.target as HTMLImageElement).closest('figure')?.remove(); });
     mountDemos($('article'));
     enhanceCode($('article'));
@@ -139,16 +139,15 @@ export async function initReader() {
       $('comment-count').textContent = String(page.count);
       $('comment-list').innerHTML = comments.length ? comments.map(c => `<div class="comment"><div><strong>${escape(c.name)}</strong><time datetime="${escape(c.createdAt)}">${date(c.createdAt)}</time>${import.meta.env.DEV ? `<button type="button" class="text-button comment-remove" data-id="${escape(c.id)}" aria-label="Remove comment by ${escape(c.name)}">Remove</button>` : ''}</div><p>${escape(c.content)}</p></div>`).join('') : '<p class="comment-empty">No comments yet. Start the conversation.</p>';
       $('load-comments').hidden = !cursor;
-      $('comment-error').hidden = true; $('retry-comments').hidden = true;
+      $('comment-error').hidden = true;
       $<HTMLButtonElement>('submit-comment').disabled = false;
       if (import.meta.env.DEV) $('comment-list').querySelectorAll<HTMLButtonElement>('[data-id]').forEach(button => button.addEventListener('click', async () => {
         if (!confirm('Remove this comment from the discussion?')) return;
         try { await commentRequest({ method: 'DELETE' }, `&id=${encodeURIComponent(button.dataset.id!)}`); await loadComments(); } catch (error) { showError('comment-error', error); }
       }));
     };
-    const commentLoadError = (error: unknown) => { showError('comment-error', error); $('retry-comments').hidden = false; };
+    const commentLoadError = (error: unknown) => { showError('comment-error', error); };
     try { await loadComments(); } catch (error) { commentLoadError(error); }
-    $('retry-comments').addEventListener('click', () => { void loadComments().catch(commentLoadError); });
     $('load-comments').addEventListener('click', async () => { const button = $<HTMLButtonElement>('load-comments'); button.disabled = true; try { await loadComments(true); } catch (error) { commentLoadError(error); } finally { button.disabled = false; } });
     $<HTMLFormElement>('comment-form').addEventListener('submit', async event => {
       event.preventDefault();
@@ -158,7 +157,7 @@ export async function initReader() {
         await commentRequest({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: $<HTMLInputElement>('comment-name').value, content: $<HTMLTextAreaElement>('comment-content').value, website: $<HTMLInputElement>('comment-website').value, token }) });
         $<HTMLTextAreaElement>('comment-content').value = '';
         await loadComments(); toast('Comment posted.');
-      } catch (error) { showError('comment-error', error); $('retry-comments').hidden = false; }
+      } catch (error) { showError('comment-error', error); }
       finally { button.disabled = false; button.innerHTML = `Post comment ${arrow()}`; }
     });
   } catch (error) { if (!$('article').dataset.postId) $('article').innerHTML = ''; showError('reader-notice', error); }

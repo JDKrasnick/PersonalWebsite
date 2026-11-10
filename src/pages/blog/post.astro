@@ -15,29 +15,25 @@ const structuredData = post ? JSON.stringify({ '@context': 'https://schema.org',
 <BlogLayout title={post?.title ?? 'Article'} description={post?.excerpt || undefined} image={post?.image || undefined} privatePage={draftPreview}>
   {post && <script is:inline type="application/ld+json" set:html={structuredData} />}
   <div class="reader-wrap" data-draft-preview={draftPreview ? 'true' : undefined}>
-    <a class="back-link" href="/blog"><BlogArrow direction="left" /> All writing</a>
     <div id="reader-notice" class="notice" hidden></div>
     <article id="article" data-post-id={post?.id} data-post-slug={post?.slug}>{post ? <>
       <header class="article-header"><h1>{post.title}</h1>{post.excerpt && <p class="article-description">{post.excerpt}</p>}<div class="post-meta"><time datetime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>{post.example && <span class="example-badge">Example article</span>}</div></header>
       {post.image && <figure class="article-picture"><img src={post.image} alt={post.imageAlt || ''} width="1200" height="675" fetchpriority="high" /></figure>}
       <div class="prose" set:html={contentHtml} />
-      <div class="article-end"><a href="/blog"><BlogArrow direction="left" /> All writing</a></div>
     </> : <p class="loading-line">Loading article…</p>}</article>
     <section id="discussion" class="discussion" aria-labelledby="discussion-title" hidden>
-      <div class="discussion-heading"><h2 id="discussion-title">Discussion <span id="comment-count">0</span></h2><span>Keep it thoughtful.</span></div>
+      <div class="discussion-heading"><h2 id="discussion-title">Discussion <span id="comment-count">0</span></h2></div>
       <div id="comment-list" class="comment-list" aria-live="polite"></div>
       <button id="load-comments" class="button button-quiet" hidden>Load older comments</button>
       <form id="comment-form" class="comment-form">
-        <h3>Join the conversation</h3>
         <label for="comment-name">Display name (optional)</label><input id="comment-name" name="name" maxlength="80" autocomplete="nickname" placeholder="Anonymous" />
         <div class="comment-honeypot" aria-hidden="true"><label for="comment-website">Leave this field blank</label><input id="comment-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
         <label for="comment-content">Comment</label><textarea id="comment-content" name="content" required minlength="3" maxlength="4000" rows="4" placeholder="A question, an idea, another perspective…"></textarea>
-        <div class="comment-form-footer"><p>No account needed. Please keep it thoughtful.</p><button id="submit-comment" class="button button-primary" type="submit" disabled>Post comment <BlogArrow /></button></div>
+        <div class="comment-form-footer"><button id="submit-comment" class="button button-primary" type="submit" disabled>Post comment <BlogArrow /></button></div>
         <p id="comment-error" class="inline-error" role="alert" hidden></p>
-        <button id="retry-comments" class="text-button" type="button" hidden>Refresh comments</button>
       </form>
     </section>
-    <noscript><p class="notice">{post ? 'JavaScript enables comments and interactive demos.' : 'Browse published articles from the blog index.'}</p><a href="/blog">All writing</a></noscript>
+    <noscript><p class="notice">{post ? 'JavaScript enables comments and interactive demos.' : 'Browse published articles from the blog index.'}</p></noscript>
   </div>
 </BlogLayout>
 <script>import { initReader } from '../../scripts/blog'; initReader();</script>
