@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
+    { "src": "^/blog/llms-suck-at-computer-use/?$", "status": 308, "headers": { "Location": "/blog/beyond-monolithic-llms-rethinking-computer-use/" } },
     { "src": "^/blog/post/?$", "dest": "/_render" },
     { "src": "^/blog/(editor|login|logout|preview)/?$", "dest": "/_render" },
     { "src": "^/api/blog(?:/.*)?$", "dest": "/_render" },
