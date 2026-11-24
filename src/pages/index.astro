@@ -7,6 +7,8 @@ import About from '../components/About.astro';
 import Divider from '../components/Divider.astro';
 import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
+import BlogTeaser from '../components/BlogTeaser.astro';
+import ContributionSkyline from '../components/ContributionSkyline.astro';
 import Skills from '../components/Skills.astro';
 import Contact from '../components/Contact.astro';
 import BackgroundPreview from '../components/backgrounds/BackgroundPreview';
@@ -35,6 +37,8 @@ const activeAboutEffect = aboutEffect ?? 'laser-flow';
       <Divider variant="periwinkle" />
       <Experience />
       <Projects />
+      <BlogTeaser />
+      <div class="container skyline-container"><ContributionSkyline /></div>
       <Skills />
       <Divider variant="periwinkle-thin" />
       <Contact />
@@ -47,6 +51,10 @@ const activeAboutEffect = aboutEffect ?? 'laser-flow';
     position: relative;
     isolation: isolate;
     background: #080a15;
+  }
+
+  .skyline-container {
+    padding-bottom: 2.5rem;
   }
 </style>
 
