@@ -1,0 +1,108 @@
+---
+import BlogArrow from './BlogArrow.astro';
+import { readPublishedPosts } from '../../scripts/blog-content.mjs';
+
+const [post] = await readPublishedPosts();
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+});
+---
+
+{post && (
+  <section id="writing" class="writing" aria-labelledby="writing-title">
+    <div class="container">
+      <div class="writing-heading">
+        <h2 id="writing-title" class="section-title">Latest from the blog</h2>
+        <a class="archive-link" href="/blog/">All posts <BlogArrow /></a>
+      </div>
+      <article>
+        <a class:list={['story', { 'with-cover': post.image }]} href={`/blog/${post.slug}/`}>
+          <div class="story-copy">
+            <time datetime={post.publishedAt}>{dateFormat.format(new Date(post.publishedAt))}</time>
+            <h3>{post.title}</h3>
+            {post.excerpt && <p>{post.excerpt}</p>}
+            <span class="read-link">Read article <BlogArrow /></span>
+          </div>
+          {post.image && <img class="cover" src={post.image} alt={post.imageAlt || ''} loading="lazy" />}
+        </a>
+      </article>
+    </div>
+  </section>
+)}
+
+<style>
+  .writing {
+    padding-block: clamp(3rem, 6vw, 4.5rem) 0;
+    scroll-margin-top: 4.5rem;
+  }
+
+  .writing-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .5rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .writing-heading h2 { margin: 0; }
+
+  .archive-link, .read-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--accent-hover);
+    font-size: .875rem;
+  }
+
+  .archive-link:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+  .writing a:focus-visible {
+    outline: 2px solid var(--accent-hover);
+    outline-offset: 4px;
+  }
+
+  .story {
+    display: grid;
+    align-items: center;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+  }
+
+  .story:hover { border-color: var(--border-hover); }
+  .story:hover h3 { color: var(--accent-hover); }
+  .with-cover { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cover { display: block; width: 100%; height: auto; border-radius: 8px; }
+
+  time {
+    display: block;
+    margin-bottom: .65rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: .8125rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+    line-height: 1.3;
+    letter-spacing: -.025em;
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 60ch;
+    margin: .55rem 0 0;
+    color: var(--text-secondary);
+  }
+
+  .read-link { margin-top: 1.35rem; }
+
+  @media (max-width: 640px) {
+    .with-cover { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

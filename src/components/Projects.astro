@@ -1,5 +1,4 @@
 ---
-import ContributionSkyline from './ContributionSkyline.astro';
 interface Project {
   title: string;
   description: string;
@@ -7,32 +6,44 @@ interface Project {
   link?: string;
   video?: string;
   demo?: string;
-  latest?: boolean;
   featured: boolean;
 }
 
 const projects: Project[] = [
   {
-    title: "EvalBudget",
-    description: "Adaptive evaluation toolkit for paired model outputs that uses anytime-valid confidence sequences to stop once the evidence is decisive, while preserving raw outputs, grader configuration, and category-level results for auditability.",
-    tags: ["Python", "Sequential Testing", "LLM Evaluation", "Confidence Sequences"],
-    link: "https://github.com/JDKrasnick/evalbudget",
-    latest: true,
+    title: "LLM Queueing Lab",
+    description: "Implemented cache-aware request scheduling in an ONNX Runtime GenAI fork. On held-out L4 traces, mean first-token wait fell 10.5% overall and rose 6.0% for longer prompts.",
+    tags: ["C++", "ONNX Runtime", "KV Cache", "Queueing"],
+    link: "https://github.com/JDKrasnick/llm-queueing-lab",
     featured: true,
   },
   {
     title: "Agent Arena",
-    description: "Adversarial verification harness that ran 20+ PR-defense matches across Claude Code, Codex, and Gemini CLI, promoting only four-run reproducible test attacks and preserving resumable evidence across up to five attack-repair rounds.",
-    tags: ["TypeScript", "Node.js", "Vitest", "Zod", "Git Worktrees", "AI Agents"],
+    description: "Runs coding agents in separate Git worktrees on the same task. Each agent reviews the other patch with executable tests, then repairs its implementation and reruns the checks.",
+    tags: ["TypeScript", "Git Worktrees", "Coding Agents"],
     link: "https://github.com/JDKrasnick/agentarena",
     featured: true,
+  },
+  {
+    title: "EvalBudget",
+    description: "Evaluates two model outputs on the same examples. An anytime-valid confidence sequence lets the evaluation stop early when it has enough evidence for a decision.",
+    tags: ["Python", "Sequential Testing", "LLM Evaluation"],
+    link: "https://github.com/JDKrasnick/evalbudget",
+    featured: true,
+  },
+  {
+    title: "ComputerLM",
+    description: "Research prototype for computer use with a recurrent action model and a concurrent reasoning path. Received $1,000 in compute credits through Modal for Builders to develop and test the architecture.",
+    tags: ["Computer Use", "Recurrent Models", "Asynchronous Inference"],
+    link: "https://github.com/JDKrasnick/computerlm",
+    featured: false,
   },
   {
     title: "Mechanistic Routing",
     description: "Research prototype for budget-aware LLM adaptation, using a counterfactual critic to route among prompt, activation-steering, and LoRA interventions without exhaustively running every candidate.",
     tags: ["Python", "PyTorch", "Transformers", "LoRA", "Activation Steering", "Qwen"],
     link: "https://github.com/JDKrasnick/mechanistic-routing",
-    featured: true,
+    featured: false,
   },
   {
     title: "Alloc",
@@ -48,28 +59,6 @@ const projects: Project[] = [
     demo: "https://ntern.app/",
     featured: false,
   },
-  {
-    title: "Discrete Event Simulator",
-    description: "Interactive queueing-network simulator with a drag-and-drop canvas, WebSocket streaming, pluggable scheduling policies, and Gym-style environments for reinforcement-learning experiments.",
-    tags: ["Python", "FastAPI", "WebSockets", "Reinforcement Learning", "Queueing Theory"],
-    link: "https://github.com/JDKrasnick/DiscreteEventSimulator",
-    featured: false,
-  },
-  {
-    title: "The Workflow Gambit",
-    description: "Controlled nine-person experiment comparing AI-assisted development workflows by having each one build a UCI chess engine from the same specification and scoring the results with a shared evaluation harness.",
-    tags: ["Python", "LLM Workflows", "Evaluation", "Chess Engines", "UCI"],
-    link: "https://github.com/JDKrasnick/Point72Hackathon",
-    featured: false,
-  },
-  {
-    title: "MarketSent",
-    description: "Stock-market sentiment dashboard that tracks ticker mentions, directional sentiment, daily trends, and the source items behind each signal. Its bundled dataset refreshes every six hours.",
-    tags: ["Python", "FinBERT", "Flask", "PostgreSQL", "React", "Recharts"],
-    link: "https://github.com/JDKrasnick/MarketSent",
-    demo: "https://marketsent.jdkrasnick.com/",
-    featured: false,
-  },
 ];
 
 const featuredProjects = projects.filter(p => p.featured);
@@ -80,18 +69,12 @@ const otherProjects = projects.filter(p => !p.featured);
   <div class="container">
     <div class="section-label reveal"><span class="idx">03 /</span> Projects</div>
     <h2 class="section-title reveal reveal-delay-1">Selected Work</h2>
-    <p class="section-subtitle reveal reveal-delay-2">
-      Evaluation systems, adaptive-model research, and production software built around measurable reliability.
-    </p>
 
     <div class="projects-grid">
       {featuredProjects.map((project, i) => (
-        <div class={`project-card ${project.latest ? 'project-card-latest' : ''} reveal reveal-delay-${(i % 4) + 1}`}>
+        <div class={`project-card reveal reveal-delay-${(i % 4) + 1}`}>
           <div class="project-header">
-            <div class="project-index">
-              <span class="project-number">{String(i + 1).padStart(2, '0')}</span>
-              {project.latest && <span class="project-status">Latest</span>}
-            </div>
+            <span class="project-number">{String(i + 1).padStart(2, '0')}</span>
             <div class="project-links">
               {project.video && (
                 <a href={project.video} target="_blank" rel="noopener noreferrer" aria-label="Project video" class="project-link-icon">
@@ -155,7 +138,6 @@ const otherProjects = projects.filter(p => !p.featured);
       ))}
     </div>
   </div>
-  <div class="container"><ContributionSkyline /></div>
 </section>
 
 <style>
@@ -190,13 +172,6 @@ const otherProjects = projects.filter(p => !p.featured);
     transition: all var(--transition-med);
   }
 
-  .project-card-latest {
-    background:
-      radial-gradient(120% 90% at 0% 0%, rgba(124, 145, 255, 0.14), transparent 58%),
-      var(--bg-card);
-    border-color: rgba(157, 172, 255, 0.24);
-  }
-
   .project-card-compact {
     min-height: auto;
   }
@@ -213,25 +188,10 @@ const otherProjects = projects.filter(p => !p.featured);
     align-items: center;
   }
 
-  .project-index {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-  }
-
   .project-number {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--text-muted);
-  }
-
-  .project-status {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    line-height: 1;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent-data);
   }
 
   .project-links {
